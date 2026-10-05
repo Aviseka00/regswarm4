@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- DEV FIXTURE ONLY. Invented text in the eCFR XML shape, used to test the parser,
+     retrieval and verifier. It is NOT a real regulation and is never shipped as corpus. -->
+<ECFR>
+ <DIV5 N="999" TYPE="PART">
+  <HEAD>PART 999 - TEST FIXTURE REGULATIONS (NOT REAL)</HEAD>
+  <DIV6 N="A" TYPE="SUBPART">
+   <DIV8 N="§ 999.10" TYPE="SECTION">
+    <HEAD>§ 999.10 Responsibilities of the fixture unit.</HEAD>
+    <P>(a) The fixture unit shall have the responsibility and authority to approve or reject all fixture components and shall review fixture records to assure that no errors have occurred.</P>
+    <P>(b) Fixture procedures shall be in writing and shall be followed.</P>
+    <CITA TYPE="N">[1 FR 1, Jan. 1, 2000]</CITA>
+   </DIV8>
+   <DIV8 N="§ 999.20" TYPE="SECTION">
+    <HEAD>§ 999.20 Aseptic fixture areas.</HEAD>
+    <P>(a) Fixture areas shall be separate from other areas.</P>
+    <P>(b) Fixture areas shall have the following characteristics:</P>
+    <P>(1) Smooth surfaces that are easily cleanable;</P>
+    <P>(2) A fixture control program that includes:</P>
+    <P>(i) A system for monitoring environmental conditions in the fixture area;</P>
+    <P>(ii) A system for cleaning and disinfecting the fixture area; and</P>
+    <P>(iii) A system for maintaining fixture equipment.</P>
+    <P>(c) Records of monitoring shall be reviewed and any excursion shall be thoroughly investigated.</P>
+    <CITA TYPE="N">[1 FR 1, Jan. 1, 2000]</CITA>
+   </DIV8>
+   <DIV8 N="§ 999.30" TYPE="SECTION">
+    <HEAD>§ 999.30 [Reserved]</HEAD>
+   </DIV8>
+   <DIV8 N="§ 999.40" TYPE="SECTION">
+    <HEAD>§ 999.40 Investigation of discrepancies.</HEAD>
+    <P>Any unexplained discrepancy shall be thoroughly investigated, whether or not the fixture batch has been distributed.</P>
+    <P>(a) The investigation shall extend to other batches.</P>
+    <P>(b) A written record of the investigation shall be made and shall include the conclusions and follow-up.</P>
+   </DIV8>
+  </DIV6>
+ </DIV5>
+</ECFR>

@@ -1,0 +1,2983 @@
+{
+ "site": "DEMO SITE (SYNTHETIC)",
+ "as_of": "2026-07-01",
+ "systems": [
+  {
+   "id": "DMS",
+   "name": "Document Management",
+   "short": "DMS",
+   "kind": "SOPs, STPs, protocols, master BMRs, SMF, policies",
+   "protocol": "REST / SFTP export"
+  },
+  {
+   "id": "MES",
+   "name": "MES batch-record archive",
+   "short": "MES",
+   "kind": "Executed batch records",
+   "protocol": "REST + PDF archive"
+  },
+  {
+   "id": "EQMS",
+   "name": "eQMS",
+   "short": "eQMS",
+   "kind": "Deviations, CAPA, change control, audits",
+   "protocol": "REST API"
+  },
+  {
+   "id": "LIMS",
+   "name": "LIMS",
+   "short": "LIMS",
+   "kind": "EM results, trend reports, media records",
+   "protocol": "DB view (read-only)"
+  },
+  {
+   "id": "LMS",
+   "name": "Training / LMS",
+   "short": "LMS",
+   "kind": "Training matrix and operator qualification",
+   "protocol": "REST API"
+  },
+  {
+   "id": "CMMS",
+   "name": "Validation & Engineering (CMMS)",
+   "short": "CMMS",
+   "kind": "Equipment, HVAC and calibration records",
+   "protocol": "REST API"
+  }
+ ],
+ "group_labels": {
+  "SOP": "SOPs",
+  "STP": "STPs",
+  "Protocol": "Protocols & reports",
+  "Master BMR": "Master BMRs",
+  "Executed BMR": "Executed BMRs",
+  "SMF": "SMF & policies",
+  "Deviation": "Deviations",
+  "CAPA": "CAPAs",
+  "Change control": "Change controls",
+  "Audit": "Audits & complaints",
+  "LIMS data": "EM & LIMS data",
+  "Training": "Training records",
+  "Equipment": "Equipment & HVAC"
+ },
+ "docs": [
+  {
+   "id": "SOP-EM-014",
+   "group": "SOP",
+   "type": "SOP",
+   "system": "DMS",
+   "title": "Environmental Monitoring Program - Aseptic Areas",
+   "version": "6.0",
+   "status": "Effective",
+   "date": "2025-03-01",
+   "owner": "Head of Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "5.3",
+     "text": "Grade A viable monitoring by settle plate (4 hours) and active air is performed at every critical location during each filling operation. Results are recorded in LIMS against the batch."
+    },
+    {
+     "ref": "7.2",
+     "text": "Any Grade A action-limit result shall be investigated to root cause within 10 working days, including review of aseptic interventions, personnel monitoring, equipment and cleaning records, and an assessment of every batch filled in the affected period."
+    },
+    {
+     "ref": "7.4",
+     "text": "Repeated action-limit results at one location within a four week period shall trigger a formal investigation and a QA review of the location, whether or not each individual result was investigated."
+    },
+    {
+     "ref": "9.1",
+     "text": "EM data shall be trended monthly by Microbiology and reviewed by QA; a quarterly trend report shall be approved by the Head of Quality."
+    },
+    {
+     "ref": "9.2",
+     "text": "Monthly environmental monitoring summary reports shall be issued by the 15th day of the following month."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022",
+    "STP-MB-031",
+    "STP-MB-040",
+    "SOP-AS-003"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "SOP-QA-022",
+   "group": "SOP",
+   "type": "SOP",
+   "system": "DMS",
+   "title": "Deviation Management",
+   "version": "9.0",
+   "status": "Effective",
+   "date": "2025-06-15",
+   "owner": "Head of Quality",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "5.4",
+     "text": "Closure of a deviation as 'no product impact' requires documented justification and a QA batch-impact assessment."
+    },
+    {
+     "ref": "6.1",
+     "text": "Root cause shall be determined using a structured method. A deviation shall not be closed with root cause 'Not determined' without Head of Quality approval and a documented risk assessment."
+    }
+   ],
+   "refs": [
+    "SOP-QA-030",
+    "SOP-QA-027"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "SOP-AS-003",
+   "group": "SOP",
+   "type": "SOP",
+   "system": "DMS",
+   "title": "Aseptic Behaviour and Interventions",
+   "version": "4.0",
+   "status": "Effective",
+   "date": "2024-11-01",
+   "owner": "Head of Aseptic Operations",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "6.1",
+     "text": "Interventions in the Grade A zone shall be recorded, and repeated interventions at one location shall be evaluated."
+    },
+    {
+     "ref": "6.3",
+     "text": "Stopper bowl clearance is a critical intervention. Operators must use approved sterile tools and record each stopper bowl intervention with initials and time in the batch record."
+    }
+   ],
+   "refs": [
+    "SOP-GW-002",
+    "SOP-EM-014"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "SOP-GW-002",
+   "group": "SOP",
+   "type": "SOP",
+   "system": "DMS",
+   "title": "Gowning Qualification for Grade A and B Areas",
+   "version": "5.0",
+   "status": "Effective",
+   "date": "2025-02-10",
+   "owner": "Head of Aseptic Operations",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "4.1",
+     "text": "Operators shall be qualified for gowning before entering Grade A or B areas and requalified every 12 months by gowning observation and finger dab monitoring."
+    },
+    {
+     "ref": "4.4",
+     "text": "An operator whose requalification is overdue shall not perform Grade A interventions until requalified."
+    }
+   ],
+   "refs": [
+    "SOP-TR-009"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "SOP-QA-030",
+   "group": "SOP",
+   "type": "SOP",
+   "system": "DMS",
+   "title": "Batch Record Review and Release",
+   "version": "7.0",
+   "status": "Effective",
+   "date": "2025-04-20",
+   "owner": "Head of Quality",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "5.2",
+     "text": "QA reviews the executed batch record, related deviations and environmental monitoring results before batch release. Any EM excursion during the filling period shall be referenced in the batch record."
+    },
+    {
+     "ref": "5.5",
+     "text": "A batch shall not be released while an associated deviation is open or closed without a determined root cause."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "SOP-QA-018",
+   "group": "SOP",
+   "type": "SOP",
+   "system": "DMS",
+   "title": "Change Control",
+   "version": "8.0",
+   "status": "Effective",
+   "date": "2025-05-05",
+   "owner": "Head of Quality Systems",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "4.2",
+     "text": "Every change to equipment, process, procedure or computerised system is assessed for impact on validated state, sterility assurance and regulatory filings before implementation."
+    },
+    {
+     "ref": "4.6",
+     "text": "Changes to critical aseptic equipment require documented consideration of airflow visualisation, media fill (aseptic process simulation) and requalification."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "SOP-TR-009",
+   "group": "SOP",
+   "type": "SOP",
+   "system": "DMS",
+   "title": "Training and Qualification of Aseptic Personnel",
+   "version": "6.0",
+   "status": "Effective",
+   "date": "2025-01-20",
+   "owner": "Head of Aseptic Operations",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "3.2",
+     "text": "Aseptic operators complete initial aseptic technique qualification and annual requalification including a media fill participation."
+    }
+   ],
+   "refs": [
+    "SOP-GW-002"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "SOP-QA-027",
+   "group": "SOP",
+   "type": "SOP",
+   "system": "DMS",
+   "title": "CAPA Management",
+   "version": "6.0",
+   "status": "Effective",
+   "date": "2025-03-30",
+   "owner": "Head of Quality Systems",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "5.1",
+     "text": "Each CAPA has a defined effectiveness check with an owner and a due date. A CAPA is closed only after the effectiveness check is documented."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "SOP-WH-011",
+   "group": "SOP",
+   "type": "SOP",
+   "system": "DMS",
+   "title": "Warehouse Temperature Mapping",
+   "version": "3.0",
+   "status": "Effective",
+   "date": "2024-02-15",
+   "owner": "Operations",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "1",
+     "text": "Temperature mapping of the finished goods warehouse is performed annually and after layout change. Data loggers are placed at defined positions."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "SOP-QC-045",
+   "group": "SOP",
+   "type": "SOP",
+   "system": "DMS",
+   "title": "HPLC System Calibration",
+   "version": "3.0",
+   "status": "Effective",
+   "date": "2024-03-15",
+   "owner": "Operations",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "1",
+     "text": "Calibration of liquid chromatography systems including detector linearity, flow accuracy and injector precision."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "SOP-EN-020",
+   "group": "SOP",
+   "type": "SOP",
+   "system": "DMS",
+   "title": "Compressed Air and Gas Testing",
+   "version": "3.0",
+   "status": "Effective",
+   "date": "2024-04-15",
+   "owner": "Operations",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "1",
+     "text": "Compressed air and process gases are sampled for particulates, oil and microbial content quarterly at each point of use."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "SOP-PU-006",
+   "group": "SOP",
+   "type": "SOP",
+   "system": "DMS",
+   "title": "Purified Water Sampling",
+   "version": "3.0",
+   "status": "Effective",
+   "date": "2024-05-15",
+   "owner": "Operations",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "1",
+     "text": "Purified water loop sampling for conductivity, TOC and bioburden at defined use points."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "SOP-LB-003",
+   "group": "SOP",
+   "type": "SOP",
+   "system": "DMS",
+   "title": "Labelling Operations",
+   "version": "3.0",
+   "status": "Effective",
+   "date": "2024-06-15",
+   "owner": "Operations",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "1",
+     "text": "Line clearance, label reconciliation and label storage for packaging operations."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "SOP-IT-012",
+   "group": "SOP",
+   "type": "SOP",
+   "system": "DMS",
+   "title": "Backup and Restore of GxP Systems",
+   "version": "3.0",
+   "status": "Effective",
+   "date": "2024-07-15",
+   "owner": "Operations",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "1",
+     "text": "Backup schedule, verification and restore testing for validated computerised systems."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "STP-MB-031",
+   "group": "STP",
+   "type": "STP",
+   "system": "DMS",
+   "title": "Settle Plate Environmental Monitoring",
+   "version": "4.0",
+   "status": "Effective",
+   "date": "2025-03-01",
+   "owner": "Head of Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "6",
+     "text": "Expose settle plates at Grade A locations for up to four hours, incubate and count colony forming units. A result at or above the action limit is reported immediately to QA and a deviation is raised."
+    }
+   ],
+   "refs": [
+    "SOP-EM-014"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "STP-MB-033",
+   "group": "STP",
+   "type": "STP",
+   "system": "DMS",
+   "title": "Contact Plate and Glove Print Monitoring",
+   "version": "3.0",
+   "status": "Effective",
+   "date": "2025-03-01",
+   "owner": "Head of Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "6",
+     "text": "Personnel monitoring by glove print and gown contact plate at the end of each aseptic operation; results are trended per operator."
+    }
+   ],
+   "refs": [
+    "SOP-EM-014"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "STP-MB-040",
+   "group": "STP",
+   "type": "STP",
+   "system": "DMS",
+   "title": "Microbial Identification of Environmental Isolates",
+   "version": "5.0",
+   "status": "Effective",
+   "date": "2025-03-01",
+   "owner": "Head of Microbiology",
+   "area": "QC Microbiology",
+   "sections": [
+    {
+     "ref": "5",
+     "text": "Isolates from Grade A and B locations are identified to species level. Human associated flora such as Staphylococcus and Micrococcus indicate a possible personnel or intervention source."
+    }
+   ],
+   "refs": [
+    "SOP-EM-014"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "STP-MB-022",
+   "group": "STP",
+   "type": "STP",
+   "system": "DMS",
+   "title": "Growth Promotion Testing of Culture Media",
+   "version": "3.0",
+   "status": "Effective",
+   "date": "2024-09-01",
+   "owner": "Head of Microbiology",
+   "area": "QC Microbiology",
+   "sections": [
+    {
+     "ref": "4",
+     "text": "Each lot of settle plates is growth promotion tested before use."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "STP-QC-101",
+   "group": "STP",
+   "type": "STP",
+   "system": "DMS",
+   "title": "Bacterial Endotoxins Test",
+   "version": "6.0",
+   "status": "Effective",
+   "date": "2024-06-01",
+   "owner": "Head of QC",
+   "area": "QC Laboratory",
+   "sections": [
+    {
+     "ref": "3",
+     "text": "Gel clot and kinetic chromogenic bacterial endotoxin testing of finished product."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "STP-QC-115",
+   "group": "STP",
+   "type": "STP",
+   "system": "DMS",
+   "title": "Sterility Testing by Membrane Filtration",
+   "version": "7.0",
+   "status": "Effective",
+   "date": "2024-06-01",
+   "owner": "Head of QC",
+   "area": "QC Laboratory",
+   "sections": [
+    {
+     "ref": "4",
+     "text": "Sterility test of finished product by membrane filtration in an isolator, 14 day incubation."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "STP-QC-140",
+   "group": "STP",
+   "type": "STP",
+   "system": "DMS",
+   "title": "Sub-visible Particulate Matter",
+   "version": "4.0",
+   "status": "Effective",
+   "date": "2024-06-01",
+   "owner": "Head of QC",
+   "area": "QC Laboratory",
+   "sections": [
+    {
+     "ref": "3",
+     "text": "Light obscuration test for sub-visible particles in injections."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "PRT-VAL-APS-2026-01",
+   "group": "Protocol",
+   "type": "Protocol",
+   "system": "DMS",
+   "title": "Aseptic Process Simulation Protocol, Line 2",
+   "version": "1.0",
+   "status": "Approved",
+   "date": "2026-01-05",
+   "owner": "Head of Validation",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "3",
+     "text": "Three consecutive media fills simulate the worst-case aseptic filling process including planned and corrective interventions at the stopper bowl and filling needles."
+    }
+   ],
+   "refs": [
+    "SOP-AS-003"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "APS-2026-01",
+   "group": "Protocol",
+   "type": "Report",
+   "system": "DMS",
+   "title": "Aseptic Process Simulation Report, Line 2 (January 2026)",
+   "version": "1.0",
+   "status": "Approved",
+   "date": "2026-01-30",
+   "owner": "Head of Validation",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Result",
+     "text": "3 runs, 0 contaminated units. Line 2 media fill; next due 2026-07."
+    },
+    {
+     "ref": "Scope",
+     "text": "Interventions simulated used the stopper bowl configuration in place in January 2026. The report does not cover later equipment or process changes."
+    }
+   ],
+   "refs": [
+    "PRT-VAL-APS-2026-01"
+   ],
+   "meta": {
+    "date": "2026-01-14"
+   }
+  },
+  {
+   "id": "PRT-VAL-HVAC-2025-07",
+   "group": "Protocol",
+   "type": "Protocol",
+   "system": "DMS",
+   "title": "HVAC and Airflow Visualisation Protocol, Filling Suite 2",
+   "version": "1.0",
+   "status": "Approved",
+   "date": "2025-06-30",
+   "owner": "Head of Validation",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "4",
+     "text": "Airflow visualisation (smoke study) under dynamic conditions over the stopper bowl, needles and conveyor infeed; HEPA integrity and recovery testing."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "RPT-VAL-HVAC-2025-07",
+   "group": "Protocol",
+   "type": "Report",
+   "system": "DMS",
+   "title": "HVAC and Airflow Visualisation Report, Filling Suite 2",
+   "version": "1.0",
+   "status": "Approved",
+   "date": "2025-08-05",
+   "owner": "Head of Validation",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Result",
+     "text": "Unidirectional airflow demonstrated over Grade A critical zones on 2025-07-22 in the configuration at that date. Air handling unit AHU-07 supplies Filling Line 1 and Filling Line 2."
+    }
+   ],
+   "refs": [
+    "PRT-VAL-HVAC-2025-07"
+   ],
+   "meta": {
+    "smoke_study_date": "2025-07-22",
+    "serves": [
+     "FL1",
+     "FL2"
+    ]
+   }
+  },
+  {
+   "id": "PRT-VAL-EQ-STOPPER-2024",
+   "group": "Protocol",
+   "type": "Protocol",
+   "system": "DMS",
+   "title": "Stopper Bowl and Feeder IQ/OQ Protocol, Line 2",
+   "version": "1.0",
+   "status": "Approved",
+   "date": "2024-03-10",
+   "owner": "Head of Validation",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "5",
+     "text": "Installation and operational qualification of the vibratory stopper bowl, feeder rate range, cover and sterilisation of stopper contact parts."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "RPT-VAL-EQ-STOPPER-2024",
+   "group": "Protocol",
+   "type": "Report",
+   "system": "DMS",
+   "title": "Stopper Bowl and Feeder IQ/OQ Report, Line 2",
+   "version": "1.0",
+   "status": "Approved",
+   "date": "2024-05-02",
+   "owner": "Head of Validation",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Result",
+     "text": "Qualified at the validated feeder rate range. Operation outside the qualified range requires change control and requalification."
+    }
+   ],
+   "refs": [
+    "PRT-VAL-EQ-STOPPER-2024"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "PRT-VAL-GOWN-2025",
+   "group": "Protocol",
+   "type": "Protocol",
+   "system": "DMS",
+   "title": "Gowning Qualification Protocol",
+   "version": "1.0",
+   "status": "Approved",
+   "date": "2025-01-25",
+   "owner": "Head of Aseptic Operations",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "4",
+     "text": "Operator gowning observation and finger dab acceptance criteria for Grade A and B entry."
+    }
+   ],
+   "refs": [
+    "SOP-GW-002"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "PRT-CLN-014",
+   "group": "Protocol",
+   "type": "Protocol",
+   "system": "DMS",
+   "title": "Cleaning and Disinfection Efficacy Protocol",
+   "version": "2.0",
+   "status": "Approved",
+   "date": "2024-10-10",
+   "owner": "Head of Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "3",
+     "text": "Disinfectant efficacy on cleanroom surfaces including stainless steel and epoxy."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "PRT-EM-OP-2024",
+   "group": "Protocol",
+   "type": "Protocol",
+   "system": "DMS",
+   "title": "Environmental Monitoring Performance Qualification",
+   "version": "1.0",
+   "status": "Approved",
+   "date": "2024-04-12",
+   "owner": "Head of Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "3",
+     "text": "Sampling locations, alert and action limits and monitoring frequency for the filling suite, justified by risk assessment."
+    }
+   ],
+   "refs": [
+    "SOP-EM-014"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "PRT-VAL-LYO-2023",
+   "group": "Protocol",
+   "type": "Protocol",
+   "system": "DMS",
+   "title": "Lyophiliser Performance Qualification",
+   "version": "1.0",
+   "status": "Approved",
+   "date": "2023-11-05",
+   "owner": "Head of Validation",
+   "area": "Lyophilisation",
+   "sections": [
+    {
+     "ref": "3",
+     "text": "Shelf temperature mapping and sublimation rate study."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "PRT-VAL-WFI-2024",
+   "group": "Protocol",
+   "type": "Protocol",
+   "system": "DMS",
+   "title": "Water for Injection Loop Qualification",
+   "version": "1.0",
+   "status": "Approved",
+   "date": "2024-08-20",
+   "owner": "Head of Validation",
+   "area": "Utilities",
+   "sections": [
+    {
+     "ref": "3",
+     "text": "WFI loop flow, temperature and microbial performance qualification."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "MBR-FL2-VIAL-10ML",
+   "group": "Master BMR",
+   "type": "Master BMR",
+   "system": "DMS",
+   "title": "Master Batch Record, Product A 10 mL vial, Filling Line 2",
+   "version": "11.0",
+   "status": "Effective",
+   "date": "2025-09-01",
+   "owner": "Head of Production",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Interventions",
+     "text": "Record every Grade A intervention including stopper bowl clearance with time and initials. Attach the environmental monitoring summary for the filling period."
+    },
+    {
+     "ref": "QA review",
+     "text": "QA review checklist: deviations referenced, environmental monitoring excursions referenced, operators qualified."
+    }
+   ],
+   "refs": [
+    "SOP-AS-003",
+    "SOP-EM-014",
+    "SOP-QA-030"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "MBR-FL1-VIAL-5ML",
+   "group": "Master BMR",
+   "type": "Master BMR",
+   "system": "DMS",
+   "title": "Master Batch Record, Product B 5 mL vial, Filling Line 1",
+   "version": "8.0",
+   "status": "Effective",
+   "date": "2025-05-01",
+   "owner": "Head of Production",
+   "area": "Filling Suite 1",
+   "sections": [
+    {
+     "ref": "Interventions",
+     "text": "Record Grade A interventions on Filling Line 1."
+    }
+   ],
+   "refs": [
+    "SOP-AS-003"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "MBR-INSP-VIAL",
+   "group": "Master BMR",
+   "type": "Master BMR",
+   "system": "DMS",
+   "title": "Master Batch Record, Visual Inspection",
+   "version": "5.0",
+   "status": "Effective",
+   "date": "2025-02-01",
+   "owner": "Head of Production",
+   "area": "Inspection",
+   "sections": [
+    {
+     "ref": "1",
+     "text": "Manual and automated visual inspection of filled vials."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "SMF-001",
+   "group": "SMF",
+   "type": "Site Master File",
+   "system": "DMS",
+   "title": "Site Master File",
+   "version": "12.0",
+   "status": "Effective",
+   "date": "2026-02-01",
+   "owner": "Site Head",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "Sterile manufacturing",
+     "text": "Filling Suite 2 contains Filling Line 2 for Product A. Grade A filling zone within Grade B background. Filling Line 1 and Line 2 are served by a shared air handling unit AHU-07."
+    },
+    {
+     "ref": "Quality unit",
+     "text": "The quality unit is responsible for approval of procedures, review of investigations and batch release. Head of Quality reports to the Site Head."
+    }
+   ],
+   "refs": [
+    "SOP-QA-030"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "QP-001",
+   "group": "SMF",
+   "type": "Quality policy",
+   "system": "DMS",
+   "title": "Quality Policy",
+   "version": "5.0",
+   "status": "Effective",
+   "date": "2025-01-01",
+   "owner": "Site Head",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "1",
+     "text": "Quality is the responsibility of every employee. Investigations are completed to root cause and drive lasting corrective action."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "QP-003",
+   "group": "SMF",
+   "type": "Quality policy",
+   "system": "DMS",
+   "title": "Contamination Control Strategy",
+   "version": "3.0",
+   "status": "Effective",
+   "date": "2025-08-01",
+   "owner": "Head of Quality",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Personnel",
+     "text": "Personnel are the primary source of contamination in aseptic processing; interventions are minimised and monitored."
+    },
+    {
+     "ref": "Monitoring",
+     "text": "Environmental monitoring trends are reviewed monthly and after any excursion; the strategy is reviewed after changes to critical equipment."
+    }
+   ],
+   "refs": [
+    "SOP-EM-014",
+    "SOP-AS-003"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "QP-004",
+   "group": "SMF",
+   "type": "Quality policy",
+   "system": "DMS",
+   "title": "Aseptic Operations Policy",
+   "version": "2.0",
+   "status": "Effective",
+   "date": "2024-12-01",
+   "owner": "Head of Aseptic Operations",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "1",
+     "text": "Aseptic operations are performed only by qualified personnel using approved procedures."
+    }
+   ],
+   "refs": [
+    "SOP-AS-003"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "QP-007",
+   "group": "SMF",
+   "type": "Quality policy",
+   "system": "DMS",
+   "title": "Data Integrity Policy",
+   "version": "2.0",
+   "status": "Effective",
+   "date": "2025-01-01",
+   "owner": "Head of Quality Systems",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "1",
+     "text": "Records are attributable, legible, contemporaneous, original and accurate."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "EBR-FL2-B26-101",
+   "group": "Executed BMR",
+   "type": "Executed BMR",
+   "system": "MES",
+   "title": "Executed batch record FL2-B26-101",
+   "version": "1.0",
+   "status": "Executed",
+   "date": "2026-04-08",
+   "owner": "Production",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Batch summary",
+     "text": "Executed batch record for batch FL2-B26-101, Filling Line 2, Filling Suite 2. Product A sterile injection 10 mL vial. Filled 2026-04-08. Operators OP-101, OP-102, OP-103."
+    },
+    {
+     "ref": "Interventions",
+     "text": "Grade A interventions recorded in the aseptic filling zone: 2 (stopper bowl clearance and needle changes logged with operator initials)."
+    },
+    {
+     "ref": "QA review",
+     "text": "Batch record reviewed and approved by QA on 2026-04-16. Environmental monitoring reviewed: no excursions referenced. Deviations referenced: none."
+    },
+    {
+     "ref": "Disposition",
+     "text": "Disposition: Distributed."
+    }
+   ],
+   "refs": [
+    "MBR-FL2-VIAL-10ML",
+    "SOP-QA-030"
+   ],
+   "meta": {
+    "batch": "FL2-B26-101",
+    "week": 1,
+    "product": "Product A",
+    "fill_date": "2026-04-08",
+    "operators": [
+     "OP-101",
+     "OP-102",
+     "OP-103"
+    ],
+    "interventions": 2,
+    "em_excursion_referenced": false,
+    "qa_review_date": "2026-04-16",
+    "disposition": "Distributed",
+    "line": "FL2",
+    "excursion_batch": false
+   }
+  },
+  {
+   "id": "EBR-FL2-B26-102",
+   "group": "Executed BMR",
+   "type": "Executed BMR",
+   "system": "MES",
+   "title": "Executed batch record FL2-B26-102",
+   "version": "1.0",
+   "status": "Executed",
+   "date": "2026-04-15",
+   "owner": "Production",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Batch summary",
+     "text": "Executed batch record for batch FL2-B26-102, Filling Line 2, Filling Suite 2. Product A sterile injection 10 mL vial. Filled 2026-04-15. Operators OP-104, OP-102, OP-105."
+    },
+    {
+     "ref": "Interventions",
+     "text": "Grade A interventions recorded in the aseptic filling zone: 7 (stopper bowl clearance and needle changes logged with operator initials)."
+    },
+    {
+     "ref": "QA review",
+     "text": "Batch record reviewed and approved by QA on 2026-04-23. Environmental monitoring reviewed: no excursions referenced. Deviations referenced: none."
+    },
+    {
+     "ref": "Disposition",
+     "text": "Disposition: Distributed."
+    }
+   ],
+   "refs": [
+    "MBR-FL2-VIAL-10ML",
+    "SOP-QA-030"
+   ],
+   "meta": {
+    "batch": "FL2-B26-102",
+    "week": 2,
+    "product": "Product A",
+    "fill_date": "2026-04-15",
+    "operators": [
+     "OP-104",
+     "OP-102",
+     "OP-105"
+    ],
+    "interventions": 7,
+    "em_excursion_referenced": false,
+    "qa_review_date": "2026-04-23",
+    "disposition": "Distributed",
+    "line": "FL2",
+    "excursion_batch": true
+   }
+  },
+  {
+   "id": "EBR-FL2-B26-103",
+   "group": "Executed BMR",
+   "type": "Executed BMR",
+   "system": "MES",
+   "title": "Executed batch record FL2-B26-103",
+   "version": "1.0",
+   "status": "Executed",
+   "date": "2026-04-22",
+   "owner": "Production",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Batch summary",
+     "text": "Executed batch record for batch FL2-B26-103, Filling Line 2, Filling Suite 2. Product A sterile injection 10 mL vial. Filled 2026-04-22. Operators OP-104, OP-101, OP-106."
+    },
+    {
+     "ref": "Interventions",
+     "text": "Grade A interventions recorded in the aseptic filling zone: 6 (stopper bowl clearance and needle changes logged with operator initials)."
+    },
+    {
+     "ref": "QA review",
+     "text": "Batch record reviewed and approved by QA on 2026-04-30. Environmental monitoring reviewed: no excursions referenced. Deviations referenced: none."
+    },
+    {
+     "ref": "Disposition",
+     "text": "Disposition: Distributed."
+    }
+   ],
+   "refs": [
+    "MBR-FL2-VIAL-10ML",
+    "SOP-QA-030"
+   ],
+   "meta": {
+    "batch": "FL2-B26-103",
+    "week": 3,
+    "product": "Product A",
+    "fill_date": "2026-04-22",
+    "operators": [
+     "OP-104",
+     "OP-101",
+     "OP-106"
+    ],
+    "interventions": 6,
+    "em_excursion_referenced": false,
+    "qa_review_date": "2026-04-30",
+    "disposition": "Distributed",
+    "line": "FL2",
+    "excursion_batch": true
+   }
+  },
+  {
+   "id": "EBR-FL2-B26-104",
+   "group": "Executed BMR",
+   "type": "Executed BMR",
+   "system": "MES",
+   "title": "Executed batch record FL2-B26-104",
+   "version": "1.0",
+   "status": "Executed",
+   "date": "2026-04-29",
+   "owner": "Production",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Batch summary",
+     "text": "Executed batch record for batch FL2-B26-104, Filling Line 2, Filling Suite 2. Product A sterile injection 10 mL vial. Filled 2026-04-29. Operators OP-101, OP-103, OP-108."
+    },
+    {
+     "ref": "Interventions",
+     "text": "Grade A interventions recorded in the aseptic filling zone: 2 (stopper bowl clearance and needle changes logged with operator initials)."
+    },
+    {
+     "ref": "QA review",
+     "text": "Batch record reviewed and approved by QA on 2026-05-07. Environmental monitoring reviewed: no excursions referenced. Deviations referenced: none."
+    },
+    {
+     "ref": "Disposition",
+     "text": "Disposition: Distributed."
+    }
+   ],
+   "refs": [
+    "MBR-FL2-VIAL-10ML",
+    "SOP-QA-030"
+   ],
+   "meta": {
+    "batch": "FL2-B26-104",
+    "week": 4,
+    "product": "Product A",
+    "fill_date": "2026-04-29",
+    "operators": [
+     "OP-101",
+     "OP-103",
+     "OP-108"
+    ],
+    "interventions": 2,
+    "em_excursion_referenced": false,
+    "qa_review_date": "2026-05-07",
+    "disposition": "Distributed",
+    "line": "FL2",
+    "excursion_batch": false
+   }
+  },
+  {
+   "id": "EBR-FL2-B26-105",
+   "group": "Executed BMR",
+   "type": "Executed BMR",
+   "system": "MES",
+   "title": "Executed batch record FL2-B26-105",
+   "version": "1.0",
+   "status": "Executed",
+   "date": "2026-05-06",
+   "owner": "Production",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Batch summary",
+     "text": "Executed batch record for batch FL2-B26-105, Filling Line 2, Filling Suite 2. Product A sterile injection 10 mL vial. Filled 2026-05-06. Operators OP-107, OP-102, OP-105."
+    },
+    {
+     "ref": "Interventions",
+     "text": "Grade A interventions recorded in the aseptic filling zone: 3 (stopper bowl clearance and needle changes logged with operator initials)."
+    },
+    {
+     "ref": "QA review",
+     "text": "Batch record reviewed and approved by QA on 2026-05-14. Environmental monitoring reviewed: no excursions referenced. Deviations referenced: none."
+    },
+    {
+     "ref": "Disposition",
+     "text": "Disposition: Distributed."
+    }
+   ],
+   "refs": [
+    "MBR-FL2-VIAL-10ML",
+    "SOP-QA-030"
+   ],
+   "meta": {
+    "batch": "FL2-B26-105",
+    "week": 5,
+    "product": "Product A",
+    "fill_date": "2026-05-06",
+    "operators": [
+     "OP-107",
+     "OP-102",
+     "OP-105"
+    ],
+    "interventions": 3,
+    "em_excursion_referenced": false,
+    "qa_review_date": "2026-05-14",
+    "disposition": "Distributed",
+    "line": "FL2",
+    "excursion_batch": true
+   }
+  },
+  {
+   "id": "EBR-FL2-B26-106",
+   "group": "Executed BMR",
+   "type": "Executed BMR",
+   "system": "MES",
+   "title": "Executed batch record FL2-B26-106",
+   "version": "1.0",
+   "status": "Executed",
+   "date": "2026-05-13",
+   "owner": "Production",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Batch summary",
+     "text": "Executed batch record for batch FL2-B26-106, Filling Line 2, Filling Suite 2. Product A sterile injection 10 mL vial. Filled 2026-05-13. Operators OP-104, OP-107, OP-103."
+    },
+    {
+     "ref": "Interventions",
+     "text": "Grade A interventions recorded in the aseptic filling zone: 8 (stopper bowl clearance and needle changes logged with operator initials)."
+    },
+    {
+     "ref": "QA review",
+     "text": "Batch record reviewed and approved by QA on 2026-05-21. Environmental monitoring reviewed: no excursions referenced. Deviations referenced: none."
+    },
+    {
+     "ref": "Disposition",
+     "text": "Disposition: Distributed."
+    }
+   ],
+   "refs": [
+    "MBR-FL2-VIAL-10ML",
+    "SOP-QA-030"
+   ],
+   "meta": {
+    "batch": "FL2-B26-106",
+    "week": 6,
+    "product": "Product A",
+    "fill_date": "2026-05-13",
+    "operators": [
+     "OP-104",
+     "OP-107",
+     "OP-103"
+    ],
+    "interventions": 8,
+    "em_excursion_referenced": false,
+    "qa_review_date": "2026-05-21",
+    "disposition": "Distributed",
+    "line": "FL2",
+    "excursion_batch": true
+   }
+  },
+  {
+   "id": "EBR-FL2-B26-107",
+   "group": "Executed BMR",
+   "type": "Executed BMR",
+   "system": "MES",
+   "title": "Executed batch record FL2-B26-107",
+   "version": "1.0",
+   "status": "Executed",
+   "date": "2026-05-20",
+   "owner": "Production",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Batch summary",
+     "text": "Executed batch record for batch FL2-B26-107, Filling Line 2, Filling Suite 2. Product A sterile injection 10 mL vial. Filled 2026-05-20. Operators OP-107, OP-101, OP-105."
+    },
+    {
+     "ref": "Interventions",
+     "text": "Grade A interventions recorded in the aseptic filling zone: 6 (stopper bowl clearance and needle changes logged with operator initials)."
+    },
+    {
+     "ref": "QA review",
+     "text": "Batch record reviewed and approved by QA on 2026-05-28. Environmental monitoring reviewed: no excursions referenced. Deviations referenced: none."
+    },
+    {
+     "ref": "Disposition",
+     "text": "Disposition: Distributed."
+    }
+   ],
+   "refs": [
+    "MBR-FL2-VIAL-10ML",
+    "SOP-QA-030"
+   ],
+   "meta": {
+    "batch": "FL2-B26-107",
+    "week": 7,
+    "product": "Product A",
+    "fill_date": "2026-05-20",
+    "operators": [
+     "OP-107",
+     "OP-101",
+     "OP-105"
+    ],
+    "interventions": 6,
+    "em_excursion_referenced": false,
+    "qa_review_date": "2026-05-28",
+    "disposition": "Distributed",
+    "line": "FL2",
+    "excursion_batch": true
+   }
+  },
+  {
+   "id": "EBR-FL2-B26-108",
+   "group": "Executed BMR",
+   "type": "Executed BMR",
+   "system": "MES",
+   "title": "Executed batch record FL2-B26-108",
+   "version": "1.0",
+   "status": "Executed",
+   "date": "2026-05-27",
+   "owner": "Production",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Batch summary",
+     "text": "Executed batch record for batch FL2-B26-108, Filling Line 2, Filling Suite 2. Product A sterile injection 10 mL vial. Filled 2026-05-27. Operators OP-102, OP-106, OP-108."
+    },
+    {
+     "ref": "Interventions",
+     "text": "Grade A interventions recorded in the aseptic filling zone: 2 (stopper bowl clearance and needle changes logged with operator initials)."
+    },
+    {
+     "ref": "QA review",
+     "text": "Batch record reviewed and approved by QA on 2026-06-04. Environmental monitoring reviewed: no excursions referenced. Deviations referenced: none."
+    },
+    {
+     "ref": "Disposition",
+     "text": "Disposition: Distributed."
+    }
+   ],
+   "refs": [
+    "MBR-FL2-VIAL-10ML",
+    "SOP-QA-030"
+   ],
+   "meta": {
+    "batch": "FL2-B26-108",
+    "week": 8,
+    "product": "Product A",
+    "fill_date": "2026-05-27",
+    "operators": [
+     "OP-102",
+     "OP-106",
+     "OP-108"
+    ],
+    "interventions": 2,
+    "em_excursion_referenced": false,
+    "qa_review_date": "2026-06-04",
+    "disposition": "Distributed",
+    "line": "FL2",
+    "excursion_batch": true
+   }
+  },
+  {
+   "id": "EBR-FL2-B26-109",
+   "group": "Executed BMR",
+   "type": "Executed BMR",
+   "system": "MES",
+   "title": "Executed batch record FL2-B26-109",
+   "version": "1.0",
+   "status": "Executed",
+   "date": "2026-06-03",
+   "owner": "Production",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Batch summary",
+     "text": "Executed batch record for batch FL2-B26-109, Filling Line 2, Filling Suite 2. Product A sterile injection 10 mL vial. Filled 2026-06-03. Operators OP-104, OP-103, OP-106."
+    },
+    {
+     "ref": "Interventions",
+     "text": "Grade A interventions recorded in the aseptic filling zone: 9 (stopper bowl clearance and needle changes logged with operator initials)."
+    },
+    {
+     "ref": "QA review",
+     "text": "Batch record reviewed and approved by QA on 2026-06-11. Environmental monitoring reviewed: no excursions referenced. Deviations referenced: none."
+    },
+    {
+     "ref": "Disposition",
+     "text": "Disposition: Distributed."
+    }
+   ],
+   "refs": [
+    "MBR-FL2-VIAL-10ML",
+    "SOP-QA-030"
+   ],
+   "meta": {
+    "batch": "FL2-B26-109",
+    "week": 9,
+    "product": "Product A",
+    "fill_date": "2026-06-03",
+    "operators": [
+     "OP-104",
+     "OP-103",
+     "OP-106"
+    ],
+    "interventions": 9,
+    "em_excursion_referenced": false,
+    "qa_review_date": "2026-06-11",
+    "disposition": "Distributed",
+    "line": "FL2",
+    "excursion_batch": true
+   }
+  },
+  {
+   "id": "EBR-FL2-B26-110",
+   "group": "Executed BMR",
+   "type": "Executed BMR",
+   "system": "MES",
+   "title": "Executed batch record FL2-B26-110",
+   "version": "1.0",
+   "status": "Executed",
+   "date": "2026-06-10",
+   "owner": "Production",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Batch summary",
+     "text": "Executed batch record for batch FL2-B26-110, Filling Line 2, Filling Suite 2. Product A sterile injection 10 mL vial. Filled 2026-06-10. Operators OP-107, OP-104, OP-102."
+    },
+    {
+     "ref": "Interventions",
+     "text": "Grade A interventions recorded in the aseptic filling zone: 10 (stopper bowl clearance and needle changes logged with operator initials)."
+    },
+    {
+     "ref": "QA review",
+     "text": "Batch record reviewed and approved by QA on 2026-06-18. Environmental monitoring reviewed: no excursions referenced. Deviations referenced: none."
+    },
+    {
+     "ref": "Disposition",
+     "text": "Disposition: Distributed."
+    }
+   ],
+   "refs": [
+    "MBR-FL2-VIAL-10ML",
+    "SOP-QA-030"
+   ],
+   "meta": {
+    "batch": "FL2-B26-110",
+    "week": 10,
+    "product": "Product A",
+    "fill_date": "2026-06-10",
+    "operators": [
+     "OP-107",
+     "OP-104",
+     "OP-102"
+    ],
+    "interventions": 10,
+    "em_excursion_referenced": false,
+    "qa_review_date": "2026-06-18",
+    "disposition": "Distributed",
+    "line": "FL2",
+    "excursion_batch": true
+   }
+  },
+  {
+   "id": "EBR-FL2-B26-111",
+   "group": "Executed BMR",
+   "type": "Executed BMR",
+   "system": "MES",
+   "title": "Executed batch record FL2-B26-111",
+   "version": "1.0",
+   "status": "Executed",
+   "date": "2026-06-17",
+   "owner": "Production",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Batch summary",
+     "text": "Executed batch record for batch FL2-B26-111, Filling Line 2, Filling Suite 2. Product A sterile injection 10 mL vial. Filled 2026-06-17. Operators OP-101, OP-105, OP-108."
+    },
+    {
+     "ref": "Interventions",
+     "text": "Grade A interventions recorded in the aseptic filling zone: 2 (stopper bowl clearance and needle changes logged with operator initials)."
+    },
+    {
+     "ref": "QA review",
+     "text": "Batch record reviewed and approved by QA on 2026-06-25. Environmental monitoring reviewed: no excursions referenced. Deviations referenced: none."
+    },
+    {
+     "ref": "Disposition",
+     "text": "Disposition: Distributed."
+    }
+   ],
+   "refs": [
+    "MBR-FL2-VIAL-10ML",
+    "SOP-QA-030"
+   ],
+   "meta": {
+    "batch": "FL2-B26-111",
+    "week": 11,
+    "product": "Product A",
+    "fill_date": "2026-06-17",
+    "operators": [
+     "OP-101",
+     "OP-105",
+     "OP-108"
+    ],
+    "interventions": 2,
+    "em_excursion_referenced": false,
+    "qa_review_date": "2026-06-25",
+    "disposition": "Distributed",
+    "line": "FL2",
+    "excursion_batch": false
+   }
+  },
+  {
+   "id": "EBR-FL2-B26-112",
+   "group": "Executed BMR",
+   "type": "Executed BMR",
+   "system": "MES",
+   "title": "Executed batch record FL2-B26-112",
+   "version": "1.0",
+   "status": "Executed",
+   "date": "2026-06-24",
+   "owner": "Production",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Batch summary",
+     "text": "Executed batch record for batch FL2-B26-112, Filling Line 2, Filling Suite 2. Product A sterile injection 10 mL vial. Filled 2026-06-24. Operators OP-104, OP-107, OP-106."
+    },
+    {
+     "ref": "Interventions",
+     "text": "Grade A interventions recorded in the aseptic filling zone: 7 (stopper bowl clearance and needle changes logged with operator initials)."
+    },
+    {
+     "ref": "QA review",
+     "text": "Batch record reviewed and approved by QA on 2026-07-02. Environmental monitoring reviewed: no excursions referenced. Deviations referenced: none."
+    },
+    {
+     "ref": "Disposition",
+     "text": "Disposition: Released - warehouse."
+    }
+   ],
+   "refs": [
+    "MBR-FL2-VIAL-10ML",
+    "SOP-QA-030"
+   ],
+   "meta": {
+    "batch": "FL2-B26-112",
+    "week": 12,
+    "product": "Product A",
+    "fill_date": "2026-06-24",
+    "operators": [
+     "OP-104",
+     "OP-107",
+     "OP-106"
+    ],
+    "interventions": 7,
+    "em_excursion_referenced": false,
+    "qa_review_date": "2026-07-02",
+    "disposition": "Released - warehouse",
+    "line": "FL2",
+    "excursion_batch": true
+   }
+  },
+  {
+   "id": "EBR-FL1-B26-201",
+   "group": "Executed BMR",
+   "type": "Executed BMR",
+   "system": "MES",
+   "title": "Executed batch record FL1-B26-201",
+   "version": "1.0",
+   "status": "Executed",
+   "date": "2026-04-09",
+   "owner": "Production",
+   "area": "Filling Suite 1",
+   "sections": [
+    {
+     "ref": "Batch summary",
+     "text": "Executed batch record for batch FL1-B26-201, Filling Line 1, Filling Suite 1. Product B sterile injection 5 mL vial. Filled 2026-04-09."
+    },
+    {
+     "ref": "Disposition",
+     "text": "Disposition: Distributed."
+    }
+   ],
+   "refs": [
+    "MBR-FL1-VIAL-5ML"
+   ],
+   "meta": {
+    "batch": "FL1-B26-201",
+    "product": "Product B",
+    "fill_date": "2026-04-09",
+    "line": "FL1",
+    "disposition": "Distributed",
+    "excursion_batch": false
+   }
+  },
+  {
+   "id": "EBR-FL1-B26-202",
+   "group": "Executed BMR",
+   "type": "Executed BMR",
+   "system": "MES",
+   "title": "Executed batch record FL1-B26-202",
+   "version": "1.0",
+   "status": "Executed",
+   "date": "2026-04-30",
+   "owner": "Production",
+   "area": "Filling Suite 1",
+   "sections": [
+    {
+     "ref": "Batch summary",
+     "text": "Executed batch record for batch FL1-B26-202, Filling Line 1, Filling Suite 1. Product B sterile injection 5 mL vial. Filled 2026-04-30."
+    },
+    {
+     "ref": "Disposition",
+     "text": "Disposition: Distributed."
+    }
+   ],
+   "refs": [
+    "MBR-FL1-VIAL-5ML"
+   ],
+   "meta": {
+    "batch": "FL1-B26-202",
+    "product": "Product B",
+    "fill_date": "2026-04-30",
+    "line": "FL1",
+    "disposition": "Distributed",
+    "excursion_batch": false
+   }
+  },
+  {
+   "id": "EBR-FL1-B26-203",
+   "group": "Executed BMR",
+   "type": "Executed BMR",
+   "system": "MES",
+   "title": "Executed batch record FL1-B26-203",
+   "version": "1.0",
+   "status": "Executed",
+   "date": "2026-05-21",
+   "owner": "Production",
+   "area": "Filling Suite 1",
+   "sections": [
+    {
+     "ref": "Batch summary",
+     "text": "Executed batch record for batch FL1-B26-203, Filling Line 1, Filling Suite 1. Product B sterile injection 5 mL vial. Filled 2026-05-21."
+    },
+    {
+     "ref": "Disposition",
+     "text": "Disposition: Distributed."
+    }
+   ],
+   "refs": [
+    "MBR-FL1-VIAL-5ML"
+   ],
+   "meta": {
+    "batch": "FL1-B26-203",
+    "product": "Product B",
+    "fill_date": "2026-05-21",
+    "line": "FL1",
+    "disposition": "Distributed",
+    "excursion_batch": false
+   }
+  },
+  {
+   "id": "DEV-26-0407",
+   "group": "Deviation",
+   "type": "Deviation",
+   "system": "EQMS",
+   "title": "Grade A EM excursion FL2-A1 (EM-0013)",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-04-15",
+   "owner": "Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Description",
+     "text": "Grade A viable result 1 CFU at Stopper bowl, Line 2 on 2026-04-14, batch FL2-B26-102, organism Micrococcus luteus. Action limit exceeded."
+    },
+    {
+     "ref": "Closure",
+     "text": "No product impact - isolated event. Area cleaned and re-sampled with no growth. Root cause: Not determined. Batch impact assessment: not performed. Other batches reviewed: no."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022",
+    "SOP-EM-014"
+   ],
+   "meta": {
+    "root_cause": "Not determined",
+    "batch": "FL2-B26-102",
+    "sample": "EM-0013"
+   }
+  },
+  {
+   "id": "DEV-26-0414",
+   "group": "Deviation",
+   "type": "Deviation",
+   "system": "EQMS",
+   "title": "Grade A EM excursion FL2-A1 (EM-0025)",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-04-22",
+   "owner": "Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Description",
+     "text": "Grade A viable result 1 CFU at Stopper bowl, Line 2 on 2026-04-21, batch FL2-B26-103, organism Staphylococcus epidermidis. Action limit exceeded."
+    },
+    {
+     "ref": "Closure",
+     "text": "No product impact - isolated event. Area cleaned and re-sampled with no growth. Root cause: Not determined. Batch impact assessment: not performed. Other batches reviewed: no."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022",
+    "SOP-EM-014"
+   ],
+   "meta": {
+    "root_cause": "Not determined",
+    "batch": "FL2-B26-103",
+    "sample": "EM-0025"
+   }
+  },
+  {
+   "id": "DEV-26-0421",
+   "group": "Deviation",
+   "type": "Deviation",
+   "system": "EQMS",
+   "title": "Grade A EM excursion FL2-A2 (EM-0051)",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-05-06",
+   "owner": "Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Description",
+     "text": "Grade A viable result 1 CFU at Filling needle 3, Line 2 on 2026-05-05, batch FL2-B26-105, organism Staphylococcus hominis. Action limit exceeded."
+    },
+    {
+     "ref": "Closure",
+     "text": "No product impact - isolated event. Area cleaned and re-sampled with no growth. Root cause: Not determined. Batch impact assessment: not performed. Other batches reviewed: no."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022",
+    "SOP-EM-014"
+   ],
+   "meta": {
+    "root_cause": "Not determined",
+    "batch": "FL2-B26-105",
+    "sample": "EM-0051"
+   }
+  },
+  {
+   "id": "DEV-26-0428",
+   "group": "Deviation",
+   "type": "Deviation",
+   "system": "EQMS",
+   "title": "Grade A EM excursion FL2-A1 (EM-0061)",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-05-13",
+   "owner": "Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Description",
+     "text": "Grade A viable result 2 CFU at Stopper bowl, Line 2 on 2026-05-12, batch FL2-B26-106, organism Staphylococcus epidermidis. Action limit exceeded."
+    },
+    {
+     "ref": "Closure",
+     "text": "No product impact - isolated event. Area cleaned and re-sampled with no growth. Root cause: Not determined. Batch impact assessment: not performed. Other batches reviewed: no."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022",
+    "SOP-EM-014"
+   ],
+   "meta": {
+    "root_cause": "Not determined",
+    "batch": "FL2-B26-106",
+    "sample": "EM-0061"
+   }
+  },
+  {
+   "id": "DEV-26-0435",
+   "group": "Deviation",
+   "type": "Deviation",
+   "system": "EQMS",
+   "title": "Grade A EM excursion FL2-A1 (EM-0073)",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-05-20",
+   "owner": "Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Description",
+     "text": "Grade A viable result 1 CFU at Stopper bowl, Line 2 on 2026-05-19, batch FL2-B26-107, organism Micrococcus luteus. Action limit exceeded."
+    },
+    {
+     "ref": "Closure",
+     "text": "No product impact - isolated event. Area cleaned and re-sampled with no growth. Root cause: Not determined. Batch impact assessment: not performed. Other batches reviewed: no."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022",
+    "SOP-EM-014"
+   ],
+   "meta": {
+    "root_cause": "Not determined",
+    "batch": "FL2-B26-107",
+    "sample": "EM-0073"
+   }
+  },
+  {
+   "id": "DEV-26-0442",
+   "group": "Deviation",
+   "type": "Deviation",
+   "system": "EQMS",
+   "title": "Grade A EM excursion FL2-A3 (EM-0089)",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-05-27",
+   "owner": "Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Description",
+     "text": "Grade A viable result 1 CFU at Conveyor infeed, Line 2 on 2026-05-26, batch FL2-B26-108, organism Bacillus sp.. Action limit exceeded."
+    },
+    {
+     "ref": "Closure",
+     "text": "No product impact - isolated event. Area cleaned and re-sampled with no growth. Root cause: Not determined. Batch impact assessment: not performed. Other batches reviewed: no."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022",
+    "SOP-EM-014"
+   ],
+   "meta": {
+    "root_cause": "Not determined",
+    "batch": "FL2-B26-108",
+    "sample": "EM-0089"
+   }
+  },
+  {
+   "id": "DEV-26-0449",
+   "group": "Deviation",
+   "type": "Deviation",
+   "system": "EQMS",
+   "title": "Grade A EM excursion FL2-A1 (EM-0097)",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-06-03",
+   "owner": "Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Description",
+     "text": "Grade A viable result 2 CFU at Stopper bowl, Line 2 on 2026-06-02, batch FL2-B26-109, organism Staphylococcus epidermidis. Action limit exceeded."
+    },
+    {
+     "ref": "Closure",
+     "text": "No product impact - isolated event. Area cleaned and re-sampled with no growth. Root cause: Not determined. Batch impact assessment: not performed. Other batches reviewed: no."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022",
+    "SOP-EM-014"
+   ],
+   "meta": {
+    "root_cause": "Not determined",
+    "batch": "FL2-B26-109",
+    "sample": "EM-0097"
+   }
+  },
+  {
+   "id": "DEV-26-0456",
+   "group": "Deviation",
+   "type": "Deviation",
+   "system": "EQMS",
+   "title": "Grade A EM excursion FL2-A1 (EM-0109)",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-06-10",
+   "owner": "Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Description",
+     "text": "Grade A viable result 3 CFU at Stopper bowl, Line 2 on 2026-06-09, batch FL2-B26-110, organism Staphylococcus hominis. Action limit exceeded."
+    },
+    {
+     "ref": "Closure",
+     "text": "No product impact - isolated event. Area cleaned and re-sampled with no growth. Root cause: Not determined. Batch impact assessment: not performed. Other batches reviewed: no."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022",
+    "SOP-EM-014"
+   ],
+   "meta": {
+    "root_cause": "Not determined",
+    "batch": "FL2-B26-110",
+    "sample": "EM-0109"
+   }
+  },
+  {
+   "id": "DEV-26-0463",
+   "group": "Deviation",
+   "type": "Deviation",
+   "system": "EQMS",
+   "title": "Grade A EM excursion FL2-A2 (EM-0111)",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-06-10",
+   "owner": "Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Description",
+     "text": "Grade A viable result 1 CFU at Filling needle 3, Line 2 on 2026-06-09, batch FL2-B26-110, organism Staphylococcus epidermidis. Action limit exceeded."
+    },
+    {
+     "ref": "Closure",
+     "text": "No product impact - isolated event. Area cleaned and re-sampled with no growth. Root cause: Not determined. Batch impact assessment: not performed. Other batches reviewed: no."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022",
+    "SOP-EM-014"
+   ],
+   "meta": {
+    "root_cause": "Not determined",
+    "batch": "FL2-B26-110",
+    "sample": "EM-0111"
+   }
+  },
+  {
+   "id": "DEV-26-0470",
+   "group": "Deviation",
+   "type": "Deviation",
+   "system": "EQMS",
+   "title": "Grade A EM excursion FL2-A1 (EM-0133)",
+   "version": "1.0",
+   "status": "Open",
+   "date": "2026-06-24",
+   "owner": "Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Description",
+     "text": "Grade A viable result 2 CFU at Stopper bowl, Line 2 on 2026-06-23, batch FL2-B26-112, organism Staphylococcus epidermidis. Action limit exceeded."
+    },
+    {
+     "ref": "Closure",
+     "text": "Investigation in progress. Root cause: Under investigation. Batch impact assessment: not performed. Other batches reviewed: no."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022",
+    "SOP-EM-014"
+   ],
+   "meta": {
+    "root_cause": "Under investigation",
+    "batch": "FL2-B26-112",
+    "sample": "EM-0133"
+   }
+  },
+  {
+   "id": "DEV-26-0301",
+   "group": "Deviation",
+   "type": "Deviation",
+   "system": "EQMS",
+   "title": "Label misprint on Line 3 packaging",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-03-11",
+   "owner": "Operations",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "Description",
+     "text": "Batch code misprinted on 40 cartons; reprinted under line clearance. Root cause: printer template error."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022"
+   ],
+   "meta": {
+    "root_cause": "Determined"
+   }
+  },
+  {
+   "id": "DEV-26-0309",
+   "group": "Deviation",
+   "type": "Deviation",
+   "system": "EQMS",
+   "title": "Warehouse temperature excursion",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-04-12",
+   "owner": "Operations",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "Description",
+     "text": "Warehouse zone C exceeded 25 C for 3 hours during HVAC fault. Product assessed, no impact."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022"
+   ],
+   "meta": {
+    "root_cause": "Determined"
+   }
+  },
+  {
+   "id": "DEV-26-0322",
+   "group": "Deviation",
+   "type": "Deviation",
+   "system": "EQMS",
+   "title": "HPLC baseline drift",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-05-13",
+   "owner": "Operations",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "Description",
+     "text": "Baseline drift in chromatography system; column replaced."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022"
+   ],
+   "meta": {
+    "root_cause": "Determined"
+   }
+  },
+  {
+   "id": "DEV-26-0333",
+   "group": "Deviation",
+   "type": "Deviation",
+   "system": "EQMS",
+   "title": "Conveyor jam on Line 1 packaging",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-03-14",
+   "owner": "Operations",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "Description",
+     "text": "Conveyor jam cleared; operator retrained."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022"
+   ],
+   "meta": {
+    "root_cause": "Determined"
+   }
+  },
+  {
+   "id": "DEV-26-0345",
+   "group": "Deviation",
+   "type": "Deviation",
+   "system": "EQMS",
+   "title": "Water conductivity alert",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-04-15",
+   "owner": "Operations",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "Description",
+     "text": "Purified water conductivity alert level at use point 4; sanitised."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022"
+   ],
+   "meta": {
+    "root_cause": "Determined"
+   }
+  },
+  {
+   "id": "DEV-26-0358",
+   "group": "Deviation",
+   "type": "Deviation",
+   "system": "EQMS",
+   "title": "Data backup failure",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-05-16",
+   "owner": "Operations",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "Description",
+     "text": "Nightly backup failed once; rerun succeeded."
+    }
+   ],
+   "refs": [
+    "SOP-QA-022"
+   ],
+   "meta": {
+    "root_cause": "Determined"
+   }
+  },
+  {
+   "id": "CAPA-25-019",
+   "group": "CAPA",
+   "type": "CAPA",
+   "system": "EQMS",
+   "title": "Grade A excursions at FL2-A1 (stopper bowl), Q3 2025",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2025-08-12",
+   "owner": "Head of Aseptic Operations",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Actions",
+     "text": "Retrain aseptic operators; replace stopper bowl cover gasket; increase settle plate frequency at FL2-A1 for 8 weeks."
+    },
+    {
+     "ref": "Effectiveness",
+     "text": "Effectiveness check planned January 2026: no Grade A action limit result at FL2-A1 for 90 days. No effectiveness check record found. CAPA closed 2025-10-30."
+    }
+   ],
+   "refs": [
+    "SOP-QA-027",
+    "SOP-AS-003"
+   ],
+   "meta": {
+    "closed": "2025-10-30",
+    "location": "FL2-A1",
+    "effectiveness_verified": false
+   }
+  },
+  {
+   "id": "CAPA-25-031",
+   "group": "CAPA",
+   "type": "CAPA",
+   "system": "EQMS",
+   "title": "Late EM summary reports (internal audit IA-2025-11)",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2025-11-20",
+   "owner": "Head of Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Actions",
+     "text": "Add eQMS reminder for monthly environmental monitoring summary due dates."
+    },
+    {
+     "ref": "Effectiveness",
+     "text": "Reminder implemented; effectiveness not assessed."
+    }
+   ],
+   "refs": [
+    "SOP-EM-014",
+    "SOP-QA-027"
+   ],
+   "meta": {
+    "effectiveness_verified": false
+   }
+  },
+  {
+   "id": "CAPA-26-007",
+   "group": "CAPA",
+   "type": "CAPA",
+   "system": "EQMS",
+   "title": "Warehouse HVAC alarm response",
+   "version": "1.0",
+   "status": "Open",
+   "date": "2026-03-10",
+   "owner": "Facilities",
+   "area": "Warehouse",
+   "sections": [
+    {
+     "ref": "Actions",
+     "text": "Add alarm escalation for warehouse HVAC."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "CAPA-26-011",
+   "group": "CAPA",
+   "type": "CAPA",
+   "system": "EQMS",
+   "title": "Label printer template control",
+   "version": "1.0",
+   "status": "Open",
+   "date": "2026-03-25",
+   "owner": "Operations",
+   "area": "Packaging",
+   "sections": [
+    {
+     "ref": "Actions",
+     "text": "Lock label printer templates."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "CC-26-031",
+   "group": "Change control",
+   "type": "Change control",
+   "system": "EQMS",
+   "title": "Stopper bowl feed rate and cover modification, Filling Line 2",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-04-03",
+   "owner": "Head of Aseptic Operations",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Change",
+     "text": "Increase vibratory feed rate and replace the stopper bowl cover to reduce stopper jams and the number of interventions."
+    },
+    {
+     "ref": "Impact assessment",
+     "text": "No impact on sterility assurance. No requalification required. Aseptic process simulation not repeated. Airflow visualisation not repeated."
+    }
+   ],
+   "refs": [
+    "SOP-QA-018",
+    "PRT-VAL-EQ-STOPPER-2024",
+    "SOP-AS-003"
+   ],
+   "meta": {
+    "effective": "2026-04-03",
+    "requalification_required": false,
+    "aps_repeated": false,
+    "smoke_study_repeated": false,
+    "line": "FL2"
+   }
+  },
+  {
+   "id": "CC-25-102",
+   "group": "Change control",
+   "type": "Change control",
+   "system": "EQMS",
+   "title": "Revision of SOP-EM-014 to version 6.0",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2025-02-12",
+   "owner": "Head of Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Change",
+     "text": "Revise the environmental monitoring SOP: monthly summaries and quarterly trend reports."
+    }
+   ],
+   "refs": [
+    "SOP-EM-014"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "CC-26-012",
+   "group": "Change control",
+   "type": "Change control",
+   "system": "EQMS",
+   "title": "Label template change",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-02-03",
+   "owner": "Engineering",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "Change",
+     "text": "Update label artwork template."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "CC-26-020",
+   "group": "Change control",
+   "type": "Change control",
+   "system": "EQMS",
+   "title": "Backup server replacement",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-03-01",
+   "owner": "Engineering",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "Change",
+     "text": "Replace backup server for GxP systems."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "CC-26-025",
+   "group": "Change control",
+   "type": "Change control",
+   "system": "EQMS",
+   "title": "WFI loop sensor replacement",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-03-18",
+   "owner": "Engineering",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "Change",
+     "text": "Replace conductivity sensors on WFI loop."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "CC-25-097",
+   "group": "Change control",
+   "type": "Change control",
+   "system": "EQMS",
+   "title": "Line 1 conveyor guard modification",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2025-10-05",
+   "owner": "Engineering",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "Change",
+     "text": "Add guard to Line 1 conveyor."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "IA-2025-11",
+   "group": "Audit",
+   "type": "Audit",
+   "system": "EQMS",
+   "title": "Internal audit report, Quality Systems and Microbiology (November 2025)",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2025-11-14",
+   "owner": "Head of Quality",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Finding 3",
+     "text": "Minor: monthly environmental monitoring summary reports for Filling Suite 2 were issued late in three of the last six months; quarterly trend report approval is not tracked."
+    },
+    {
+     "ref": "Finding 5",
+     "text": "Observation: repeated Grade A results at the stopper bowl in Q3 2025 were closed by CAPA-25-019 without an effectiveness check."
+    }
+   ],
+   "refs": [
+    "SOP-EM-014",
+    "CAPA-25-019"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "IA-2026-03",
+   "group": "Audit",
+   "type": "Audit",
+   "system": "EQMS",
+   "title": "Internal audit report, Warehouse and Distribution",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-03-20",
+   "owner": "Head of Quality",
+   "area": "Warehouse",
+   "sections": [
+    {
+     "ref": "Summary",
+     "text": "No critical or major findings."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "CMP-26-004",
+   "group": "Audit",
+   "type": "Complaint",
+   "system": "EQMS",
+   "title": "Customer complaint: cracked vial",
+   "version": "1.0",
+   "status": "Closed",
+   "date": "2026-02-18",
+   "owner": "Quality Assurance",
+   "area": "Site",
+   "sections": [
+    {
+     "ref": "Complaint",
+     "text": "Cracked vial reported from a distributor; investigation concluded transit damage."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "LIMS-EM-FL2",
+   "group": "LIMS data",
+   "type": "EM dataset",
+   "system": "LIMS",
+   "title": "Environmental monitoring results, Filling Suite 2 (12 weeks)",
+   "version": "1.0",
+   "status": "Approved",
+   "date": "2026-06-30",
+   "owner": "Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Summary",
+     "text": "144 samples across Grade A and Grade B locations, settle plates, April to June 2026. Grade A action limit 1 CFU. Organisms identified to species."
+    },
+    {
+     "ref": "Locations",
+     "text": "FL2-A1 stopper bowl; FL2-A2 filling needle 3; FL2-A3 conveyor infeed; FL2-A4 star wheel; Grade B backgrounds."
+    }
+   ],
+   "refs": [
+    "SOP-EM-014",
+    "STP-MB-031"
+   ],
+   "meta": {
+    "csv": "em_data.csv"
+   }
+  },
+  {
+   "id": "TR-2025-Q4",
+   "group": "LIMS data",
+   "type": "Trend report",
+   "system": "LIMS",
+   "title": "Quarterly EM trend report 2025-Q4",
+   "version": "1.0",
+   "status": "Approved 2026-01-19",
+   "date": "2026-01-19",
+   "owner": "Head of Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Conclusion",
+     "text": "Grade A excursions at low frequency; no adverse trend; recommended continued monitoring at FL2-A1."
+    }
+   ],
+   "refs": [
+    "SOP-EM-014"
+   ],
+   "meta": {
+    "period": "2025-Q4"
+   }
+  },
+  {
+   "id": "MSR-2026-01",
+   "group": "LIMS data",
+   "type": "Monthly EM summary",
+   "system": "LIMS",
+   "title": "Monthly EM summary January 2026",
+   "version": "1.0",
+   "status": "Approved",
+   "date": "2026-02-15",
+   "owner": "Head of Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Summary",
+     "text": "Environmental monitoring summary for January 2026, Filling Suite 2: results reviewed by QA, no adverse trend."
+    }
+   ],
+   "refs": [
+    "SOP-EM-014"
+   ],
+   "meta": {
+    "month": "2026-01"
+   }
+  },
+  {
+   "id": "MSR-2026-02",
+   "group": "LIMS data",
+   "type": "Monthly EM summary",
+   "system": "LIMS",
+   "title": "Monthly EM summary February 2026",
+   "version": "1.0",
+   "status": "Approved",
+   "date": "2026-03-16",
+   "owner": "Head of Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Summary",
+     "text": "Environmental monitoring summary for February 2026, Filling Suite 2: results reviewed by QA, no adverse trend."
+    }
+   ],
+   "refs": [
+    "SOP-EM-014"
+   ],
+   "meta": {
+    "month": "2026-02"
+   }
+  },
+  {
+   "id": "MSR-2026-03",
+   "group": "LIMS data",
+   "type": "Monthly EM summary",
+   "system": "LIMS",
+   "title": "Monthly EM summary March 2026",
+   "version": "1.0",
+   "status": "Approved",
+   "date": "2026-04-17",
+   "owner": "Head of Microbiology",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Summary",
+     "text": "Environmental monitoring summary for March 2026, Filling Suite 2: results reviewed by QA, no adverse trend."
+    }
+   ],
+   "refs": [
+    "SOP-EM-014"
+   ],
+   "meta": {
+    "month": "2026-03"
+   }
+  },
+  {
+   "id": "GPT-2026-Q1",
+   "group": "LIMS data",
+   "type": "Media record",
+   "system": "LIMS",
+   "title": "Media growth promotion records Q1 2026",
+   "version": "1.0",
+   "status": "Approved",
+   "date": "2026-03-31",
+   "owner": "Microbiology",
+   "area": "QC Microbiology",
+   "sections": [
+    {
+     "ref": "Result",
+     "text": "All media lots passed growth promotion."
+    }
+   ],
+   "refs": [
+    "STP-MB-022"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "GPT-2026-Q2",
+   "group": "LIMS data",
+   "type": "Media record",
+   "system": "LIMS",
+   "title": "Media growth promotion records Q2 2026",
+   "version": "1.0",
+   "status": "Approved",
+   "date": "2026-06-30",
+   "owner": "Microbiology",
+   "area": "QC Microbiology",
+   "sections": [
+    {
+     "ref": "Result",
+     "text": "All media lots passed growth promotion."
+    }
+   ],
+   "refs": [
+    "STP-MB-022"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "TRN-OP-101",
+   "group": "Training",
+   "type": "Training record",
+   "system": "LMS",
+   "title": "Aseptic qualification record, operator OP-101",
+   "version": "1.0",
+   "status": "Current",
+   "date": "2025-04-01",
+   "owner": "Head of Aseptic Operations",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Qualification",
+     "text": "Operator OP-101: aseptic technique requalification due 2026-11-15. Status as of 2026-07-01: current. Gowning qualification recorded."
+    }
+   ],
+   "refs": [
+    "SOP-TR-009",
+    "SOP-GW-002"
+   ],
+   "meta": {
+    "operator": "OP-101",
+    "requal_due": "2026-11-15",
+    "status": "Current"
+   }
+  },
+  {
+   "id": "TRN-OP-102",
+   "group": "Training",
+   "type": "Training record",
+   "system": "LMS",
+   "title": "Aseptic qualification record, operator OP-102",
+   "version": "1.0",
+   "status": "Current",
+   "date": "2025-04-01",
+   "owner": "Head of Aseptic Operations",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Qualification",
+     "text": "Operator OP-102: aseptic technique requalification due 2026-10-01. Status as of 2026-07-01: current. Gowning qualification recorded."
+    }
+   ],
+   "refs": [
+    "SOP-TR-009",
+    "SOP-GW-002"
+   ],
+   "meta": {
+    "operator": "OP-102",
+    "requal_due": "2026-10-01",
+    "status": "Current"
+   }
+  },
+  {
+   "id": "TRN-OP-103",
+   "group": "Training",
+   "type": "Training record",
+   "system": "LMS",
+   "title": "Aseptic qualification record, operator OP-103",
+   "version": "1.0",
+   "status": "Current",
+   "date": "2025-04-01",
+   "owner": "Head of Aseptic Operations",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Qualification",
+     "text": "Operator OP-103: aseptic technique requalification due 2026-12-05. Status as of 2026-07-01: current. Gowning qualification recorded."
+    }
+   ],
+   "refs": [
+    "SOP-TR-009",
+    "SOP-GW-002"
+   ],
+   "meta": {
+    "operator": "OP-103",
+    "requal_due": "2026-12-05",
+    "status": "Current"
+   }
+  },
+  {
+   "id": "TRN-OP-104",
+   "group": "Training",
+   "type": "Training record",
+   "system": "LMS",
+   "title": "Aseptic qualification record, operator OP-104",
+   "version": "1.0",
+   "status": "Overdue",
+   "date": "2025-04-01",
+   "owner": "Head of Aseptic Operations",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Qualification",
+     "text": "Operator OP-104: aseptic technique requalification due 2026-03-31. Status as of 2026-07-01: OVERDUE. Gowning qualification recorded."
+    }
+   ],
+   "refs": [
+    "SOP-TR-009",
+    "SOP-GW-002"
+   ],
+   "meta": {
+    "operator": "OP-104",
+    "requal_due": "2026-03-31",
+    "status": "Overdue"
+   }
+  },
+  {
+   "id": "TRN-OP-105",
+   "group": "Training",
+   "type": "Training record",
+   "system": "LMS",
+   "title": "Aseptic qualification record, operator OP-105",
+   "version": "1.0",
+   "status": "Current",
+   "date": "2025-04-01",
+   "owner": "Head of Aseptic Operations",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Qualification",
+     "text": "Operator OP-105: aseptic technique requalification due 2027-01-20. Status as of 2026-07-01: current. Gowning qualification recorded."
+    }
+   ],
+   "refs": [
+    "SOP-TR-009",
+    "SOP-GW-002"
+   ],
+   "meta": {
+    "operator": "OP-105",
+    "requal_due": "2027-01-20",
+    "status": "Current"
+   }
+  },
+  {
+   "id": "TRN-OP-106",
+   "group": "Training",
+   "type": "Training record",
+   "system": "LMS",
+   "title": "Aseptic qualification record, operator OP-106",
+   "version": "1.0",
+   "status": "Current",
+   "date": "2025-04-01",
+   "owner": "Head of Aseptic Operations",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Qualification",
+     "text": "Operator OP-106: aseptic technique requalification due 2026-09-10. Status as of 2026-07-01: current. Gowning qualification recorded."
+    }
+   ],
+   "refs": [
+    "SOP-TR-009",
+    "SOP-GW-002"
+   ],
+   "meta": {
+    "operator": "OP-106",
+    "requal_due": "2026-09-10",
+    "status": "Current"
+   }
+  },
+  {
+   "id": "TRN-OP-107",
+   "group": "Training",
+   "type": "Training record",
+   "system": "LMS",
+   "title": "Aseptic qualification record, operator OP-107",
+   "version": "1.0",
+   "status": "Overdue",
+   "date": "2025-04-01",
+   "owner": "Head of Aseptic Operations",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Qualification",
+     "text": "Operator OP-107: aseptic technique requalification due 2026-04-10. Status as of 2026-07-01: OVERDUE. Gowning qualification recorded."
+    }
+   ],
+   "refs": [
+    "SOP-TR-009",
+    "SOP-GW-002"
+   ],
+   "meta": {
+    "operator": "OP-107",
+    "requal_due": "2026-04-10",
+    "status": "Overdue"
+   }
+  },
+  {
+   "id": "TRN-OP-108",
+   "group": "Training",
+   "type": "Training record",
+   "system": "LMS",
+   "title": "Aseptic qualification record, operator OP-108",
+   "version": "1.0",
+   "status": "Current",
+   "date": "2025-04-01",
+   "owner": "Head of Aseptic Operations",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Qualification",
+     "text": "Operator OP-108: aseptic technique requalification due 2026-12-12. Status as of 2026-07-01: current. Gowning qualification recorded."
+    }
+   ],
+   "refs": [
+    "SOP-TR-009",
+    "SOP-GW-002"
+   ],
+   "meta": {
+    "operator": "OP-108",
+    "requal_due": "2026-12-12",
+    "status": "Current"
+   }
+  },
+  {
+   "id": "TM-FL2",
+   "group": "Training",
+   "type": "Training matrix",
+   "system": "LMS",
+   "title": "Training matrix, Filling Suite 2 aseptic operators",
+   "version": "1.0",
+   "status": "Current",
+   "date": "2026-07-01",
+   "owner": "Head of Aseptic Operations",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Summary",
+     "text": "Eight aseptic operators are assigned to Filling Line 2. Two operators have overdue aseptic technique requalification (OP-104, OP-107)."
+    }
+   ],
+   "refs": [
+    "SOP-TR-009"
+   ],
+   "meta": {}
+  },
+  {
+   "id": "EQ-FL2-STOPPER-PM",
+   "group": "Equipment",
+   "type": "Equipment record",
+   "system": "CMMS",
+   "title": "Preventive maintenance record, stopper bowl and feeder, Line 2",
+   "version": "1.0",
+   "status": "Completed",
+   "date": "2026-03-27",
+   "owner": "Engineering",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Work done",
+     "text": "Stopper bowl vibratory feeder serviced and cover gasket replaced. No airflow visualisation performed after maintenance."
+    }
+   ],
+   "refs": [
+    "PRT-VAL-EQ-STOPPER-2024"
+   ],
+   "meta": {
+    "date": "2026-03-27"
+   }
+  },
+  {
+   "id": "EQ-LOG-FL2",
+   "group": "Equipment",
+   "type": "Equipment record",
+   "system": "CMMS",
+   "title": "Equipment logbook, Filling Line 2",
+   "version": "1.0",
+   "status": "Active",
+   "date": "2026-06-30",
+   "owner": "Engineering",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Entries",
+     "text": "Frequent stopper jam entries April to June 2026 at the stopper bowl; operator intervention logged each time."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "CERT-HVAC-FL2-2026",
+   "group": "Equipment",
+   "type": "Certificate",
+   "system": "CMMS",
+   "title": "HEPA integrity and recovery certificate, Filling Suite 2",
+   "version": "1.0",
+   "status": "Current",
+   "date": "2026-01-12",
+   "owner": "Engineering",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Certificate",
+     "text": "HEPA filters serving Filling Suite 2 integrity tested and passed. Air handling unit AHU-07 also serves Filling Line 1."
+    }
+   ],
+   "refs": [
+    "RPT-VAL-HVAC-2025-07"
+   ],
+   "meta": {
+    "serves": [
+     "FL1",
+     "FL2"
+    ]
+   }
+  },
+  {
+   "id": "CAL-FL2-PARTICLE",
+   "group": "Equipment",
+   "type": "Equipment record",
+   "system": "CMMS",
+   "title": "Particle counter calibration, Filling Suite 2",
+   "version": "1.0",
+   "status": "Current",
+   "date": "2026-02-02",
+   "owner": "Engineering",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Result",
+     "text": "Calibrated within tolerance."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "CAL-AIRSAMPLER",
+   "group": "Equipment",
+   "type": "Equipment record",
+   "system": "CMMS",
+   "title": "Active air sampler calibration",
+   "version": "1.0",
+   "status": "Current",
+   "date": "2026-02-02",
+   "owner": "Engineering",
+   "area": "Filling Suite 2",
+   "sections": [
+    {
+     "ref": "Result",
+     "text": "Flow rate verified."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  },
+  {
+   "id": "CERT-HVAC-FL1-2026",
+   "group": "Equipment",
+   "type": "Certificate",
+   "system": "CMMS",
+   "title": "HEPA integrity certificate, Filling Suite 1",
+   "version": "1.0",
+   "status": "Current",
+   "date": "2026-01-12",
+   "owner": "Engineering",
+   "area": "Filling Suite 1",
+   "sections": [
+    {
+     "ref": "Certificate",
+     "text": "HEPA filters serving Filling Suite 1 tested and passed."
+    }
+   ],
+   "refs": [],
+   "meta": {}
+  }
+ ]
+}

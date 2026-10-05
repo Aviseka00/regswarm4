@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+data/*.db*
+data/provider_credentials.*
+*.log
+setup_log.txt
+review-workspace.jpg
+production-workspace.jpg
+.env
+facility-library-verified.jpg
+data/*-check.js
+data/.fuse_hidden*

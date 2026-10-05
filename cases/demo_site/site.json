@@ -1,0 +1,192 @@
+{
+ "site": "DEMO SITE (SYNTHETIC)",
+ "sops": [
+  {
+   "id": "SOP-EM-014",
+   "title": "Environmental Monitoring Program - Aseptic Areas",
+   "version": "6.0",
+   "effective": "2025-03-01",
+   "clauses": [
+    {
+     "ref": "7.2",
+     "text": "Any Grade A action-limit result shall be investigated to root cause within 10 working days, including review of aseptic interventions, personnel monitoring, equipment and cleaning records, and an assessment of every batch filled in the affected period."
+    },
+    {
+     "ref": "9.1",
+     "text": "EM data shall be trended monthly by Microbiology and reviewed by QA; a quarterly trend report shall be approved by the Head of Quality."
+    }
+   ]
+  },
+  {
+   "id": "SOP-QA-022",
+   "title": "Deviation Management",
+   "version": "9.0",
+   "effective": "2025-06-15",
+   "clauses": [
+    {
+     "ref": "5.4",
+     "text": "Closure of a deviation as 'no product impact' requires documented justification and a QA batch-impact assessment."
+    }
+   ]
+  },
+  {
+   "id": "SOP-AS-003",
+   "title": "Aseptic Behaviour and Interventions",
+   "version": "4.0",
+   "effective": "2024-11-01",
+   "clauses": [
+    {
+     "ref": "6.1",
+     "text": "Interventions in the Grade A zone shall be recorded, and repeated interventions at one location shall be evaluated."
+    }
+   ]
+  }
+ ],
+ "trend_register": [
+  {
+   "id": "TR-2025-Q4",
+   "period": "2025-Q4",
+   "status": "Approved 2026-01-19"
+  },
+  {
+   "id": "TR-2026-Q1",
+   "period": "2026-Q1",
+   "status": "Not issued"
+  },
+  {
+   "id": "TR-2026-Q2",
+   "period": "2026-Q2",
+   "status": "Not issued"
+  }
+ ],
+ "aps": [
+  {
+   "id": "APS-2026-01",
+   "date": "2026-01-14",
+   "result": "3 runs, 0 contaminated units",
+   "note": "Line 2 media fill; next due 2026-07"
+  }
+ ],
+ "deviations": [
+  {
+   "id": "DEV-26-0407",
+   "sample_id": "EM-0013",
+   "batch": "FL2-B26-102",
+   "opened": "2026-04-15",
+   "status": "Closed",
+   "closed": "2026-04-17",
+   "root_cause": "Not determined",
+   "batch_impact_assessed": false,
+   "closure_statement": "No product impact - isolated event. Area cleaned and re-sampled with no growth.",
+   "other_batches_reviewed": false
+  },
+  {
+   "id": "DEV-26-0414",
+   "sample_id": "EM-0025",
+   "batch": "FL2-B26-103",
+   "opened": "2026-04-22",
+   "status": "Closed",
+   "closed": "2026-04-25",
+   "root_cause": "Not determined",
+   "batch_impact_assessed": false,
+   "closure_statement": "No product impact - isolated event. Area cleaned and re-sampled with no growth.",
+   "other_batches_reviewed": false
+  },
+  {
+   "id": "DEV-26-0421",
+   "sample_id": "EM-0051",
+   "batch": "FL2-B26-105",
+   "opened": "2026-05-06",
+   "status": "Closed",
+   "closed": "2026-05-08",
+   "root_cause": "Not determined",
+   "batch_impact_assessed": false,
+   "closure_statement": "No product impact - isolated event. Area cleaned and re-sampled with no growth.",
+   "other_batches_reviewed": false
+  },
+  {
+   "id": "DEV-26-0428",
+   "sample_id": "EM-0061",
+   "batch": "FL2-B26-106",
+   "opened": "2026-05-13",
+   "status": "Closed",
+   "closed": "2026-05-16",
+   "root_cause": "Not determined",
+   "batch_impact_assessed": false,
+   "closure_statement": "No product impact - isolated event. Area cleaned and re-sampled with no growth.",
+   "other_batches_reviewed": false
+  },
+  {
+   "id": "DEV-26-0435",
+   "sample_id": "EM-0073",
+   "batch": "FL2-B26-107",
+   "opened": "2026-05-20",
+   "status": "Closed",
+   "closed": "2026-05-22",
+   "root_cause": "Not determined",
+   "batch_impact_assessed": false,
+   "closure_statement": "No product impact - isolated event. Area cleaned and re-sampled with no growth.",
+   "other_batches_reviewed": false
+  },
+  {
+   "id": "DEV-26-0442",
+   "sample_id": "EM-0089",
+   "batch": "FL2-B26-108",
+   "opened": "2026-05-27",
+   "status": "Closed",
+   "closed": "2026-05-30",
+   "root_cause": "Not determined",
+   "batch_impact_assessed": false,
+   "closure_statement": "No product impact - isolated event. Area cleaned and re-sampled with no growth.",
+   "other_batches_reviewed": false
+  },
+  {
+   "id": "DEV-26-0449",
+   "sample_id": "EM-0097",
+   "batch": "FL2-B26-109",
+   "opened": "2026-06-03",
+   "status": "Closed",
+   "closed": "2026-06-05",
+   "root_cause": "Not determined",
+   "batch_impact_assessed": false,
+   "closure_statement": "No product impact - isolated event. Area cleaned and re-sampled with no growth.",
+   "other_batches_reviewed": false
+  },
+  {
+   "id": "DEV-26-0456",
+   "sample_id": "EM-0109",
+   "batch": "FL2-B26-110",
+   "opened": "2026-06-10",
+   "status": "Closed",
+   "closed": "2026-06-13",
+   "root_cause": "Not determined",
+   "batch_impact_assessed": false,
+   "closure_statement": "No product impact - isolated event. Area cleaned and re-sampled with no growth.",
+   "other_batches_reviewed": false
+  },
+  {
+   "id": "DEV-26-0463",
+   "sample_id": "EM-0111",
+   "batch": "FL2-B26-110",
+   "opened": "2026-06-10",
+   "status": "Closed",
+   "closed": "2026-06-12",
+   "root_cause": "Not determined",
+   "batch_impact_assessed": false,
+   "closure_statement": "No product impact - isolated event. Area cleaned and re-sampled with no growth.",
+   "other_batches_reviewed": false
+  },
+  {
+   "id": "DEV-26-0470",
+   "sample_id": "EM-0133",
+   "batch": "FL2-B26-112",
+   "opened": "2026-06-24",
+   "status": "Open",
+   "closed": null,
+   "root_cause": "Under investigation",
+   "batch_impact_assessed": false,
+   "closure_statement": null,
+   "other_batches_reviewed": false
+  }
+ ]
+}
