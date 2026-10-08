@@ -426,8 +426,14 @@ def _impacted(observation, evidence):
         overlap = len(words & _words(f"{record.get('label', '')} {record.get('kind', '')} {passages}"))
         scored.append((overlap, key, record, passages[:400]))
     scored.sort(key=lambda item: (-item[0], item[1]))
-    matched = [item for item in scored if item[0] > 0]
-    return (matched or scored)[:4]
+    picked, seen = [], set()
+    for item in scored:
+        kind = str(item[2].get("kind") or "")
+        if kind in seen:
+            continue
+        picked.append(item)
+        seen.add(kind)
+    return picked[:8]
 
 
 def _routes(text):

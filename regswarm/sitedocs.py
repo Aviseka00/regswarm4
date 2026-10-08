@@ -101,6 +101,34 @@ class Index:
         return out[:k]
 
 
+def ensure_groups(hits, docs, k=20, cap=2):
+    """Keep a spread of matches, and include every stored document class so SOP, STP, and BMR all reach the review."""
+    found = diversify(hits, k=k, cap=cap)
+    seen_docs = {hit["doc_id"] for hit in found}
+    present = {hit["group"] for hit in found}
+    best = {}
+    for hit in hits:
+        best.setdefault(hit["group"], hit)
+    for document in docs:
+        group = document.get("group") or "Record"
+        if group in present or len(found) >= k or document["id"] in seen_docs:
+            continue
+        sample = best.get(group)
+        if sample is None and document.get("sections"):
+            section = document["sections"][0]
+            sample = {"doc_id": document["id"], "title": document["title"], "group": group,
+                      "type": document.get("type") or group, "system": document.get("system") or group,
+                      "version": document.get("version"), "status": document.get("status"), "date": document.get("date"),
+                      "ref": section.get("ref") or "Record", "passage": section.get("text") or "",
+                      "matched": [], "relevance": 1, "why": ["stored source"]}
+        if not sample:
+            continue
+        found.append(dict(sample))
+        seen_docs.add(sample["doc_id"])
+        present.add(group)
+    return found
+
+
 def diversify(hits, k=6, cap=2):
     """Keep at most `cap` documents per document type so ten sibling deviations or twelve batch
     records do not crowd out everything else; note how many similar records were folded in."""

@@ -140,7 +140,7 @@ def execute(run, c, case):
     try:
         for element in elements:
             query = decomposition.get("doc_queries", {}).get(element["id"], element["text"])
-            found = sitedocs.diversify(index.search(query, k=50), k=6, cap=2)
+            found = sitedocs.ensure_groups(index.search(query, k=80), documents, k=24, cap=2)
             hits[element["id"]] = found
             for hit in found:
                 selected.setdefault(hit["doc_id"], []).append({"ref": hit["ref"], "text": hit["passage"]})
