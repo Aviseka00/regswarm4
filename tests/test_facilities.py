@@ -1,8 +1,10 @@
 import base64
+import io
 import os
 import sqlite3
 import tempfile
 import unittest
+import zipfile
 from regswarm import facilities, intake
 
 
@@ -46,6 +48,27 @@ class FacilityLibraryTests(unittest.TestCase):
         with self.assertRaises(ValueError): facilities.case(self.con,self.two,body,'test-user')
         with self.assertRaises(ValueError): self.upload()
 
+    def test_word_table_and_pdf_page_are_read_in_full(self):
+        xml = '''<?xml version="1.0"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>
+<w:p><w:r><w:t>Filling batch record</w:t></w:r></w:p>
+<w:tbl><w:tr>
+<w:tc><w:p><w:r><w:t>Fill-weight</w:t></w:r></w:p></w:tc>
+<w:tc><w:p><w:r><w:t>blank</w:t></w:r></w:p></w:tc>
+<w:tc><w:p><w:r><w:t>9.5-10.5 g</w:t></w:r></w:p></w:tc>
+<w:tc><w:p><w:r><w:t></w:t></w:r></w:p></w:tc>
+</w:tr></w:tbl>
+</w:body></w:document>'''
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, 'w') as archive:
+            archive.writestr('word/document.xml', xml)
+        encoded = base64.b64encode(buffer.getvalue()).decode()
+        text = facilities.extract('batch.docx', encoded)
+        self.assertIn('Fill-weight | blank | 9.5-10.5 g', text)
+        stream = b'BT [(Fill-) 20 (weight) -300 (checks)] TJ T* (were not recorded) Tj ET'
+        self.assertIn('Fill-weight checks', facilities._pdf_content_text(stream))
+        self.assertIn('were not recorded', facilities._pdf_content_text(stream))
+
     def test_doc_and_pdf_text_round_trip(self):
         doc = base64.b64encode(facilities.build_doc('Cleaning', ['Residue acceptance limits apply.'])).decode()
         pdf = base64.b64encode(facilities.build_pdf('Cleaning', ['Residue acceptance limits apply.'])).decode()
@@ -78,7 +101,7 @@ class FacilityLibraryTests(unittest.TestCase):
         filling = facilities.create(self.con, {'plant_id': plant, 'name': 'Filling'}, 'test-admin')
         compression = facilities.create(self.con, {'plant_id': other, 'name': 'Compression'}, 'test-admin')
         filling_class = facilities.library(self.con, filling)['classes'][0]['id']
-        compression_class = facilities.library(self.con, compression)['classes'][0]['id']
+        compression_class = facilities.library(self.con, compression)['classes'][2]['id']
         facilities.upload(self.con, filling, {'class_id': filling_class, 'document': {'id': 'SOP-FILL', 'title': 'Line clearance', 'version': '1', 'date': '2026-10-01', 'status': 'Approved', 'source': 'DMS'}, 'filename': 'fill.txt', 'file': base64.b64encode(b'Retained labels are checked at line clearance.').decode()}, 'test-admin')
         facilities.upload(self.con, compression, {'class_id': compression_class, 'document': {'id': 'BMR-COMP', 'title': 'Compression record', 'version': '1', 'date': '2026-10-01', 'status': 'Approved', 'source': 'DMS'}, 'filename': 'comp.txt', 'file': base64.b64encode(b'The yield and reviewer signature are recorded.').decode()}, 'test-admin')
         case, _ = facilities.audit_queries(self.con, filling, {'queries': ['Retained labels were found at line clearance.']}, 'test-user')
@@ -99,3 +122,39 @@ class FacilityLibraryTests(unittest.TestCase):
             facilities.batch_items({'items': []})
         with self.assertRaises(ValueError):
             facilities.batch_items({'items': [{'facility_id': 'FAC-a', 'query': '   '}]})
+        several = facilities.batch_items({'items': [{'facility_ids': ['FAC-a', 'FAC-b', 'FAC-a'], 'query': 'The incubator qualification was incomplete.'}]})
+        self.assertEqual(several[0]['facility_ids'], ['FAC-a', 'FAC-b'])
+        self.assertEqual(several[0]['facility_id'], 'FAC-a')
+
+    def test_saved_query_number_and_selected_facilities(self):
+        plant = facilities.create_plant(self.con, {'name': 'Northbridge Plant'}, 'test-admin')
+        other = facilities.create_plant(self.con, {'name': 'Southbridge Plant'}, 'test-admin')
+        filling = facilities.create(self.con, {'plant_id': plant, 'name': 'Filling'}, 'test-admin')
+        compression = facilities.create(self.con, {'plant_id': other, 'name': 'Compression'}, 'test-admin')
+        packing = facilities.create(self.con, {'plant_id': other, 'name': 'Packing'}, 'test-admin')
+        fill_class = facilities.library(self.con, filling)['classes'][0]['id']
+        comp_class = facilities.library(self.con, compression)['classes'][2]['id']
+        pack_class = facilities.library(self.con, packing)['classes'][0]['id']
+        facilities.upload(self.con, filling, {'class_id': fill_class, 'document': {'id': 'SOP-FILL', 'title': 'Line clearance', 'version': '1', 'date': '2026-10-01', 'status': 'Approved', 'source': 'DMS'}, 'filename': 'fill.txt', 'file': base64.b64encode(b'Retained labels are checked at line clearance.').decode()}, 'test-admin')
+        facilities.upload(self.con, compression, {'class_id': comp_class, 'document': {'id': 'BMR-COMP', 'title': 'Compression record', 'version': '1', 'date': '2026-10-01', 'status': 'Approved', 'source': 'DMS'}, 'filename': 'comp.txt', 'file': base64.b64encode(b'The yield and reviewer signature are recorded.').decode()}, 'test-admin')
+        facilities.upload(self.con, packing, {'class_id': pack_class, 'document': {'id': 'SOP-PACK', 'title': 'Packing line', 'version': '1', 'date': '2026-10-01', 'status': 'Approved', 'source': 'DMS'}, 'filename': 'pack.txt', 'file': base64.b64encode(b'Packing checks are recorded.').decode()}, 'test-admin')
+        saved = facilities.save_query_set(self.con, {'items': [
+            {'facility_ids': [filling, compression], 'query': 'Retained labels were found at line clearance.', 'product_class': 'Vaccine'},
+            {'facility_id': filling, 'query': 'Fill-weight checks were not recorded.', 'product_class': 'Vaccine'},
+        ]}, 'test-user')
+        self.assertEqual(saved['number'], 'QRY-0001')
+        self.assertEqual(saved['count'], 2)
+        again = facilities.save_query_set(self.con, {'items': [{'facility_id': filling, 'query': 'Cleaning residue was not recorded.'}]}, 'test-user')
+        self.assertEqual(again['number'], 'QRY-0002')
+        loaded = facilities.load_query_set(self.con, 'QRY-0001')
+        self.assertEqual(loaded['items'][0]['facility_ids'], [filling, compression])
+        self.assertTrue(loaded['items'][0]['title'].startswith('QRY-0001'))
+        listed = facilities.list_query_sets(self.con)
+        self.assertEqual([item['number'] for item in listed], ['QRY-0002', 'QRY-0001'])
+        case, _ = facilities.audit_queries(self.con, filling, loaded['items'][0], 'test-user')
+        found = {doc['id'] for doc in case['documents']}
+        self.assertIn('SOP-FILL', found)
+        self.assertIn('BMR-COMP', found)
+        self.assertNotIn('SOP-PACK', found)
+        self.assertIn('Filling', case['site_name'])
+        self.assertIn('Compression', case['site_name'])

@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS facility_documents(id TEXT PRIMARY KEY, facility_id T
 CREATE TABLE IF NOT EXISTS facility_passages(id INTEGER PRIMARY KEY, record_id TEXT NOT NULL, facility_id TEXT NOT NULL, class_id TEXT NOT NULL, ref TEXT NOT NULL, text TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS document_attachments(id TEXT PRIMARY KEY, record_id TEXT NOT NULL, filename TEXT NOT NULL, sha256 TEXT NOT NULL, size INTEGER NOT NULL, content BLOB NOT NULL, uploaded_at TEXT NOT NULL);
 CREATE VIRTUAL TABLE IF NOT EXISTS facility_fts USING fts5(title,text, tokenize='porter unicode61');
+CREATE TABLE IF NOT EXISTS saved_queries(id TEXT PRIMARY KEY, number TEXT NOT NULL UNIQUE, title TEXT NOT NULL, payload TEXT NOT NULL, created_by TEXT NOT NULL, created_at TEXT NOT NULL);
 '''
 
 def init(con):
@@ -199,7 +200,7 @@ def build_pdf(title, paragraphs):
 def _rtf_text(raw):
     data = raw.decode('latin-1', errors='replace')
     data = re.sub(r'\{\\fonttbl[^{}]*\}', '', data)
-    data = data.replace('\\par', '\n').replace('\\line', '\n').replace('\\tab', ' ')
+    data = data.replace('\\par', '\n').replace('\\line', '\n').replace('\\tab', ' | ').replace('\\cell', ' | ').replace('\\row', '\n')
     data = re.sub(r"\\'[0-9a-fA-F]{2}", lambda match: bytes.fromhex(match.group(0)[2:]).decode('latin-1'), data)
     data = re.sub(r'\\[a-zA-Z]+-?\d* ?', '', data)
     text = data.replace('{', '').replace('}', '')
@@ -248,6 +249,83 @@ def _pdf_literals(data):
         out.append(buf.decode('latin-1', errors='replace'))
     return '\n'.join(part for part in out if part.strip())
 
+def _pdf_content_text(data):
+    """Read every text operator in one PDF content stream, including spaced words and hex strings."""
+    raw = data.decode('latin-1', errors='replace') if isinstance(data, (bytes, bytearray)) else data
+    out, i, n = [], 0, len(raw)
+
+    def literal(pos):
+        pos += 1
+        buf, depth = [], 1
+        while pos < n and depth:
+            char = raw[pos]
+            if char == '\\' and pos + 1 < n:
+                pos += 1
+                esc = raw[pos]
+                mapped = {'n': '\n', 'r': '\r', 't': '\t', 'b': '\b', 'f': '\f', '(': '(', ')': ')', '\\': '\\'}
+                if esc in mapped:
+                    buf.append(mapped[esc])
+                elif '0' <= esc <= '7':
+                    octal = esc
+                    for _ in range(2):
+                        if pos + 1 < n and '0' <= raw[pos + 1] <= '7':
+                            pos += 1
+                            octal += raw[pos]
+                        else:
+                            break
+                    buf.append(chr(int(octal, 8) & 0xFF))
+                else:
+                    buf.append(esc)
+            elif char == '(':
+                depth += 1
+                buf.append(char)
+            elif char == ')':
+                depth -= 1
+                if depth:
+                    buf.append(char)
+            else:
+                buf.append(char)
+            pos += 1
+        return ''.join(buf), pos
+
+    def hex_string(pos):
+        end = raw.find('>', pos)
+        if end < 0:
+            return '', n
+        blob = re.sub(r'\s+', '', raw[pos + 1:end])
+        if len(blob) % 2:
+            blob += '0'
+        try:
+            text = bytes.fromhex(blob).decode('latin-1', errors='replace')
+        except ValueError:
+            text = ''
+        return text, end + 1
+
+    while i < n:
+        char = raw[i]
+        if char == '(':
+            text, i = literal(i)
+            out.append(text)
+            continue
+        if char == '<' and not raw.startswith('<<', i):
+            text, i = hex_string(i)
+            if text:
+                out.append(text)
+            continue
+        if raw.startswith(('T*', 'Td', 'TD'), i):
+            out.append('\n')
+            i += 2
+            continue
+        number = re.match(r'-?\d+(?:\.\d+)?', raw[i:])
+        if number:
+            if float(number.group(0)) <= -80:
+                out.append(' ')
+            i += len(number.group(0))
+            continue
+        i += 1
+    text = re.sub(r'[ \t]{2,}', ' ', ''.join(out))
+    return re.sub(r'\n{3,}', '\n\n', text).strip()
+
 def _pdf_text(raw):
     pieces = []
     for match in re.finditer(rb'stream\r?\n(.*?)\r?\nendstream', raw, re.S):
@@ -259,22 +337,77 @@ def _pdf_text(raw):
                 pass
         if len(data) > 5000000:
             raise ValueError('Expanded PDF is too large')
-        pieces.append(_pdf_literals(data))
+        if not any(token in data for token in (b'Tj', b'TJ', b"'", b'"')):
+            continue
+        pieces.append(_pdf_content_text(data))
     if not any(pieces):
-        pieces.append(_pdf_literals(raw))
+        pieces.append(_pdf_content_text(raw))
     text = '\n'.join(part for part in pieces if part.strip()).strip()
     if not text:
         raise ValueError('This PDF has no selectable text. Scanned pages need a text-based PDF.')
     return text
+
+def _docx_lines(root):
+    ns = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
+    lines = []
+
+    def paragraph(node):
+        return ''.join((item.text or '') for item in node.iter(f'{{{ns}}}t')).strip()
+
+    def walk(node):
+        if node.tag == f'{{{ns}}}tbl':
+            for row in node.findall(f'{{{ns}}}tr'):
+                cells = [' '.join(paragraph(item) for item in cell.findall(f'.//{{{ns}}}p')).strip()
+                         for cell in row.findall(f'{{{ns}}}tc')]
+                if any(cells):
+                    lines.append(' | '.join(cells))
+        elif node.tag == f'{{{ns}}}p':
+            text = paragraph(node)
+            if text:
+                lines.append(text)
+        else:
+            for child in list(node):
+                walk(child)
+
+    walk(root)
+    return lines
 
 def _docx_text(raw):
     with zipfile.ZipFile(io.BytesIO(raw)) as archive:
         info = archive.getinfo('word/document.xml')
         if info.file_size > 5000000:
             raise ValueError('Expanded document is too large')
-        root = ET.fromstring(archive.read(info))
-        ns = {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
-        return '\n'.join(''.join(p.itertext()) for p in root.findall('.//w:p', ns))
+        lines = _docx_lines(ET.fromstring(archive.read(info)))
+        for name in archive.namelist():
+            if not (name.startswith('word/header') or name.startswith('word/footer')) or not name.endswith('.xml'):
+                continue
+            header = archive.getinfo(name)
+            if header.file_size > 5000000:
+                continue
+            lines.extend(_docx_lines(ET.fromstring(archive.read(name))))
+        return '\n'.join(lines)
+
+def _ole_doc_text(raw):
+    """Recover readable text from a legacy binary Word file."""
+    if not raw.startswith(b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1'):
+        raise ValueError('This .doc file has no readable text. Save it as .docx or PDF.')
+    pieces, buf = [], []
+    for index in range(0, len(raw) - 1, 2):
+        code = raw[index] + (raw[index + 1] << 8)
+        if code in (9, 10, 13) or 32 <= code <= 126:
+            buf.append('\n' if code in (10, 13) else chr(code))
+        elif len(buf) >= 24:
+            pieces.append(''.join(buf).strip())
+            buf = []
+        else:
+            buf = []
+    if len(buf) >= 24:
+        pieces.append(''.join(buf).strip())
+    kept = [part for part in pieces if sum(char.isalpha() for char in part) >= 8]
+    text = '\n'.join(kept).strip()
+    if len(text) < 12:
+        raise ValueError('This .doc file has no readable text. Save it as .docx or PDF.')
+    return text
 
 def extract(filename, content):
     try:
@@ -294,6 +427,8 @@ def extract(filename, content):
         except (zipfile.BadZipFile, KeyError, ET.ParseError, RuntimeError):
             raise ValueError('Invalid Word document') from None
     if lower.endswith('.doc'):
+        if raw.startswith(b'\xd0\xcf\x11\xe0'):
+            return _ole_doc_text(raw)
         return _rtf_text(raw)
     raise ValueError('Upload a Word file (.doc or .docx) or a text-based PDF.')
 
@@ -305,7 +440,19 @@ def file_parts(filename, content, label):
         raise ValueError('Invalid or unsupported DOCX document') from None
     if len(text) > 1000000:
         raise ValueError('Document text exceeds 1 million characters')
-    sections = [{'ref': f'{label} {i//12000+1}', 'text': text[i:i+12000]} for i in range(0, len(text), 12000) if text[i:i+12000].strip()]
+    sections = []
+    start, number = 0, 1
+    while start < len(text):
+        end = min(len(text), start + 12000)
+        if end < len(text):
+            break_at = text.rfind('\n', start, end)
+            if break_at > start + 4000:
+                end = break_at + 1
+        chunk = text[start:end]
+        if chunk.strip():
+            sections.append({'ref': f'{label} {number}', 'text': chunk})
+            number += 1
+        start = end if end > start else start + 12000
     if not sections:
         raise ValueError('File has no text to store')
     return sections, raw
@@ -380,7 +527,7 @@ def search(con, facility_id, query, class_id=None):
     hits = sorted([hit for result in results for hit in result], key=lambda hit:hit['rank'])[:40]
     return {'hits':hits, 'workers':[{'name':cls['name']+' search', 'hits':len(result)} for cls,result in zip(classes,results)], 'ranking':'FTS5 BM25; lower rank is better'}
 
-def case(con, facility_id, body, username, library_wide=False):
+def case(con, facility_id, body, username, library_wide=False, site_label=None):
     init(con); facility = require(con, facility_id)
     ids = body.get('document_ids')
     if not isinstance(ids,list) or not 1 <= len(ids) <= 500 or not all(isinstance(x,str) for x in ids) or len(set(ids)) != len(ids):
@@ -407,7 +554,7 @@ def case(con, facility_id, body, username, library_wide=False):
             raise ValueError('Select only one version of each document')
         seen_ids.add(doc['id'])
         docs.append(doc)
-    package = {**body, 'site_name':facility['name'], 'authority':'US FDA', 'synthetic':False, 'documents':docs, 'facility_id':facility_id, 'document_records':ids}
+    package = {**body, 'site_name':(site_label or facility['name'])[:200], 'authority':'US FDA', 'synthetic':False, 'documents':docs, 'facility_id':facility_id, 'document_records':ids}
     return intake.save(con, package, username)
 
 def attachment(con, facility_id, attachment_id):
@@ -421,38 +568,90 @@ def attachment(con, facility_id, attachment_id):
     name = os.path.basename(row['filename']).replace('"', '').replace('\r', '').replace('\n', '') or 'attachment'
     return name, bytes(row['content'])
 
-def latest_documents(con, facility_id):
-    chosen, seen = [], set()
-    for row in con.execute('SELECT id, document_id FROM facility_documents WHERE facility_id=? ORDER BY uploaded_at DESC', (facility_id,)):
-        if row['document_id'] in seen:
-            continue
-        seen.add(row['document_id'])
-        chosen.append(row['id'])
+def _current_rows(con):
+    """One current version per document. A superseded upload yields to the latest usable version."""
+    grouped = {}
+    for row in con.execute('SELECT id, facility_id, document_id, payload FROM facility_documents ORDER BY uploaded_at DESC'):
+        grouped.setdefault((row['facility_id'], row['document_id']), []).append(row)
+    chosen = []
+    for group in grouped.values():
+        usable = []
+        for row in group:
+            try:
+                status = str(json.loads(row['payload']).get('status') or '').strip().lower()
+            except (TypeError, json.JSONDecodeError):
+                status = ''
+            if status not in sitedocs.DEAD_STATUS:
+                usable.append(row)
+        chosen.append((usable or group)[0])
     return chosen
 
-def latest_library(con, home_facility_id=None):
-    """Current version of every document, with the queried facility first."""
-    init(con)
-    rows = list(con.execute('SELECT id, facility_id, document_id FROM facility_documents ORDER BY uploaded_at DESC'))
-    chosen, seen = [], set()
+def latest_documents(con, facility_id):
+    return [row['id'] for row in _current_rows(con) if row['facility_id'] == facility_id]
 
-    def take(row):
-        key = (row['facility_id'], row['document_id'])
-        if key in seen or len(chosen) >= 500:
-            return
-        seen.add(key)
-        chosen.append(row['id'])
+def latest_library(con, home_facility_id=None, product_class=None):
+    """Current versions for the queried facility, plus same-product records from other facilities."""
+    init(con)
+    rows = _current_rows(con)
+    chosen, home_groups = [], set()
+
+    def described(row):
+        try:
+            doc = json.loads(row['payload'])
+        except (TypeError, json.JSONDecodeError):
+            return {}, ''
+        blob = ' '.join([doc.get('source') or '', doc.get('title') or '', doc.get('group') or '',
+                         ' '.join((section.get('text') or '')[:500] for section in doc.get('sections') or [])])
+        return doc, blob
 
     if home_facility_id:
         for row in rows:
-            if row['facility_id'] == home_facility_id:
-                take(row)
+            if row['facility_id'] != home_facility_id or len(chosen) >= 500:
+                continue
+            doc, _blob = described(row)
+            home_groups.add(doc.get('group') or '')
+            chosen.append(row['id'])
+    seen = set(chosen)
     for row in rows:
-        take(row)
+        if row['id'] in seen or len(chosen) >= 500:
+            continue
+        doc, blob = described(row)
+        if sitedocs.product_conflict(blob, product_class):
+            continue
+        families = ('vaccine', 'cell and gene')
+        stated = [name for name in families if name in blob.lower()]
+        same_product = bool(stated) and not sitedocs.product_conflict(blob, product_class)
+        missing_class = (doc.get('group') or '') not in home_groups
+        if same_product or missing_class:
+            chosen.append(row['id'])
+            seen.add(row['id'])
     return chosen
 
+def _facility_ids(entry):
+    raw = entry.get('facility_ids')
+    if isinstance(raw, list):
+        ids = []
+        for item in raw:
+            if isinstance(item, str) and item.strip() and item.strip() not in ids:
+                ids.append(item.strip())
+        if not ids:
+            raise ValueError('Each query needs a facility')
+        if len(ids) > 40:
+            raise ValueError('Each query can cover at most 40 facilities')
+        return ids
+    facility_id = entry.get('facility_id')
+    if not isinstance(facility_id, str) or not facility_id.strip():
+        raise ValueError('Each query needs a facility')
+    return [facility_id.strip()]
+
+def documents_for_facilities(con, facility_ids):
+    """Current document versions from the facilities the user selected."""
+    init(con)
+    wanted = set(facility_ids)
+    return [row['id'] for row in _current_rows(con) if row['facility_id'] in wanted][:500]
+
 def batch_items(body):
-    """Each item is one observation tied to one facility."""
+    """Each item is one observation. It can name one facility or several."""
     if not isinstance(body, dict):
         raise ValueError('Add at least one audit query')
     raw = body.get('items')
@@ -462,23 +661,99 @@ def batch_items(body):
     for entry in raw:
         if not isinstance(entry, dict):
             raise ValueError('Each query needs a facility and an observation')
-        facility_id = entry.get('facility_id')
+        facility_ids = _facility_ids(entry)
         text = entry.get('query')
+        if not isinstance(text, str) or not text.strip():
+            queries = entry.get('queries')
+            text = queries[0] if isinstance(queries, list) and queries and isinstance(queries[0], str) else ''
         product = entry.get('product_class') or body.get('product_class') or 'Vaccine'
-        if not isinstance(facility_id, str) or not facility_id.strip():
-            raise ValueError('Each query needs a facility')
         if not isinstance(text, str) or not text.strip():
             raise ValueError('Each query needs an observation')
         if len(text.strip()) > 2000:
             raise ValueError('Each audit query must be 2000 characters or fewer')
         if not isinstance(product, str) or not product.strip():
             raise ValueError('Each query needs a product')
-        items.append({'facility_id': facility_id.strip(), 'queries': [text.strip()], 'product_class': product.strip()[:200]})
+        items.append({'facility_id': facility_ids[0], 'facility_ids': facility_ids, 'queries': [text.strip()], 'product_class': product.strip()[:200]})
     return items
+
+def _next_query_number(con):
+    row = con.execute("SELECT number FROM saved_queries WHERE number LIKE 'QRY-%' ORDER BY number DESC LIMIT 1").fetchone()
+    current = 0
+    if row:
+        try:
+            current = int(str(row['number']).rsplit('-', 1)[-1])
+        except ValueError:
+            current = con.execute('SELECT COUNT(*) FROM saved_queries').fetchone()[0]
+    return f'QRY-{current + 1:04d}'
+
+def _query_title(con, number, items):
+    names = []
+    for item in items:
+        for facility_id in item['facility_ids']:
+            label = require(con, facility_id)['name']
+            if label not in names:
+                names.append(label)
+    scope = ', '.join(names[:3]) + (f' +{len(names) - 3}' if len(names) > 3 else '')
+    noun = 'query' if len(items) == 1 else 'queries'
+    return f'{number} · {len(items)} {noun} · {scope}'[:300]
+
+def save_query_set(con, body, username):
+    """Store one observation or several under a single query number."""
+    init(con)
+    items = batch_items(body)
+    for item in items:
+        for facility_id in item['facility_ids']:
+            require(con, facility_id)
+    number = _next_query_number(con)
+    title = _query_title(con, number, items)
+    identifier = 'QS-' + uuid.uuid4().hex
+    payload = json.dumps({'items': items}, ensure_ascii=False)
+    with con:
+        con.execute('INSERT INTO saved_queries VALUES(?,?,?,?,?,?)', (identifier, number, title, payload, username, now()))
+    return {'id': identifier, 'number': number, 'title': title, 'count': len(items)}
+
+def list_query_sets(con):
+    init(con)
+    listed = []
+    for row in con.execute('SELECT number, title, payload, created_at FROM saved_queries ORDER BY created_at DESC, number DESC LIMIT 100'):
+        try:
+            count = len(json.loads(row['payload']).get('items') or [])
+        except json.JSONDecodeError:
+            count = 0
+        listed.append({'number': row['number'], 'title': row['title'], 'count': count, 'created_at': row['created_at']})
+    return listed
+
+def load_query_set(con, number):
+    init(con)
+    key = str(number or '').strip()
+    row = con.execute('SELECT * FROM saved_queries WHERE number=? OR id=?', (key, key)).fetchone()
+    if not row:
+        raise ValueError('Unknown saved query')
+    payload = json.loads(row['payload'])
+    items = []
+    for item in payload.get('items') or []:
+        copy = dict(item)
+        text = (copy.get('queries') or [''])[0]
+        copy['title'] = f"{row['number']} · {text[:90]}"
+        items.append(copy)
+    if not items:
+        raise ValueError('Saved query has no observations')
+    return {'id': row['id'], 'number': row['number'], 'title': row['title'], 'items': items}
 
 def audit_queries(con, facility_id, body, username):
     init(con)
-    facility = require(con, facility_id)
+    raw_ids = body.get('facility_ids')
+    if isinstance(raw_ids, list) and raw_ids:
+        facility_ids = []
+        for item in raw_ids:
+            if isinstance(item, str) and item.strip() and item.strip() not in facility_ids:
+                facility_ids.append(item.strip())
+        if not facility_ids:
+            raise ValueError('Each query needs a facility')
+    else:
+        facility_ids = [facility_id]
+    homes = [require(con, item) for item in facility_ids]
+    facility = homes[0]
     raw = body.get('queries')
     if isinstance(raw, str):
         items = [line.strip() for line in raw.splitlines() if line.strip()]
@@ -491,14 +766,26 @@ def audit_queries(con, facility_id, body, username):
     if any(len(item) > 2000 for item in items):
         raise ValueError('Each audit query must be 2000 characters or fewer')
     wide = not body.get('document_ids')
-    ids = body.get('document_ids') or latest_library(con, facility_id)
+    product = body.get('product_class') or 'Vaccine'
+    if len(facility_ids) > 1:
+        ids = documents_for_facilities(con, facility_ids)
+        wide = True
+    else:
+        ids = body.get('document_ids') or latest_library(con, facility['id'], product)
     if not ids:
         raise ValueError('No documents are stored yet. Add records before loading audit queries.')
-    scope = f" The current version of {len(ids)} stored document(s) from every facility is indexed for this query." if wide else ''
-    observation = 'Audit queries for ' + facility['name'] + ':' + scope + '\n' + '\n'.join(f'{index}. {item}' for index, item in enumerate(items, 1))
-    title = (body.get('title') or f"Audit queries · {facility['name']}")[:300]
-    product = body.get('product_class') or 'Vaccine'
-    return case(con, facility_id, {'title': title, 'product_class': product, 'observation': observation, 'document_ids': ids}, username, library_wide=wide)
+    numbered = '\n'.join(f'{index}. {item}' for index, item in enumerate(items, 1))
+    if len(homes) == 1:
+        scope = f" The current version of {len(ids)} stored document(s) is indexed. Other facilities are included when they are the same product, or when this facility has no record of that class." if wide else ''
+        observation = 'Audit queries for ' + facility['name'] + ':' + scope + '\n' + numbered
+        title = (body.get('title') or f"Audit queries · {facility['name']}")[:300]
+        label = None
+    else:
+        places = [ ' / '.join(part for part in (home.get('plant_name'), home['name']) if part) for home in homes ]
+        observation = 'Audit queries for ' + '; '.join(places) + ':\n' + numbered
+        title = (body.get('title') or ('Audit queries · ' + ', '.join(home['name'] for home in homes)))[:300]
+        label = '; '.join(home['name'] for home in homes)
+    return case(con, facility['id'], {'title': title, 'product_class': product, 'observation': observation, 'document_ids': ids}, username, library_wide=wide, site_label=label)
 
 SAMPLES = {
     'SOP': [

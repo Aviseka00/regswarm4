@@ -422,9 +422,9 @@ def _impacted(observation, evidence):
     for key, record in evidence.items():
         if not isinstance(key, str) or not isinstance(record, dict):
             continue
-        passages = " ".join(item.get("text", "") for item in record.get("passages") or [] if isinstance(item, dict))
+        passages = "\n".join(item.get("text", "") for item in record.get("passages") or [] if isinstance(item, dict))
         overlap = len(words & _words(f"{record.get('label', '')} {record.get('kind', '')} {passages}"))
-        scored.append((overlap, key, record, passages[:400]))
+        scored.append((overlap, key, record, _focus_excerpt(passages, observation)))
     scored.sort(key=lambda item: (-item[0], item[1]))
     picked, seen = [], set()
     for item in scored:
@@ -455,10 +455,408 @@ def _routes(text):
     return ordered or ["investigation"]
 
 
-def _plan(route, labels):
+REQUIREMENT_KINDS = {"SOP", "STP", "Protocol", "MFR", "Qualification"}
+EXECUTED_KINDS = {"BMR", "Deviation", "OOS"}
+HISTORY_KINDS = {"Deviation", "OOS"}
+PROPOSAL_CLAIMS = {"risk": {"c-risk"}, "capa": {"c-capa", "c-prev"}, "change": {"c-change"}}
+
+
+def _shares(word, words):
+    if word in words:
+        return True
+    if len(word) < 5:
+        return False
+    return any(item.startswith(word) and len(item) <= len(word) + 3 for item in words)
+
+
+def _overlap(words, text):
+    right = _words(text)
+    return sum(1 for word in words if _shares(word, right))
+
+
+def _snippet(text, limit=180):
+    words = (text or "").split()
+    if not words:
+        return ""
+    quote, count = [], 0
+    for word in words:
+        count += len(word) + 1
+        if count > limit and quote:
+            break
+        quote.append(word)
+    return " ".join(quote)[:limit]
+
+
+def _focus_excerpt(passage, observation, limit=500):
+    """Quote the lines that share the audit words, including a table row later in the file."""
+    lines = [line.strip() for line in (passage or "").splitlines() if line.strip()]
+    if not lines:
+        return ""
+    words = _words(observation)
+    best = max(range(len(lines)), key=lambda index: _exact_overlap(words, lines[index]))
+    if _exact_overlap(words, lines[best]) < 1:
+        best = 0
+    start, end = best, best + 1
+    while end - start < 8 and (start > 0 or end < len(lines)):
+        grown = False
+        if end < len(lines) and sum(len(lines[i]) + 1 for i in range(start, end + 1)) <= limit:
+            end += 1
+            grown = True
+        if start > 0 and sum(len(lines[i]) + 1 for i in range(start - 1, end)) <= limit:
+            start -= 1
+            grown = True
+        if not grown:
+            break
+    return "\n".join(lines[start:end])[:limit]
+
+
+def _record_passage(record):
+    """The whole stored file. A later page or table row is part of the reading."""
+    return "\n".join(item.get("text", "") for item in (record.get("passages") or []) if isinstance(item, dict))[:100000]
+
+
+def _title_tail(label):
+    parts = [part.strip() for part in str(label or "").split(" / ")]
+    return parts[-1] if parts else ""
+
+
+OWNERSHIP_IGNORE = {"calibri", "checklist", "confirm", "source", "record", "recorded", "version", "approval",
+                    "sample", "class", "attachment", "document", "plant", "during", "before", "after", "packaging"}
+
+
+def _exact_overlap(words, text):
+    right = _words(text)
+    return sum(1 for word in words if word in right)
+
+
+def _near(passage, terms, pattern):
+    low = (passage or "").lower()
+    for term in terms:
+        for match in re.finditer(re.escape(term), low):
+            window = low[max(0, match.start() - 48):match.end() + 48]
+            if re.search(pattern, window):
+                return True
+    return False
+
+
+def _entry_state(passage, terms):
+    """A form can name a field without showing that the field was completed for the batch."""
+    if not terms or _exact_overlap(terms, passage) < 1:
+        return "absent"
+    low = (passage or "").lower()
+    if re.search(r"\b(?:was|were|is|are|been)\s+(?:recorded|signed|completed|entered|performed|done)\b", low):
+        return "completed"
+    if _near(passage, terms, r"\d") or _near(passage, terms, r"\b(?:result|within limit|out of limit)\b"):
+        return "completed"
+    return "listed"
+
+
+def _parse_rows(passage):
+    """Read check, result, limit, and sign-off when the passage is already a row."""
+    found = []
+    for raw in re.split(r"[\n;]+", passage or ""):
+        line = raw.strip()
+        if not line:
+            continue
+        if "|" in line or "\t" in line:
+            cells = [cell.strip() for cell in re.split(r"[|\t]", line)]
+        else:
+            match = re.match(r"^([A-Za-z][A-Za-z0-9 /_-]{2,60}):\s*(.*)$", line)
+            cells = [match.group(1), match.group(2)] if match else []
+        if len(cells) < 2 or not re.search(r"[A-Za-z]", cells[0]):
+            continue
+        result = cells[1] if len(cells) > 1 else ""
+        sign_cell = cells[3] if len(cells) > 3 else ""
+        blob = " ".join(cells[1:])
+        if re.search(r"\b(?:sign|signed|signature)\b", blob, re.I):
+            signoff = "present"
+        elif len(cells) > 3 and not sign_cell.strip():
+            signoff = "absent"
+        else:
+            signoff = "unknown"
+        if not result.strip() or re.fullmatch(r"[-—–]+", result.strip()) or re.fullmatch(r"(?i)blank|n/?a|none|missing|not recorded", result.strip()):
+            status, value = "blank", ""
+            if signoff == "unknown":
+                signoff = "absent"
+        elif re.search(r"\d", result) or re.search(r"\b(?:pass|fail|recorded|signed|completed)\b", result, re.I):
+            status, value = "value", result.strip()[:80]
+        else:
+            status, value = "listed", result.strip()[:80]
+        found.append({"name": cells[0], "status": status, "value": value, "signoff": signoff, "quote": line[:180]})
+    return found
+
+
+def _read_check(passage, terms):
+    rows = [row for row in _parse_rows(passage) if _exact_overlap(terms, f"{row['name']} {row['quote']}") >= 1]
+    if rows:
+        rows.sort(key=lambda row: {"blank": 0, "value": 1, "listed": 2}.get(row["status"], 3))
+        chosen = rows[0]
+        return {**chosen, "reading": "row"}
+    state = _entry_state(passage, terms)
+    if state == "absent":
+        return {"status": "absent", "value": "", "signoff": "unknown", "quote": _snippet(passage), "reading": "prose"}
+    if _near(passage, terms, r"\b(?:blank|not recorded|no entry|left blank)\b"):
+        return {"status": "blank", "value": "", "signoff": "absent", "quote": _snippet(passage), "reading": "prose"}
+    signoff = "present" if _near(passage, terms, r"\bsign") else "unknown"
+    if state == "completed":
+        return {"status": "value", "value": "recorded in the passage", "signoff": signoff, "quote": _snippet(passage), "reading": "prose"}
+    return {"status": "listed", "value": "", "signoff": "unknown", "quote": _snippet(passage), "reading": "prose"}
+
+
+def _field_table(field, terms, requirement, executed, repeats, related):
+    """One row for the check named in the query. The route follows this row."""
+    if not terms:
+        return []
+    requirement_read = _read_check(requirement["passage"], terms) if requirement else {"status": "absent", "quote": "", "signoff": "unknown", "value": "", "reading": "none"}
+    entry_read = _read_check(executed["passage"], terms) if executed else {"status": "absent", "quote": "", "signoff": "unknown", "value": "", "reading": "none"}
+    if requirement and requirement_read["status"] == "absent":
+        requirement_status = "not named"
+    elif requirement:
+        requirement_status = "requires"
+    else:
+        requirement_status = "not retrieved"
+    signoff = entry_read["signoff"]
+    if entry_read["status"] == "value" and signoff == "present":
+        action, route = "stop", "Stop"
+    elif entry_read["status"] == "value":
+        action, route = "stop", "Stop"
+    elif entry_read["status"] == "listed":
+        action, route = "verify", "Verify the executed entry"
+    elif requirement_status == "requires" and entry_read["status"] in ("blank", "absent"):
+        action, route = "capa", "Propose a CAPA"
+    elif requirement_status == "not named" and entry_read["status"] in ("blank", "absent"):
+        action, route = "change", "Propose a change control"
+    elif entry_read["status"] == "blank":
+        action, route = "deviation", "Raise a deviation"
+    else:
+        return []
+    history = ", ".join(item["label"] for item in repeats[:3]) or "No earlier deviation describes this check"
+    if related and not repeats:
+        history += ". Related history only: " + ", ".join(item["label"] for item in related[:3])
+    requirement_cell = "No procedure was retrieved for this check"
+    if requirement and requirement_status == "requires":
+        requirement_cell = f"Requires the check. {requirement['label']} ({requirement['id']}): \"{requirement_read['quote'] or _snippet(requirement['passage'])}\""
+    elif requirement:
+        requirement_cell = f"Does not name the check. {requirement['label']} ({requirement['id']}): \"{_snippet(requirement['passage'])}\""
+    if executed and entry_read["status"] == "value":
+        entry_cell = f"Value {entry_read['value'] or 'shown'}. {executed['label']} ({executed['id']}): \"{entry_read['quote']}\""
+    elif executed and entry_read["status"] == "blank":
+        entry_cell = f"Blank. {executed['label']} ({executed['id']}): \"{entry_read['quote']}\""
+    elif executed and entry_read["status"] == "listed":
+        entry_cell = f"The passage describes the form rather than a completed entry. {executed['label']} ({executed['id']}): \"{entry_read['quote']}\""
+    elif executed:
+        entry_cell = f"The executed record does not contain this check. {executed['label']} ({executed['id']}): \"{_snippet(executed['passage'])}\""
+    else:
+        entry_cell = "No executed record was retrieved"
+    if action == "stop":
+        sentence = f"The retrieved records do not confirm the discrepancy. {requirement_cell} {entry_cell} Sign-off: {signoff}. CAPA and change control are not proposed."
+    elif action == "verify":
+        sentence = f"{entry_cell} QA opens that batch record and checks whether {field} has a result and a signature for this batch. If the entry is blank, raise a deviation. A CAPA and a change control wait until that blank entry is confirmed."
+    elif action == "change":
+        sentence = f"{requirement_cell} {entry_cell} A change control is proposed for the procedure that does not name {field}."
+    elif action == "capa":
+        sentence = f"{requirement_cell} {entry_cell} A CAPA is proposed because the procedure requires the check and the batch row is {entry_read['status']}."
+    else:
+        sentence = f"{entry_cell} Sign-off is {signoff}. Raise a deviation for the blank entry."
+    sentence = f"Field table for {field}. Requirement: {requirement_cell} Entry: {entry_cell} Sign-off: {signoff}. History: {history}. Route: {route}. {sentence}"
+    return [{"check": field, "requirement": requirement_cell, "entry": entry_cell, "signoff": signoff,
+             "history": history, "route": route, "action": action, "sentence": sentence}]
+
+
+def _gap_terms(observation):
+    words = set()
+    for sentence in _sentences(observation):
+        match = re.search(r"(.{0,80})\b(?:not recorded|were not|was not|not investigated|not collected|missing)\b", sentence, re.I)
+        if match:
+            words |= _words(match.group(1))
+    return {word for word in words if word not in ("were", "was", "with", "this", "that", "from", "have", "been", "into", "during")}
+
+
+def _user_observation(observation):
+    """Drop the system preface so facility names in it are not treated as document evidence."""
+    kept = []
+    for line in (observation or "").splitlines():
+        stripped = line.strip().lower()
+        if stripped.startswith("audit queries for ") or stripped.startswith("the current version of "):
+            continue
+        kept.append(line)
+    return "\n".join(kept).strip() or (observation or "")
+
+
+def discrepancy(observation, evidence):
+    """Compare the requirement passage with the executed record. Propose CAPA or change control only when they disagree."""
+    observation = _user_observation(observation)
+    subject = _words(observation)
+    gap_terms = _gap_terms(observation)
+    records = []
+    for key, record in (evidence or {}).items():
+        if not isinstance(key, str) or not isinstance(record, dict):
+            continue
+        passage = _record_passage(record)
+        label = record.get("label") or key
+        focus = {word for word in subject if word not in OWNERSHIP_IGNORE}
+        records.append({"key": key, "id": key[3:] if key.startswith("EV-") else key,
+                        "kind": str(record.get("kind") or "Record"), "label": label, "passage": passage,
+                        "overlap": _overlap(focus, f"{_title_tail(label)} {passage}")})
+    records.sort(key=lambda item: (-item["overlap"], item["id"]))
+
+    def best(kinds, skip=None):
+        for item in records:
+            if item["kind"] in kinds and item["passage"] and item["id"] != skip and item["overlap"] >= 2:
+                return item
+        return None
+
+    requirement = best(REQUIREMENT_KINDS)
+    executed = best({"BMR"}) or best(EXECUTED_KINDS)
+    event_terms = {word for word in subject if word in {"retained", "labels", "label", "excursion", "assay", "residue", "contamination", "retest", "signature"}}
+    repeats, related = [], []
+    for item in records:
+        if item["kind"] not in HISTORY_KINDS or not item["passage"]:
+            continue
+        if executed and item["id"] == executed["id"]:
+            continue
+        same_gap = bool(gap_terms) and _exact_overlap(gap_terms, item["passage"]) >= 1
+        same_event = _exact_overlap(event_terms, f"{_title_tail(item['label'])} {item['passage']}") >= 2
+        if same_gap or same_event:
+            repeats.append(item)
+        elif item["overlap"] >= 2:
+            related.append(item)
+    released = _contains(observation, ("released", "distributed", "patient", "market"))
+    sterile = _contains(observation, ("sterile", "aseptic", "grade a", "vaccine", "contamination"))
+    event = _contains(observation, ("found", "excursion", "out of specification", "out-of-specification", "retained", "retest", "deviation"))
+    hidden = bool(gap_terms) or _contains(observation, ("not investigated", "not recorded", "not collected"))
+    if released or (sterile and event):
+        severity, level = "High", 3
+        why = "the observation describes product that may have left the process, or a sterile-product control failure"
+    elif event or gap_terms:
+        severity, level = "Medium", 2
+        why = "the observation describes an event or a missing control that is not confirmed as a released-batch failure"
+    else:
+        severity, level = "Low", 1
+        why = "the observation does not describe a released batch or a failed control"
+    field = ", ".join(sorted(gap_terms)[:4]) or "the check named in the observation"
+    req_has = requirement and _exact_overlap(gap_terms, requirement["passage"]) >= 1
+    exe_state = _entry_state(executed["passage"], gap_terms) if executed else "absent"
+    fields = _field_table(field, gap_terms, requirement, executed, repeats, related)
+    table_action = fields[0]["action"] if fields else ""
+    if table_action == "stop":
+        stance, propose_capa, propose_change = "aligned", False, False
+        pair = fields[0]["sentence"]
+    elif table_action == "verify":
+        stance, propose_capa, propose_change = "entry_not_shown", False, False
+        pair = fields[0]["sentence"]
+    elif table_action == "change":
+        stance, propose_capa, propose_change = "procedure_gap", False, True
+        pair = fields[0]["sentence"]
+    elif table_action == "capa":
+        stance, propose_capa, propose_change = "record_missing", True, False
+        pair = fields[0]["sentence"]
+    elif table_action == "deviation":
+        stance, propose_capa, propose_change = "blank_entry", False, False
+        pair = fields[0]["sentence"]
+    elif requirement and gap_terms and not req_has:
+        stance, propose_capa, propose_change = "procedure_gap", True, True
+        pair = (f"Requirement {requirement['label']} ({requirement['id']}) does not state {field}. "
+                f"Passage: \"{_snippet(requirement['passage'])}\"."
+                + (f" Executed record {executed['label']} ({executed['id']}): \"{_snippet(executed['passage'])}\"." if executed else ""))
+    elif requirement and executed and gap_terms and req_has and exe_state == "absent":
+        stance, propose_capa, propose_change = "record_missing", True, False
+        pair = (f"Requirement {requirement['label']} ({requirement['id']}) states {field}: \"{_snippet(requirement['passage'])}\". "
+                f"Executed record {executed['label']} ({executed['id']}) does not contain it: \"{_snippet(executed['passage'])}\".")
+    elif executed and gap_terms and exe_state == "listed":
+        stance, propose_capa, propose_change = "entry_not_shown", False, False
+        pair = (f"The executed record {executed['label']} ({executed['id']}) names {field}, but the passage describes the form rather than a completed entry: \"{_snippet(executed['passage'])}\". "
+                f"QA opens that batch record and checks whether {field} has a result and a signature for this batch. "
+                "If the entry is blank, raise a deviation. A CAPA and a change control wait until that blank entry is confirmed.")
+    elif requirement and executed and gap_terms and req_has and exe_state == "completed":
+        stance, propose_capa, propose_change = "aligned", False, False
+        pair = (f"The retrieved records do not confirm the discrepancy. {requirement['label']} ({requirement['id']}) states: \"{_snippet(requirement['passage'])}\". "
+                f"{executed['label']} ({executed['id']}) shows a completed entry for the check: \"{_snippet(executed['passage'])}\".")
+    elif executed and gap_terms and exe_state == "completed" and not requirement:
+        stance, propose_capa, propose_change = "record_has_check", False, False
+        pair = (f"Executed record {executed['label']} ({executed['id']}) shows a completed entry for {field}: \"{_snippet(executed['passage'])}\". "
+                "No controlled document was shown to omit that step, so CAPA and change control are not proposed.")
+    elif event or gap_terms:
+        stance, propose_capa, propose_change = "event", False, False
+        cited = []
+        if requirement:
+            cited.append(f"{requirement['label']} ({requirement['id']}): \"{_snippet(requirement['passage'])}\"")
+        if executed:
+            cited.append(f"{executed['label']} ({executed['id']}): \"{_snippet(executed['passage'])}\"")
+        pair = ("Retrieved passages: " + " ".join(cited) + " No controlled document was shown to omit the missing step, so change control is not proposed.") if cited else "No requirement or executed record with overlapping text was retrieved, so change control is not proposed until QA identifies the document."
+    else:
+        stance, propose_capa, propose_change = "question", False, False
+        pair = "The observation does not describe an event or a missing control, so no CAPA or change control is proposed."
+    if repeats:
+        occurrence = "the same gap appears in " + str(len(repeats)) + " other retrieved deviation or OOS record(s): " + ", ".join(item["label"] for item in repeats[:3])
+    elif related:
+        occurrence = "not confirmed as a repeat of this gap. Related history only: " + ", ".join(item["label"] for item in related[:3])
+    else:
+        occurrence = "not confirmed by the retrieved records"
+    return {"stance": stance, "pair": pair, "field": field, "severity": severity, "level": level, "why": why,
+            "detect": "Low" if hidden else "Medium", "hidden": hidden, "event": event, "released": released, "sterile": sterile,
+            "propose_capa": propose_capa, "propose_change": propose_change, "requirement": requirement, "executed": executed,
+            "repeats": repeats, "occurrence": occurrence, "records": records, "fields": fields}
+
+
+def risk_packet(observation, evidence):
+    """A reviewer-facing risk view built from the cited requirement and the executed record."""
+    finding = discrepancy(observation, evidence or {})
+    docs = []
+    for item, reason in ((finding["requirement"], "Requirement"), (finding["executed"], "Executed record")):
+        if item:
+            docs.append({"id": item["id"], "title": item["label"], "reason": reason})
+    for item in finding["repeats"][:4]:
+        docs.append({"id": item["id"], "title": item["label"], "reason": "Earlier deviation or OOS"})
+    level = finding["level"]
+    columns = ["Product quality", "Patient safety", "Detection", "Documentation", "Validated state"]
+
+    def row(area, levels, note):
+        return {"area": area, "levels": levels, "note": note, "score": sum(levels)}
+
+    rows = [row("This observation", [
+        level,
+        level if finding["released"] or finding["sterile"] else max(1, level - 1),
+        3 if finding["hidden"] else 2,
+        2 if finding["propose_capa"] else 1,
+        2 if finding["propose_change"] else 1,
+    ], finding["pair"])]
+    for item in docs[:6]:
+        rows.append(row(item["title"][:48], [level if item["reason"] != "Earlier deviation or OOS" else 2, 1, 2, 2, 1], item["reason"]))
+    actions = int(finding["propose_capa"]) + int(finding["propose_change"]) + (1 if finding["event"] else 0)
+    return {"matrix": {"columns": columns, "rows": rows or [row("Retrieved library", [1, 1, 1, 1, 1], "No linked record was retrieved")]},
+            "summary": {"records": len(finding["records"]), "classes": len({item["kind"] for item in finding["records"]}),
+                        "actions": actions, "severity": finding["severity"], "occurrence": finding["occurrence"],
+                        "stance": finding["stance"], "pair": finding["pair"], "fields": finding.get("fields") or []},
+            "batches": [], "docs": docs, "finding": {k: finding[k] for k in ("stance", "pair", "field", "occurrence", "severity", "propose_capa", "propose_change")}}
+
+
+def stamp_proposal(draft, kind, decision):
+    """Record a reviewer confirm or reject on one proposal without treating it as approval of the response."""
+    if kind not in PROPOSAL_CLAIMS or decision not in ("confirm", "reject"):
+        raise ValueError("Choose risk, CAPA, or change control, and confirm or reject it")
+    found = False
+    for section in draft.get("sections") or []:
+        for claim in section.get("claims") or []:
+            if claim.get("id") not in PROPOSAL_CLAIMS[kind]:
+                continue
+            found = True
+            base = claim.get("proposal_text") or claim.get("text") or ""
+            claim["proposal_text"] = base
+            if decision == "confirm":
+                claim["text"] = base + " QA confirmed this proposal."
+            else:
+                claim["text"] = "QA rejected this proposal. It is not part of the approved response."
+    if not found:
+        raise ValueError("This draft has no matching proposal to confirm")
+    return draft
+
+
+def _plan(route, labels, observation="", finding=None):
     named = ", ".join(labels) if labels else "the records retrieved for this case"
+    finding = finding or discrepancy(observation, {})
     if route == "oos":
-        return {
+        plan = {
             "title": "Open an OOS investigation",
             "rca": f"The observation concerns a laboratory result. {named} do not confirm a manufacturing root cause. QA opens an OOS investigation, checks the method, the reference standard, and the sample preparation, and decides only after that whether a manufacturing investigation is required.",
             "correction": "QA withholds batch release and keeps the original result in the OOS file. A retest is not started until the laboratory checks are recorded.",
@@ -466,9 +864,10 @@ def _plan(route, labels):
             "preventive": "QA adds the confirmed laboratory gap to the next method review and trains the analysts who perform the test.",
             "effectiveness": "QA reviews the next three OOS or atypical results for the same test and records whether the laboratory checks were completed before retest.",
             "change": f"Revise the laboratory investigation record for {named}",
+            "change_class": "Major" if finding["level"] == 3 else "Minor",
         }
-    if route == "deviation":
-        return {
+    elif route == "deviation":
+        plan = {
             "title": "Raise a deviation",
             "rca": f"A confirmed root cause is not established by {named}. QA raises a deviation, records the product-impact assessment, and completes root-cause analysis before any CAPA is treated as effective.",
             "correction": f"QA quarantines the affected lot and holds further processing until the failed check is repeated and recorded against {named}.",
@@ -476,9 +875,10 @@ def _plan(route, labels):
             "preventive": "QA adds the confirmed gap to the next periodic review of the same process and trains the people who perform the check.",
             "effectiveness": "QA reviews the next three executed records for the same check and records whether it was completed.",
             "change": f"Revise {named}",
+            "change_class": "Major" if finding["level"] == 3 else "Minor",
         }
-    if route == "capa":
-        return {
+    elif route == "capa":
+        plan = {
             "title": "Open a CAPA",
             "rca": f"{named} show the gap described in the observation. A single root cause is not confirmed until the investigation is complete. QA opens a CAPA and also raises a deviation if the same gap already occurred on an in-process or released batch.",
             "correction": f"QA identifies in-process batches that used {named} and holds any batch whose record does not contain the missing information.",
@@ -486,8 +886,10 @@ def _plan(route, labels):
             "preventive": "QA adds the confirmed gap to the next procedure review and checks that training covers the revised step.",
             "effectiveness": "QA reviews the next three executed records and records whether the missing field is present.",
             "change": f"Revise {named}",
+            "change_class": "Major" if finding["level"] == 3 else "Minor",
         }
-    return {
+    else:
+        plan = {
         "title": "Investigate, then choose deviation or CAPA",
         "rca": f"The retrieved records ({named}) do not by themselves establish a confirmed root cause. QA reads the linked documents, then raises a deviation if an event already occurred or opens a CAPA if the gap is in the procedure.",
         "correction": f"QA holds any batch whose record in {named} does not support release until the missing information is found or the event is recorded.",
@@ -495,7 +897,50 @@ def _plan(route, labels):
         "preventive": "QA adds the confirmed gap to the next quality-system review.",
         "effectiveness": "QA checks a later record of the same activity and records whether the gap recurred.",
         "change": f"Review and, where confirmed, revise {named}",
+        "change_class": "Minor",
     }
+    target = finding.get("requirement") if finding.get("propose_change") else None
+    if target:
+        plan["change"] = f"Add {finding['field']} to {target['label']} ({target['id']})"
+        plan["change_target"] = target["id"]
+    else:
+        plan["change_target"] = ""
+    if finding["propose_capa"] and finding["propose_change"] and target:
+        plan["corrective"] = f"QA proposes a CAPA and a change control to add {finding['field']} to {target['label']} ({target['id']}). {finding['pair']}"
+    elif finding["propose_capa"] and finding.get("requirement"):
+        plan["corrective"] = f"QA proposes a CAPA so the existing requirement in {finding['requirement']['label']} ({finding['requirement']['id']}) is executed. {finding['pair']}"
+    else:
+        plan["corrective"] = f"A system CAPA is not proposed from the retrieved records. {finding['pair']}"
+    if finding["propose_change"] and target:
+        decision = f"A change control is proposed for {target['label']} ({target['id']}) to add {finding['field']}."
+    elif finding["propose_capa"]:
+        decision = "A CAPA is proposed because the requirement and the executed record disagree. Change control is not proposed, because the retrieved procedure already states the check."
+    else:
+        decision = "CAPA and change control are not proposed. QA confirms the investigation before either is opened."
+    plan["risk"] = (
+        f"Proposed risk assessment for QA to confirm. This is not a completed ICH Q9 score. "
+        f"Severity is {finding['severity']} because {finding['why']}. "
+        f"Occurrence is {finding['occurrence']}. "
+        f"Detectability is {finding['detect']} because "
+        f"{'the observation says the check was not recorded or not investigated' if finding['hidden'] else 'the observation does not say the record failed to capture the check'}. "
+        f"{decision} {finding['pair']}"
+    )
+    plan["propose_change"] = finding["propose_change"]
+    plan["propose_capa"] = finding["propose_capa"]
+    plan["pair"] = finding["pair"]
+    if finding["stance"] == "blank_entry":
+        plan["title"] = "Raise a deviation"
+    elif finding["stance"] == "entry_not_shown":
+        shown = finding.get("executed") or {}
+        plan["title"] = "Verify the executed entry before raising a deviation"
+        plan["correction"] = (f"QA opens {shown.get('label') or named} and checks whether {finding['field']} has a result and a signature for this batch before any lot is held.")
+    elif finding["propose_change"]:
+        plan["title"] = "Raise a deviation and propose a change control"
+    elif finding["propose_capa"] and route != "oos":
+        plan["title"] = "Raise a deviation and propose a CAPA"
+    elif not finding["propose_capa"] and plan["title"] == "Open a CAPA":
+        plan["title"] = "Verify the record before opening a CAPA"
+    return plan
 
 
 def _best_ref(text, library):
@@ -588,6 +1033,25 @@ def _reference_text(public):
     return text.strip()
 
 
+def _query_lines(observation):
+    """The observation the user wrote, without the library-index preface."""
+    points = []
+    for line in (observation or "").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        numbered = re.match(r"^\d+\.\s+(.+)$", line)
+        if numbered:
+            points.append(numbered.group(1).strip())
+            continue
+        if line.startswith("Audit queries for ") or line.startswith("Scope:"):
+            continue
+        if "stored document" in line and "indexed" in line:
+            continue
+        points.append(line)
+    return [point for point in points if point]
+
+
 def _action(claim_id, text, element_ids):
     return {"id": claim_id, "kind": "action", "elements": element_ids, "text": text, "cites": [], "evidence": []}
 
@@ -609,20 +1073,21 @@ def local_answer(role, inputs):
         if label not in labels:
             labels.append(label)
     route = _routes(observation)[0]
-    plan = _plan(route, labels)
-    if len(_routes(observation)) > 1:
+    finding = discrepancy(observation, evidence)
+    plan = _plan(route, labels, observation, finding)
+    if len(_routes(observation)) > 1 and finding["propose_capa"]:
         others = []
         for item in _routes(observation)[1:]:
-            other = _plan(item, labels)
+            if item == "capa":
+                continue
+            other = _plan(item, labels, observation, finding)
             others.append(f"{other['title']}: {other['corrective']}")
-        plan = dict(plan)
-        plan["rca"] = plan["rca"] + " The same observation has further points. " + " ".join(others)
-        plan["title"] = plan["title"] + "; " + "; ".join(_plan(item, labels)["title"] for item in _routes(observation)[1:])
-    targets = []
-    for _, key, _record, _passage in impacted:
-        document_id = key[3:] if key.startswith("EV-") else key
-        if document_id and document_id not in targets:
-            targets.append(document_id)
+        if others:
+            plan = dict(plan)
+            plan["rca"] = plan["rca"] + " The same observation has further points. " + " ".join(others)
+    if finding["pair"] not in plan["rca"]:
+        plan["rca"] = plan["rca"] + " " + finding["pair"]
+    targets = [plan["change_target"]] if plan.get("change_target") else []
     if role == "classify":
         return validate(role, {"authority": inputs.get("authority") or "US FDA", "document_type": "Inspection response",
             "product_class": inputs.get("product_class") or "Vaccine", "domains": _angles(observation),
@@ -642,17 +1107,17 @@ def local_answer(role, inputs):
                               "rationale": "The retrieved 21 CFR paragraph shares the subject of this observation point. A reviewer confirms that it governs the point."})
         return validate(role, {"items": items})
     if role == "frame":
-        sections = [("ack", "Acknowledgement", "State each observation point and the response route."),
-                    ("basis", "Linked records and requirements", "Name the retrieved documents and the 21 CFR paragraph that shares their subject."),
-                    ("rca", "Root cause", plan["rca"]),
-                    ("correction", "Immediate action", plan["correction"]),
-                    ("capa", plan["title"], plan["corrective"]),
-                    ("timeline", "Timeline and references", "Give relative due points and the official publication links.")]
+        sections = [("query", "Query", "The observation that was analyzed."),
+                    ("response", "Response", "The response against that observation: linked records, root cause, immediate action, and change control."),
+                    ("capa", "CAPA", plan["corrective"]),
+                    ("risk", "Risk assessment", plan["risk"])]
         return validate(role, {"sections": [{"id": sid, "title": title, "purpose": purpose, "elements": element_ids} for sid, title, purpose in sections]})
     if role == "rca":
         return validate(role, {"root_causes": [{"id": "RC1", "text": plan["rca"]}]})
     if role == "change_control":
-        return validate(role, {"items": [{"id": "CC-NEW-01", "title": plan["change"][:180], "type": "Procedure", "class": "Minor",
+        if not plan.get("propose_change"):
+            return validate(role, {"items": []})
+        return validate(role, {"items": [{"id": "CC-NEW-01", "title": plan["change"][:180], "type": "Procedure", "class": plan.get("change_class") or "Minor",
             "targets": targets[:3], "why": plan["corrective"], "validation": "QA confirms whether the revision changes a validated process or method.",
             "filing": "QA confirms whether the revision needs a regulatory filing assessment.", "owner": "QA", "due": "Day 30", "elements": element_ids}]})
     if role == "capa":
@@ -676,20 +1141,34 @@ def local_answer(role, inputs):
             regulatory.append({"id": "c-reg", "kind": "regulatory", "elements": element_ids,
                 "text": f"{ref} was retrieved because its text shares the subject of this observation. A reviewer confirms that it governs the response.",
                 "cites": [{"ref": ref, "quote": quote}], "evidence": []})
-        points = "; ".join(item.get("text", "") for item in elements if isinstance(item, dict)) or observation
+        query_lines = _query_lines(observation)
+        if not query_lines:
+            joined = "; ".join(item.get("text", "") for item in elements if isinstance(item, dict))
+            query_lines = [joined] if joined else ["The observation text was not stored."]
         reference = _reference_text(inputs.get("public_references"))
+        query_claims = [_action(f"c-q{index}", line, element_ids) for index, line in enumerate(query_lines or ["The observation text was not stored."], 1)]
+        response_claims = [_action("c-ack", f"This response is against the query above. The route is: {plan['title']}.", element_ids)]
+        response_claims.extend(site_claims + regulatory)
+        response_claims.append(_action("c-rca", plan["rca"], element_ids))
+        response_claims.append(_action("c-cor", plan["correction"], element_ids))
+        response_claims.append(_action("c-change", (plan["change"] + ". " + plan["pair"]) if plan.get("propose_change") else ("Change control is not proposed. " + plan["pair"]), element_ids))
+        response_claims.append(_action("c-time", f"{plan['effectiveness']} Correction is due on day 2, the procedure revision on day 30, prevention on day 60, and the effectiveness check on day 90. {reference}", element_ids))
         return validate(role, {"sections": [
-            {"id": "ack", "title": "Acknowledgement", "claims": [_action("c-ack", f"The observation is addressed as {len(element_ids) or 1} point(s): {points[:700]}. The response route is: {plan['title']}.", element_ids)]},
-            {"id": "basis", "title": "Linked records and requirements", "claims": site_claims + regulatory},
-            {"id": "rca", "title": "Root cause", "claims": [_action("c-rca", plan["rca"], element_ids)]},
-            {"id": "correction", "title": "Immediate action", "claims": [_action("c-cor", plan["correction"], element_ids)]},
-            {"id": "capa", "title": plan["title"], "claims": [_action("c-capa", plan["corrective"], element_ids), _action("c-prev", plan["preventive"], element_ids)]},
-            {"id": "timeline", "title": "Timeline and references", "claims": [_action("c-time", f"{plan['effectiveness']} Correction is due on day 2, the procedure revision on day 30, prevention on day 60, and the effectiveness check on day 90. {reference}", element_ids)]}]})
+            {"id": "query", "title": "Query", "claims": query_claims},
+            {"id": "response", "title": "Response", "claims": response_claims},
+            {"id": "capa", "title": "CAPA", "claims": [_action("c-capa", plan["corrective"], element_ids), _action("c-prev", plan["preventive"], element_ids)]},
+            {"id": "risk", "title": "Risk assessment", "claims": [_action("c-risk", plan["risk"], element_ids)]}]})
     if role == "redteam":
         named = ", ".join(labels) if labels else "no linked document"
-        return validate(role, {"issues": [{"id": "R1", "severity": "high" if not labels else "medium",
-            "attack": f"The proposed route is “{plan['title']}” from the observation wording and {named}. A reviewer still has to confirm the route, the linked passages, and the 21 CFR quotation. The investigation has to establish the root cause before the CAPA is treated as effective.",
-            "fix": "A qualified reviewer compares the route with the observation, the linked record passages, and the 21 CFR quotation before the response is approved."}]})
+        if not labels:
+            return validate(role, {"issues": [{"id": "R1", "severity": "high",
+                "attack": f"The proposed route is “{plan['title']}” and {named} supports it.",
+                "fix": "Retrieve the batch record or procedure for this check before the response is used."}]})
+        if (finding["propose_capa"] or finding["propose_change"]) and finding["stance"] in ("entry_not_shown", "aligned", "record_has_check"):
+            return validate(role, {"issues": [{"id": "R1", "severity": "high",
+                "attack": f"The draft proposes a CAPA or a change control while the retrieved row for {named} does not show a confirmed gap.",
+                "fix": "Remove the proposal until the batch row is blank or the procedure omits the check."}]})
+        return validate(role, {"issues": []})
     if role == "revise":
         return validate(role, {"replace": {}, "add": [], "resolves": []})
     raise ValueError(f"Unknown local step {role}")

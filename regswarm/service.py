@@ -66,6 +66,40 @@ def _drain_batch(runs):
         threading.Thread(target=lambda current=run: pipeline.execute(current, db.connect(), 0), daemon=True).start()
 
 
+def start_case_batch(session, case_ids, provider):
+    """Queue one run for every selected audit and process them together."""
+    if not isinstance(case_ids, list) or not 1 <= len(case_ids) <= 30 or not all(isinstance(item, str) and item.strip() for item in case_ids):
+        raise ValueError("Add between 1 and 30 audits")
+    chosen = []
+    for item in case_ids:
+        identifier = item.strip()
+        if identifier not in chosen:
+            chosen.append(identifier)
+    if not any(item["id"] == provider and item["ready"] for item in llm.provider_status()):
+        raise ValueError("Configure a live provider and supported model first")
+    con = db.connect()
+    runs = []
+    try:
+        if db.corpus_stats(con)["sections"] == 0:
+            raise ValueError("Load the regulatory corpus first")
+        for case_id in chosen:
+            case = intake.load(con, case_id)
+            case.update(provider=provider, initiated_by=session["username"])
+            run = pipeline.Run("RUN-" + uuid.uuid4().hex, case, "live")
+            run.status = "queued"
+            with LOCK:
+                RUNS[run.id] = run
+                store.save(con, run)
+            audit.append(con, run.id, session["username"], "run_requested",
+                         {"case": case["id"], "provider": provider, "provider_transmission_confirmed": True, "batch": True})
+            runs.append(run)
+    finally:
+        con.close()
+    threading.Thread(target=_drain_batch, args=(runs,), daemon=True).start()
+    return [{"run_id": run.id, "case_id": run.case["id"], "title": run.case.get("title", ""),
+             "facility": run.case.get("site_name", "")} for run in runs]
+
+
 def start_query_batch(session, body):
     """Create one case and one run for every query, then process the whole set."""
     if body.get("consent") is not True:
@@ -74,10 +108,13 @@ def start_query_batch(session, body):
     provider = body.get("provider") or (ready[0]["id"] if ready else "")
     if not any(item["id"] == provider and item["ready"] for item in ready):
         raise ValueError("Configure a live provider and supported model first")
-    items = facilities.batch_items(body)
     con = db.connect()
     prepared = []
     try:
+        if isinstance(body.get("query_set"), str) and body["query_set"].strip():
+            items = facilities.load_query_set(con, body["query_set"])["items"]
+        else:
+            items = facilities.batch_items(body)
         if db.corpus_stats(con)["sections"] == 0:
             raise ValueError("Load the regulatory corpus first")
         for item in items:
@@ -198,13 +235,14 @@ class Handler(BaseHTTPRequestHandler):
                 account_ready = auth.configured(con)
                 corpus = db.corpus_stats(con) if session else {"sections": 0}
                 cases = intake.recent(con) if session else []
+                query_sets = facilities.list_query_sets(con) if session else []
             finally:
                 con.close()
             providers = llm.provider_status()
             return self._json({"authenticated": bool(session), "account_ready": account_ready,
                 "user": {k: session[k] for k in ("username", "name", "role")} if session else None,
                 "csrf": session["csrf"] if session else None, "corpus": corpus, "corpus_ready": corpus["sections"] > 0,
-                "cases": cases, "providers": providers, "live_available": any(p["ready"] for p in providers),
+                "cases": cases, "query_sets": query_sets, "providers": providers, "live_available": any(p["ready"] for p in providers),
                 "roster": roster.ROSTER, "clusters": [{"key": k, "label": label, "tier": tier} for k, label, tier in roster.CLUSTERS]}, cookie=cookie)
         if not session:
             return self._json({"error": "Sign in required"}, 401)
@@ -343,6 +381,16 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/logout":
             auth.logout(self._token())
             return self._json({"ok": True}, cookie="regswarm_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0")
+        if path == "/api/query-sets":
+            con = db.connect()
+            try:
+                saved = facilities.save_query_set(con, body, session["username"])
+                audit.append(con, saved["id"], session["username"], "query_set_saved", {"number": saved["number"]})
+                return self._json(saved, 201)
+            except (ValueError, TypeError, KeyError, UnicodeError) as error:
+                return self._json({"error": str(error)}, 400)
+            finally:
+                con.close()
         if path == "/api/audits":
             try:
                 runs = start_query_batch(session, body)
@@ -420,6 +468,13 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json({"error": "Confirm transmission of this case to the selected AI provider"}, 400)
             if body.get("mode", "live") != "live":
                 return self._json({"error": "Scripted processing is unavailable"}, 400)
+            if isinstance(body.get("cases"), list):
+                try:
+                    runs = start_case_batch(session, body["cases"], body.get("provider", "local"))
+                except ValueError as error:
+                    code = 409 if "provider" in str(error).lower() or "corpus" in str(error).lower() else 400
+                    return self._json({"error": str(error)}, code)
+                return self._json({"runs": runs, "count": len(runs)}, 202)
             if not isinstance(body.get("case"), str):
                 return self._json({"error": "Select an imported case"}, 400)
             try:
@@ -431,6 +486,20 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json({"error": str(error)}, code)
             return self._json({"run_id": run_id}, 202)
         pieces = path.strip("/").split("/")
+        if len(pieces) == 4 and pieces[:2] == ["api", "run"] and pieces[3] == "proposal":
+            if session["role"] != "reviewer":
+                return self._json({"error": "Reviewer role required"}, 403)
+            run = self._run(pieces[2])
+            if not run:
+                return
+            con = db.connect()
+            try:
+                result = pipeline.apply_proposal(run, con, body.get("kind"), body.get("decision"), session["username"])
+                return self._json(result)
+            except ValueError as error:
+                return self._json({"error": str(error)}, 409)
+            finally:
+                con.close()
         if len(pieces) == 4 and pieces[:2] == ["api", "run"] and pieces[3] == "decision":
             if session["role"] != "reviewer":
                 return self._json({"error": "Reviewer role required"}, 403)

@@ -154,19 +154,19 @@ def execute(run, con, speed=1.0):
 
 
 STAGES = [
-    ("Upload", "Observation received, hashed and parsed."),
-    ("Classify", "Routing by authority, document type and product class."),
+    ("Query to core", "The uploaded query enters the RegSwarm core."),
+    ("Fetch sources", "The core reads SOP, STP, BMR, and every other stored class."),
+    ("Index library", "Every current document from every plant and facility is indexed."),
+    ("Fetch passages", "The core pulls the matching passages from each source."),
+    ("Fetch guidelines", "The core pulls 21 CFR text and the public guideline references."),
+    ("Analyze together", "The core reads the query, the retrieved documents, and the guidelines together."),
+    ("Classify", "Routing from the query and the retrieved sources."),
     ("Decompose", "Splitting the observation into compliance elements."),
-    ("Evidence sources", "Checking imported source metadata and document versions."),
-    ("Index documents", "Indexing the documents supplied with this case."),
-    ("Smart pull", "Ranking every document, extracting the relevant passages."),
-    ("Regulations", "Retrieving and mapping clauses from the dated corpus."),
-    ("Evidence context", "Linking selected passages to the observation elements."),
+    ("Map", "Linking each element to the fetched clauses and passages."),
     ("Frame & RCA", "Building the response frame and the root-cause analysis."),
     ("Change control", "Proposing change controls and the documents they touch."),
     ("CAPA", "Correction, corrective, preventive and effectiveness plan."),
-    ("Review scope", "Checking the proposed actions against supplied evidence."),
-    ("Draft", "Drafting the response (v0.1) from the frame."),
+    ("Draft", "Drafting the response from the query, the documents, and the guidelines."),
     ("Verify", "Checking every citation against the corpus, by code."),
     ("Red-team", "Attacking the draft, revising to v0.2, re-verifying."),
     ("Review gate", "Evidence checks and unresolved findings, then a human decides."),
@@ -301,7 +301,8 @@ def score(run, elements, issues, rev, first, final):
         {"name": "Evidence linkage", "value": round(ev_link), "weight": 20,
          "note": f"{sum(1 for cl in sf if res[cl['id']]['status'] == 'verified')}/{len(sf)} site facts tied to records"},
         {"name": "Red-team resolution", "value": round(rt), "weight": 20,
-         "note": f"{len(resolved & {i['id'] for i in issues})}/{len(issues)} issues resolved (severity-weighted)"},
+         "note": "No defect found in the draft. QA still approves the response." if not issues else
+         f"{len(resolved & {i['id'] for i in issues})}/{len(issues)} defects resolved (severity-weighted)"},
     ]
     comp = round(sum(x["value"] * x["weight"] for x in comps) / 100)
     open_items = []
@@ -324,6 +325,25 @@ def score(run, elements, issues, rev, first, final):
         rag, verdict = "red", "Escalate to subject-matter expert"
     return {"components": comps, "composite": comp, "rag": rag, "verdict": verdict, "open_items": open_items,
             "first_pass": first, "final": final}
+
+
+def apply_proposal(run, con, kind, decision, username):
+    """A reviewer confirms or rejects one proposal. This does not approve the response."""
+    from . import llm
+    with run.decision_lock:
+        if run.status != "awaiting_review" or not run.draft or not run.document:
+            raise ValueError("Proposals can be confirmed once the draft is ready for review")
+        if run.signature:
+            raise ValueError("The approved response is locked")
+        llm.stamp_proposal(run.draft, kind, decision)
+        proposals = run.metrics.setdefault("proposals", {})
+        proposals[kind] = {"decision": decision, "username": username}
+        run.document = assemble(run, run.case)
+        store.save(con, run)
+        audit.append(con, run.id, username, "proposal_" + decision, {"kind": kind})
+        run.emit("proposal", kind=kind, decision=decision, proposals=proposals)
+        run.emit("draft", version=run.version, sections=run.draft["sections"])
+        return {"proposals": proposals, "sections": run.draft["sections"], "doc_sha256": sha(run.document)}
 
 
 def assemble(run, case):

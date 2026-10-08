@@ -15,6 +15,20 @@ from collections import Counter, defaultdict
 from .retrieval import STOP
 
 CONTROLLED = {"SOP", "STP", "Protocol", "Master BMR", "SMF"}   # groups whose revision needs document control
+DEAD_STATUS = {"superseded", "obsolete", "retired", "withdrawn"}
+
+
+def product_conflict(text, product):
+    """True when a document states a different product family from the query."""
+    product = (product or "").strip().lower()
+    if not product:
+        return False
+    blob = (text or "").lower()
+    families = ("vaccine", "cell and gene")
+    stated = [name for name in families if name in blob]
+    if not stated:
+        return False
+    return not any(name in product for name in stated)
 
 
 def load(site_dir):
@@ -64,7 +78,7 @@ class Index:
                 self.con.execute("INSERT INTO sec_fts(rowid, title, text) VALUES(?,?,?)", (cur.lastrowid, d["title"], s["text"]))
         self.n_sections = self.con.execute("SELECT COUNT(*) FROM sec").fetchone()[0]
 
-    def search(self, query, k=6, area_hint=None, since=None):
+    def search(self, query, k=6, area_hint=None, since=None, facility=None, product=None):
         """Top-k documents for a free-text query, each with its best passage and a plain-language 'why'."""
         ts = terms(query)
         if not ts:
@@ -88,7 +102,13 @@ class Index:
             area = bool(area_hint and area_hint.lower() in (d.get("area") or "").lower())
             recent = bool(since and (d.get("date") or "") >= since)
             frac = len(matched) / len(ts)
-            rel = 50 * sc / top + 34 * min(1.0, frac * 2.2) + (10 if area else 0) + (6 if recent else 0)
+            home = bool(facility and facility.lower() == (d.get("facility") or "").lower())
+            blob = " ".join((text, d.get("title") or "", d.get("source") or "", d.get("facility") or ""))
+            rel = 50 * sc / top + 34 * min(1.0, frac * 2.2) + (10 if area else 0) + (6 if recent else 0) + (14 if home else 0)
+            if product_conflict(blob, product):
+                rel -= 45
+            if str(d.get("status") or "").strip().lower() in DEAD_STATUS:
+                rel -= 30
             why = [f"{len(matched)} of {len(ts)} query terms"]
             if area:
                 why.append(d["area"])

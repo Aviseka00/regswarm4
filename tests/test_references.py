@@ -5,6 +5,24 @@ from regswarm import references
 
 
 class ReferenceTests(unittest.TestCase):
+    def test_incubator_qualification_links_the_guideline_bodies(self):
+        found = references.subject("CO2 incubator qualification issue: the IQ OQ PQ was incomplete.")
+        self.assertIn("incubator", found["meaning"].lower())
+        bodies = {item["body"] for item in found["guidelines"]}
+        self.assertTrue({"US FDA", "WHO", "EMA", "ICH"} <= bodies)
+        self.assertTrue(any(item.get("cfr") == "21 CFR 211.63" for item in found["guidelines"]))
+        self.assertNotIn("quotation", " ".join(item["note"] for item in found["guidelines"] if item["body"] != "US FDA").lower())
+        home = references.impact("CO2 incubator qualification was incomplete.", "The CO2 incubator IQ protocol for this suite.", True)
+        other = references.impact("CO2 incubator qualification was incomplete.", "Formulation suite. The CO2 incubator OQ is filed here.", False)
+        unrelated = references.impact("CO2 incubator qualification was incomplete.", "Tablet compression yield was recorded.", False)
+        self.assertEqual(home["kind"], "direct")
+        self.assertEqual(other["kind"], "distant")
+        self.assertIn("similar instrument or process", other["why"])
+        self.assertEqual(unrelated["kind"], "none")
+        cited = references.document_references(
+            "Filling batch record. Perform the check per SOP-01 and STP-02. Master formula MFR-04 is attached.",
+            [{"id": "FIL-SOP-01"}, {"id": "FIL-STP-02"}, {"id": "QC-MFR-04"}, {"id": "FIL-BMR-09"}])
+        self.assertEqual(cited, ["FIL-SOP-01", "FIL-STP-02", "QC-MFR-04"])
     def test_catalog_names_the_bodies_and_the_best_api(self):
         with patch("urllib.request.urlopen", side_effect=TimeoutError()):
             result = references.lookup("")

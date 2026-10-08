@@ -24,23 +24,35 @@ body{font-family:var(--sans);color:var(--ink);background:
   radial-gradient(800px 500px at 100% 0%, #e8ecff, transparent 70%), var(--bg);
   font-size:var(--md);overflow:hidden}
 .mono{font-family:var(--mono)}
-.app{height:100vh;display:grid;grid-template-rows:auto auto auto 1fr;min-height:600px}
+.app{height:100vh;display:grid;grid-template-rows:auto auto auto minmax(0,1fr);min-height:600px}
+#msgs{grid-row:3}
+#msgs:empty{display:none}
+main{grid-row:4;min-height:0}
 
 /* ---------- header ---------- */
-header{display:flex;align-items:center;gap:.9rem;padding:.45rem 1rem;min-width:0;border-bottom:1px solid var(--line);background:rgba(255,255,255,.55);backdrop-filter:blur(8px)}
+header{display:flex;align-items:center;gap:.55rem .9rem;padding:.45rem 1rem;min-width:0;border-bottom:1px solid var(--line);background:rgba(255,255,255,.55);backdrop-filter:blur(8px);flex-wrap:wrap}
 .logo{width:2.5rem;height:2.5rem;border-radius:.45rem;background:var(--ink);color:#fff;display:grid;place-items:center;font:700 1.05rem var(--serif);letter-spacing:.5px;flex:none}
-.brand{min-width:0}
-.brand h1{margin:0;font:600 1.3rem/1.05 var(--serif);letter-spacing:-.2px;white-space:nowrap}
+.brand{flex:1 1 16rem;min-width:0;overflow:hidden}
+.brand h1{margin:0;font:600 1.3rem/1.05 var(--serif);letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brand h1 em{font-style:normal;color:var(--blue)}
-.brand small{display:block;margin-top:.2rem;font:.7rem var(--mono);letter-spacing:.06em;color:var(--muted);text-transform:uppercase;white-space:nowrap}
+.brand small{display:block;margin-top:.2rem;font:.7rem var(--mono);letter-spacing:.06em;color:var(--muted);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kpis{display:flex;gap:.1rem;margin-left:auto}
 .kpi{padding:.1rem .6rem;border-left:1px solid var(--line)}
 .kpi span{display:block;font:.7rem var(--mono);letter-spacing:.05em;color:var(--muted);text-transform:uppercase}
 .kpi b{font:600 1.35rem var(--mono);color:var(--blue);letter-spacing:-.5px}
-.ctl{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;min-width:0}
-#caseSelect{max-width:19rem;width:19rem;text-overflow:ellipsis}
-header{flex-wrap:wrap}.ctl{margin-left:auto}
-@media(max-width:1180px){.ctl{width:100%;margin-left:0}#caseSelect{max-width:16rem}.clock{display:none}}
+.ctl{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr) minmax(0,1.15fr);gap:.45rem .7rem;flex:1 1 100%;min-width:0;margin:0;align-items:center}
+.ctl-field{display:flex;align-items:center;gap:.4rem;min-width:0;font:.68rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ctl-actions{grid-column:1 / -1;display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;min-width:0}
+header select{height:2.15rem;line-height:2.15rem;padding:0 1.6rem 0 .65rem;color:var(--ink);background:#fff;min-width:0;width:100%;max-width:none;text-overflow:ellipsis}
+#provider,#querySelect{flex:1;width:100%;max-width:none}
+.audit-field #caseSelect{flex:1 1 6rem;width:auto}
+.audit-field .btn{height:2.15rem;padding:0 .7rem}
+.audit-picks{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:.3rem}
+.audit-picks:empty{display:none}
+.audit-chip{display:inline-flex;align-items:center;gap:.35rem;max-width:100%;padding:.12rem .15rem .12rem .55rem;border:1px solid var(--line);border-radius:99px;background:#fff;font:.72rem var(--sans);letter-spacing:0;text-transform:none;color:var(--ink)}
+.audit-chip b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:16rem}
+.audit-chip button{border:0;background:transparent;color:var(--muted);cursor:pointer;font:600 .9rem var(--sans);line-height:1;padding:.1rem .35rem}
+@media(max-width:1180px){.clock{display:none}}
 .pill{font:var(--xs) var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:.35rem .65rem;border:1px solid var(--line);border-radius:99px;background:#fff;color:var(--ink2);display:flex;align-items:center;gap:.4rem;white-space:nowrap}
 .pill i{width:.5rem;height:.5rem;border-radius:50%;background:var(--green);display:inline-block}
 .pill.live i{background:var(--red);animation:blink 1.1s infinite}
@@ -54,10 +66,6 @@ select{font:var(--sm) var(--mono);padding:.4rem .5rem;border:1px solid var(--lin
 .btn.red{background:#fff;color:var(--red);border-color:#f0c0c6}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .clock{font:600 1.2rem var(--mono);letter-spacing:.02em;min-width:5.6rem;text-align:right}
-.ticker{overflow:hidden;white-space:nowrap;border-bottom:1px solid var(--line);background:rgba(240,243,255,.75);font:var(--xs) var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:.32rem 0}
-.ticker .track{display:inline-block;padding-left:100%;animation:scroll 80s linear infinite}
-.ticker b{color:var(--red);font-weight:600}.ticker u{color:var(--blue);text-decoration:none;font-weight:600}
-.ticker span{margin:0 1.6rem}
 
 /* ---------- pipeline rail ---------- */
 #rail{display:grid;grid-template-columns:repeat(16,1fr);padding:.55rem 1rem .35rem;border-bottom:1px solid var(--line);background:rgba(255,255,255,.4);position:relative}
@@ -72,11 +80,11 @@ select{font:var(--sm) var(--mono);padding:.4rem .5rem;border:1px solid var(--lin
 #rail .st.on i{background:var(--ink);border-color:var(--ink);color:#fff;box-shadow:0 0 0 4px rgba(42,63,230,.18);animation:ring 1.6s infinite}
 
 /* ---------- layout ---------- */
-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75rem;padding:.7rem .85rem;min-height:0}
-.left{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1.75fr) minmax(11.5rem,1fr);gap:.7rem;min-height:0;min-width:0}
-.left>*,.right>*{min-width:0}
-.bottom{display:grid;grid-template-columns:minmax(11rem,13.5rem) minmax(0,1.15fr) minmax(0,1fr);gap:.7rem;min-height:0}
-.right{display:flex;flex-direction:column;gap:.6rem;min-height:0;min-width:0}
+main{display:grid;grid-template-columns:minmax(0,1fr);gap:.55rem;padding:.55rem .7rem .65rem;min-height:0}
+.left{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(300px,1.35fr) minmax(190px,.7fr) 10.6rem;gap:.55rem;min-height:0;min-width:0}
+.left>*{min-width:0}
+.deck{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.92fr) minmax(0,1.12fr);gap:.55rem;min-height:0}
+.bottom{display:grid;grid-template-columns:minmax(15rem,18rem) minmax(0,1fr);gap:.55rem;min-height:0}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:.6rem;padding:.55rem .75rem;min-height:0;display:flex;flex-direction:column;position:relative;backdrop-filter:blur(6px)}
 .ph{display:flex;align-items:baseline;gap:.55rem;margin-bottom:.35rem;flex:none}
 .ph b{font:700 var(--sm) var(--sans);letter-spacing:.04em;text-transform:uppercase}
@@ -125,9 +133,9 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
 .elist b{font:700 var(--sm) var(--mono);color:var(--purple)}
 
 /* qms */
-#v-qms{position:absolute;inset:0;gap:.6rem;align-items:stretch;min-width:0;overflow:hidden}
-.qcol{width:32%;display:flex;flex-direction:column;gap:.22rem;min-width:0;min-height:0;height:100%;z-index:2;overflow:hidden;padding-right:.1rem}
-.sysc{flex:1 1 0;display:grid;grid-template-columns:auto 1fr auto;gap:.05rem .4rem;align-items:center;padding:.12rem .45rem;border:1px solid var(--line);border-left:4px solid var(--src,#cfd4ee);border-radius:.4rem;background:#fff;opacity:.55;transition:.4s;min-height:0}
+#v-qms{position:absolute;inset:0;gap:1.1rem;align-items:center;justify-content:center;min-width:0;overflow:hidden;padding:0 1.5rem}
+.qcol{width:min(18.5rem,26%);flex:none;display:flex;flex-direction:column;justify-content:safe center;gap:.16rem;min-width:0;height:100%;z-index:2;overflow:auto;padding:.1rem .1rem .1rem 0}
+.sysc{flex:0 0 auto;display:grid;grid-template-columns:auto 1fr auto;gap:.02rem .4rem;align-items:center;padding:.16rem .5rem;border:1px solid var(--line);border-left:4px solid var(--src,#cfd4ee);border-radius:.4rem;background:#fff;opacity:.55;transition:.4s;min-height:1.4rem}
 .sysc.connecting{opacity:1;border-color:var(--amber)}.sysc.connected{opacity:1;border-color:color-mix(in srgb,var(--src,#9fdcc4) 50%,white);background:color-mix(in srgb,var(--src,#2a3fe6) 11%,white);box-shadow:0 8px 18px color-mix(in srgb,var(--src,#2a3fe6) 16%,transparent)}
 .sysc .dot{width:.72rem;height:.72rem;border-radius:50%;background:var(--src,#cfd4ee);grid-row:span 2;box-shadow:0 0 0 3px color-mix(in srgb,var(--src,#cfd4ee) 24%,transparent)}
 .sysc.connecting .dot{background:var(--amber);animation:blink .6s infinite}
@@ -135,12 +143,22 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
 .sysc .n{font:600 .9rem var(--mono);color:var(--src,var(--blue));grid-row:span 2}
 .sysc small{display:none}
 #qcv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
-.core{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem}
+.core{position:relative;z-index:2;flex:0 1 22rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.55rem;height:100%}
 .coreorb{width:min(7.2rem,34%);aspect-ratio:1;height:auto;max-height:46%;border-radius:50%;display:grid;place-items:center;text-align:center;background:radial-gradient(circle at 35% 30%,#8b6bff,#2a3fe6 70%);color:#fff;font:700 1.05rem var(--sans);box-shadow:0 0 0 .5rem rgba(109,61,240,.12),0 0 0 1.1rem rgba(42,63,230,.07),0 10px 40px rgba(42,63,230,.35);animation:orb 3s ease-in-out infinite}
 .coreorb small{display:block;font:var(--xs) var(--mono);letter-spacing:.1em;opacity:.85;margin-top:.15rem}
 .badges{display:flex;flex-wrap:wrap;gap:.3rem;justify-content:center;max-width:22rem}
-.qright{width:28%;display:flex;flex-direction:column;gap:.4rem;z-index:2;min-height:0;overflow:auto}
-.qright .card{font:var(--sm)/1.35 var(--sans)}
+.corenote{max-width:16rem;text-align:center;font:.72rem/1.35 var(--sans);color:var(--ink)}
+.coreorb.phase-analyze{box-shadow:0 0 0 .55rem rgba(12,155,110,.2),0 0 0 1.15rem rgba(42,63,230,.1),0 10px 40px rgba(42,63,230,.35)}
+.coreorb.absorb{box-shadow:0 0 0 .85rem rgba(109,61,240,.38),0 0 0 1.5rem rgba(42,63,230,.16),0 12px 36px rgba(42,63,230,.4)}
+.qingest{position:absolute;z-index:4;left:50%;top:12px;transform:translate(-50%,0);padding:.28rem .7rem;border-radius:999px;background:#fff;color:#6d3df0;border:2px solid #6d3df0;font:700 .78rem var(--sans);box-shadow:0 8px 22px rgba(109,61,240,.25);opacity:0;pointer-events:none;white-space:nowrap;max-width:16rem;overflow:hidden;text-overflow:ellipsis}
+.gchip{display:inline-block;margin:.28rem .28rem 0 0;padding:.16rem .5rem;border-radius:999px;border:1px solid var(--line);background:#f4f6ff;color:var(--muted);font:.68rem var(--mono);opacity:.45}
+.gchip.on{opacity:1;background:color-mix(in srgb,var(--chip,#1239b8) 14%,white);color:var(--chip,#1239b8);border-color:color-mix(in srgb,var(--chip,#1239b8) 40%,white)}
+.qright{width:min(20rem,28%);flex:none;display:flex;flex-direction:column;justify-content:safe center;gap:.18rem;z-index:2;min-height:0;height:100%;overflow:auto;padding:.1rem 0}
+#qPlaces{flex:0 0 auto;max-height:3.2rem;overflow:auto;padding:.28rem .5rem}
+#qPlaces h5{margin-bottom:.1rem}
+.qright .card{font:.7rem/1.25 var(--sans);min-height:0}
+.gcol{flex:0 1 auto;display:flex;flex-direction:column;justify-content:safe center;gap:.14rem;min-height:0;overflow:visible}
+.gcol .sysc{flex:0 0 auto;min-height:1.28rem;padding:.1rem .45rem}
 .place{margin:.45rem 0 0;padding:.35rem .45rem;border-radius:.45rem;border-left:4px solid var(--src,#e38b2c);background:color-mix(in srgb,var(--src,#e38b2c) 8%,white)}
 .place b{display:block;font:600 .9rem var(--serif);color:var(--src,#e38b2c)}
 .place span,.fda span{display:inline-block;margin:.28rem .28rem 0 0;padding:.14rem .5rem;border-radius:999px;background:color-mix(in srgb,var(--chip,#5a72f7) 14%,white);color:var(--chip,#24306e);border:1px solid color-mix(in srgb,var(--chip,#5a72f7) 35%,white);font:.68rem var(--mono)}
@@ -201,11 +219,16 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
 /* graph */
 #v-graph{flex-direction:column;min-width:0;min-height:0;overflow:hidden}
 .ghead{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex:none;min-width:0;padding:0 .15rem .3rem}
-#gwrap{position:relative;flex:1;min-height:0;min-width:0;overflow:hidden;border:1px solid var(--line);border-radius:.5rem;background:#fff}
+#gwrap{position:relative;flex:1;min-height:0;min-width:0;overflow:hidden;border:1px solid var(--line);border-radius:.5rem;background:#fbfbfd}
 #graph{position:absolute;inset:0;width:100%;height:100%}
 .legend{display:flex;flex-wrap:wrap;align-items:center;gap:.15rem .7rem;min-width:0;font:var(--xs) var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--ink2)}
 .legend div{display:flex;align-items:center;gap:.35rem}
-.legend i{width:.6rem;height:.6rem;border-radius:2px;display:inline-block;flex:none}
+.legend i{width:.85rem;height:.85rem;border-radius:3px;display:inline-block;flex:none}
+.legend i.hex{border-radius:0;clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)}
+.legend i.diamond{border-radius:0;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.legend i.pent{border-radius:0;clip-path:polygon(50% 0,100% 38%,81% 100%,19% 100%,0 38%)}
+.legend i.tag{border-radius:0;clip-path:polygon(0 8%,72% 8%,100% 50%,72% 92%,0 92%)}
+.legend i.circle{border-radius:50%}
 .legend em{font-style:normal;color:var(--muted);margin-left:.15rem}
 .density{flex:none;font:var(--xs) var(--mono);letter-spacing:.04em;color:var(--purple);text-transform:uppercase}
 .flash{position:absolute;left:50%;top:.6rem;transform:translateX(-50%) translateY(-8px);opacity:0;transition:.25s;background:#fff;border:1px solid #f1b9c0;color:var(--red);font:600 var(--sm) var(--mono);letter-spacing:.05em;padding:.5rem .9rem;border-radius:.4rem;box-shadow:0 8px 30px rgba(229,56,76,.18);pointer-events:none;max-width:75%;text-align:center;z-index:5}
@@ -258,9 +281,18 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
 .chs{display:flex;flex-wrap:wrap;gap:.2rem}
 #v-capa{flex-direction:column}
 #capasvg{flex:1;min-height:0;width:100%}
+#v-impact.on{flex-direction:column;overflow:auto;gap:.4rem}
+.riskwhy{flex:none;font:var(--sm)/1.4 var(--sans);color:var(--ink);padding:.45rem .7rem}
+.riskwhy p{margin:.15rem 0}
+.riskwhy b{font:700 var(--md) var(--mono);color:var(--blue);margin-right:.35rem}
+.fields{width:100%;border-collapse:collapse;font:var(--xs)/1.35 var(--sans)}
+.fields th,.fields td{border:1px solid var(--line);padding:.28rem .4rem;vertical-align:top;text-align:left}
+.fields th{font:700 var(--xs) var(--mono);color:var(--muted);text-transform:uppercase}
+.fields td:last-child{font-weight:700;white-space:nowrap}
+.impact-body{display:flex;gap:.5rem;min-height:12rem;flex:1 0 auto}
 #v-impact{gap:.65rem}
-.imatw{flex:1.55;display:flex;flex-direction:column;min-width:0}
-.imat{display:grid;gap:3px;flex:1;min-height:0;align-content:stretch;overflow:hidden}
+.imatw{flex:1.55;display:flex;flex-direction:column;min-width:0;min-height:8rem}
+.imat{display:grid;gap:3px;flex:1;min-height:8rem;align-content:start;overflow:auto}
 .imat>*{min-height:0;overflow:hidden}
 .im-h{font:700 var(--xs) var(--mono);letter-spacing:0;color:var(--muted);text-transform:uppercase;text-align:center;display:flex;align-items:flex-end;justify-content:center;line-height:1.1}
 .im-r{font:600 var(--sm) var(--sans);display:flex;flex-direction:column;justify-content:center;line-height:1.15;min-width:0}
@@ -270,6 +302,9 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
 .im-c.l1{background:#fde9b8;color:#8a5a00}.im-c.l2{background:#f7b267;color:#5a2d00}.im-c.l3{background:#e5384c;color:#fff}.im-c.l0{color:#b7bce0}
 .iright{flex:1;display:flex;flex-direction:column;gap:.5rem;min-width:0}
 .itiles{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem}
+.prop{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;padding:.45rem .6rem}
+.prop b{margin-right:auto}
+.prop .btn{padding:.25rem .55rem;font-size:.75rem}
 .it{border:1px solid var(--line);border-radius:.45rem;background:#fff;padding:.2rem .5rem}
 .iright>.card{overflow:hidden;flex:none}.iright>.card:last-child{flex:1;display:flex;flex-direction:column}#idocs{flex:1;min-height:0;overflow:auto;align-content:flex-start}
 @media (max-width:1440px){.kpis{display:none}}
@@ -292,7 +327,7 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
 .sopen{font:var(--sm)/1.4 var(--sans);color:var(--ink2)}.sopen li{margin:.15rem 0}
 
 /* ---------- swarm grid ---------- */
-#grid{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:3px;flex:1;min-height:0;width:100%;align-content:stretch}
+#grid{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:2px;flex:1;min-height:0;width:100%;align-content:stretch}
 .bottom>.panel{overflow:hidden;min-height:0}
 .sq{border-radius:2px;background:var(--c);opacity:.13;position:relative;transition:opacity .3s,transform .3s}
 .sq.impl{opacity:.34}
@@ -329,11 +364,28 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
 .chips{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.35rem}
 .chip{font:600 var(--xs) var(--mono);letter-spacing:.04em;padding:.1rem .5rem;border-radius:.3rem;background:#efe9ff;color:var(--purple);border:1px solid #ddd2ff;cursor:default}
 .note{font:var(--xs)/1.35 var(--sans);color:var(--amber);margin-top:.2rem}
-#draftPanel{flex:1 1 0;min-height:7rem}
 .right{overflow:hidden}
-@media (max-height:920px){#scorePanel{display:none!important}}
+.obs{flex:1;min-height:0}
+.obs .txt{flex:1;min-height:0;max-height:none;-webkit-line-clamp:unset;display:block;overflow:auto}
+.live-panel{min-height:0;padding:0;overflow:hidden;background:#0b0f2c;border-color:#222a66;box-shadow:0 10px 28px rgba(16,22,70,.12)}
+.live-panel .ph{margin:0;padding:.42rem .75rem;border-bottom:1px solid rgba(150,168,255,.16);background:linear-gradient(180deg,#161b40,#101433)}
+.live-panel .ph b{color:#f4f6ff;letter-spacing:.14em;font-size:.72rem}
+.live-panel .ph em{margin-left:auto;font:500 .68rem var(--mono);font-style:normal;letter-spacing:.08em;text-transform:uppercase;color:#8d97c9}
+.live-panel .live{color:#8d97c9}
+.live-panel .live:before{content:"";display:inline-block;width:.42rem;height:.42rem;margin-right:.35rem;border-radius:50%;background:#3ee6a5;box-shadow:0 0 8px #3ee6a5;vertical-align:.05rem;animation:blink 1.6s infinite}
+.live-panel .cw{flex:1;border:0;border-radius:0;box-shadow:none;background:#0a0d2b}
 #draft{flex:1;overflow:auto;min-height:0;scrollbar-width:thin;padding-right:.25rem}
-#draft h4{margin:.6rem 0 .25rem;font:700 var(--xs) var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--blue)}
+#draft h3{margin:1.6rem 0 .2rem;padding-top:1rem;border-top:1px solid var(--line);font:600 1.2rem var(--serif);color:var(--ink)}
+#draft h3:first-child{margin-top:0;padding-top:0;border-top:0}
+#draft h4{margin:1.05rem 0 .35rem;padding-bottom:.2rem;border-bottom:1px solid var(--line);font:700 .78rem var(--mono);letter-spacing:.14em;text-transform:uppercase}
+#draft h4.query{color:#6d3df0}
+#draft h4.response{color:#1239b8}
+#draft h4.capa{color:#0f9f6b}
+#draft h4.risk{color:#b86a12}
+#draft .cl .k{display:none}
+#draft .cl{margin:.15rem 0 .55rem}
+#draft .cl .tx{display:block;color:var(--ink)}
+#batchNote{font:.82rem var(--sans);color:var(--ink2);margin:0 0 .6rem}
 .cl{border-left:3px solid var(--line);padding:.25rem .5rem;margin:.25rem 0;background:rgba(255,255,255,.7);border-radius:0 .3rem .3rem 0;font-size:var(--sm);line-height:1.4;transition:.4s}
 .cl.regulatory{border-color:var(--blue)}.cl.site_fact{border-color:var(--cyan)}.cl.action{border-color:#c5c9e6}
 .cl.removed{border-color:var(--red);background:#fff1f3}.cl.removed .tx{text-decoration:line-through;color:#a77}
@@ -365,6 +417,15 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
 .sig{font:var(--xs)/1.5 var(--mono);color:var(--ink2);word-break:break-all}
 .sig b{color:var(--green)}
 .hide{display:none!important}
+#responseScreen{position:fixed;inset:0;z-index:40;display:none;flex-direction:column;background:radial-gradient(900px 500px at 12% -8%,#f7f8ff,transparent 70%),#f3f5ff;padding:1rem 1.4rem 1.2rem}
+#responseScreen.on{display:flex}
+#responseScreen .ph b{font-size:1.05rem}
+#responseScreen #draft{flex:1;overflow:auto;min-height:0;background:#fff;border:1px solid var(--line);border-radius:.6rem;padding:1rem 1.25rem 1.4rem;font:1.05rem/1.55 var(--serif)}
+#responseScreen .cl{font-size:1.02rem;line-height:1.55;padding:.5rem .7rem;margin:.4rem 0}
+#responseScreen .cl .tx[contenteditable]{outline:none;border-radius:.2rem}
+#responseScreen .cl .tx[contenteditable]:focus{background:#f7f8ff;box-shadow:inset 0 0 0 1px #d5daf6}
+#responseScreen #gatePanel{flex:none;margin-top:.7rem;background:#fff;max-height:16rem;overflow:auto}
+#responseScreen .gate textarea{height:3.4rem;resize:vertical}
 .modal{position:fixed;inset:0;background:rgba(16,18,43,.45);display:none;place-items:center;z-index:30}
 .modal.show{display:grid}
 .modal .box{background:#fff;border-radius:.6rem;width:min(60rem,92vw);max-height:80vh;display:flex;flex-direction:column;padding:1rem 1.1rem}
@@ -372,16 +433,20 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
 .modal td,.modal th{border-bottom:1px solid var(--line2);padding:.25rem .4rem;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:22rem}
 .modal .sc2{overflow:auto;flex:1}
 #queryModal .box{width:min(64rem,96vw);max-height:88vh;overflow:hidden}
-#queryModal label{display:block;font:.72rem var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-top:.45rem}
-#queryModal input,#queryModal select,#queryModal textarea{width:100%;margin:.25rem 0 .2rem;padding:.45rem .55rem;border:1px solid var(--line);border-radius:.4rem;background:#fff;color:var(--ink)}
-#queryModal .qrow{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.45rem .6rem;align-items:end;border:1px solid var(--line);border-radius:.5rem;padding:.45rem .6rem .55rem;margin:.4rem 0}
-#queryModal .qrow textarea,#queryModal .qrow label:last-child{grid-column:1 / -1}
+#queryModal .cap{display:block;font:.72rem var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:.15rem 0 .25rem}
+#queryModal select,#queryModal textarea{width:100%;margin:0 0 .35rem;padding:.45rem .55rem;border:1px solid var(--line);border-radius:.4rem;background:#fff;color:var(--ink)}
+#queryModal .qrow{border:1px solid var(--line);border-radius:.5rem;padding:.55rem .7rem .65rem;margin:.45rem 0;background:#fbfbfd}
+#queryModal .qtop{display:flex;gap:.6rem;align-items:end}
+#queryModal .qtop .cap{flex:1}
+#queryModal .qpicks{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin:.2rem 0 .35rem}
+#queryModal .pick{border:1px solid var(--line);border-radius:.4rem;background:#fff;padding:.35rem .55rem;max-height:8.2rem;overflow:auto}
+#queryModal .pick label{display:flex;gap:.45rem;align-items:flex-start;margin:.28rem 0;font:.84rem var(--sans);color:var(--ink);text-transform:none;letter-spacing:0}
+#queryModal .pick input{width:auto;margin:.15rem 0 0;flex:none}
+#queryModal .hint{font:.8rem var(--sans);color:var(--muted)}
 #queryRows{overflow:auto;flex:1;min-height:8rem}
 #queryModal .actions{display:flex;gap:.5rem;align-items:center;position:sticky;bottom:0;background:#fff;padding-top:.6rem}
-#queryModal .ref{margin:.35rem 0;padding:.45rem .6rem;border:1px solid var(--line);border-radius:.4rem;font:.82rem;color:var(--ink2)}
 .pfok{margin:.3rem .9rem 0;font:var(--xs) var(--mono);letter-spacing:.04em;color:var(--green)}
 .err{background:#fff1f3;border:1px solid #f1b9c0;color:var(--red);padding:.5rem .8rem;border-radius:.4rem;font:var(--sm) var(--mono);margin:.4rem .9rem 0}
-@keyframes scroll{to{transform:translateX(-100%)}}
 @keyframes blink{50%{opacity:.25}}
 @keyframes pulse{50%{transform:scale(1.18)}}
 @keyframes in{from{opacity:0;transform:translateY(4px)}}
@@ -394,9 +459,9 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
 @media (max-width:1180px){
   body{overflow:hidden}.app{height:100vh;min-height:0}
   main{grid-template-columns:1fr;overflow:hidden}
-  .left{grid-template-rows:minmax(0,1.4fr) minmax(9rem,.7fr)}.bottom{grid-template-columns:minmax(0,16rem) minmax(0,1fr) minmax(0,1fr)}
+  .left{grid-template-rows:minmax(280px,1.35fr) minmax(150px,.62fr) 10rem}.bottom{grid-template-columns:minmax(0,14rem) minmax(0,1fr)}
   .kpis{display:none}#rail{grid-template-columns:repeat(8,1fr);row-gap:.4rem}
-  .qcol{width:38%}.qright{width:32%}
+  .qcol{width:min(16rem,34%)}.qright{width:min(16rem,32%)}
 }
 </style>
 </head>
@@ -417,22 +482,25 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
       <div class="kpi"><span>Verified</span><b id="kVer">0</b></div>
     </div>
     <div class="ctl">
+      <label class="ctl-field">Model<select id="provider" title="Live AI provider"></select></label>
+      <label class="ctl-field">Query<select id="querySelect" title="Saved query number"></select></label>
+      <div class="ctl-field audit-field"><span>Audit</span><select id="caseSelect" title="Choose an audit to add"></select><button class="btn ghost" id="addAudit" type="button">Add</button></div>
+      <div id="auditPicks" class="audit-picks"></div>
+      <div class="ctl-actions">
       <div class="pill hide" id="modePill"><i></i><span id="modeTxt">Live analysis</span></div>
-      <select id="provider" title="Live AI provider"></select>
-      <select id="caseSelect" title="Case and evidence export"></select>
       <button class="btn" id="openQuery" title="Add an audit query" type="button">Query</button>
       <a class="btn ghost" href="/facilities">Facilities &amp; documents</a><button class="btn ghost" id="importBtn">Import evidence</button>
       <input type="file" id="caseFile" accept=".json,application/json" hidden>
       <button class="btn ghost" id="reviewBtn">Evidence review</button>
       <button class="btn ghost" id="historyBtn">History</button>
-      <button class="btn" id="runBtn" disabled>&#9654; Analyze case</button>
+      <button class="btn" id="runBtn" disabled>&#9654; Analyze</button>
       <button class="btn ghost hide" id="logoutBtn">Sign out</button>
       <label class="hide" id="providerConsentLabel"><input type="checkbox" id="providerConsent" checked> <span id="providerConsentText"></span></label>
       <button class="btn ghost" id="fsBtn" title="Full screen">&#x26F6;</button>
+      </div>
     </div>
     <div class="clock" id="clock">00:00:00</div>
   </header>
-  <div class="ticker"><div class="track" id="ticker"></div></div>
   <div id="rail"></div>
   <div id="msgs"></div>
 
@@ -461,12 +529,15 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
           <!-- 2 qms -->
           <div class="view" id="v-qms">
             <canvas id="qcv"></canvas>
+            <div id="queryIngest" class="qingest">Query</div>
             <div class="qcol" id="sysCol"></div>
-            <div class="core"><div class="coreorb" id="coreOrb"><div>RegSwarm<br>core<small>all sources</small></div></div>
-              <div class="badges"><span class="tag g">READ-ONLY</span><span class="tag b">EVERY PLANT</span><span class="tag c">EVERY FACILITY</span><span class="tag a">US FDA</span></div></div>
+            <div class="core"><div class="coreorb" id="coreOrb"><div>RegSwarm<br>core<small id="corePhase">waiting</small></div></div>
+              <div class="badges"><span class="tag g">READ-ONLY</span><span class="tag b">EVERY PLANT</span><span class="tag c">EVERY FACILITY</span><span class="tag a">US FDA</span></div>
+              <div class="corenote" id="coreNote">The query enters the core first.</div></div>
             <div class="qright">
               <div class="card" id="qPlaces"><h5>Plants and facilities</h5><div id="placeFlow">Plant and facility records appear as the library is read.</div></div>
-              <div class="card" id="qFda"><h5>US FDA</h5><div class="fda" id="fdaFlow">21 CFR clauses appear when the observation is mapped.</div></div>
+              <div class="gcol" id="guideCol"></div>
+              <div class="fda" id="fdaFlow"></div>
             </div>
           </div>
           <!-- 3 docs -->
@@ -495,7 +566,7 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
               <div class="flash" id="flash"></div>
               <div class="empty" id="empty"><div><h3>Evidence-driven analysis</h3><p>Import an observation and its source documents. Live analysis retrieves relevant passages and clauses, proposes a response and CAPA, then prepares an evidence packet for qualified review.</p></div></div>
             </div>
-            <div class="gfoot">Every node is a piece of evidence &middot; every edge is a traceable reason &middot; red = rejected by the verifier</div>
+            <div class="gfoot">Direct impact &middot; indirect impact at another facility &middot; referenced SOP, STP, BMR, and MFR links &middot; guidelines for the query</div>
           </div>
           <!-- 6 data -->
           <div class="view" id="v-data">
@@ -510,14 +581,19 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
           <!-- 8 cc -->
           <div class="view" id="v-cc"></div>
           <!-- 9 capa -->
-          <div class="view" id="v-capa"><svg id="capasvg" preserveAspectRatio="xMidYMid meet"></svg></div>
+          <div class="view" id="v-capa"><div id="capaDecision"></div><svg id="capasvg" preserveAspectRatio="xMidYMid meet"></svg></div>
           <!-- 10 impact -->
           <div class="view" id="v-impact">
+            <div id="riskDecision"></div>
+            <div class="card riskwhy" id="riskWhy"><p>The reason for the rating appears here after the records are compared.</p></div>
+            <div class="card" id="fieldTable"></div>
+            <div class="impact-body">
             <div class="imatw card"><h5>Review scope matrix &middot; risk by area and dimension</h5><div class="imat" id="imat"></div></div>
             <div class="iright">
               <div class="itiles" id="itiles"></div>
-              <div class="card"><h5>Line 2 batches &middot; red = distributed</h5><div class="bstrip" id="bstrip"></div></div>
-              <div class="card" style="flex:1;min-height:0"><h5>Controlled documents to revise together</h5><div class="chs scroll" id="idocs"></div></div>
+              <div class="card"><h5>Records in this assessment</h5><div class="bstrip" id="bstrip"></div></div>
+              <div class="card" style="flex:1;min-height:0"><h5>Records behind this rating</h5><div class="chs scroll" id="idocs"></div></div>
+            </div>
             </div>
           </div>
           <!-- 11 summary -->
@@ -533,6 +609,20 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
         </div>
       </section>
 
+      <div class="deck">
+        <section class="panel live-panel">
+          <div class="ph"><b>Neural</b><span class="live">Live</span><em>Query to output</em></div>
+          <div class="cw"><canvas id="c-live-neural"></canvas></div>
+        </section>
+        <section class="panel live-panel">
+          <div class="ph"><b>Radar</b><span class="live">Live</span><em>Document sweep</em></div>
+          <div class="cw"><canvas id="c-live-radar"></canvas></div>
+        </section>
+        <section class="panel live-panel">
+          <div class="ph"><b>Flow</b><span class="live">Live</span><em>Evidence movement</em></div>
+          <div class="cw"><canvas id="c-live-flow"></canvas></div>
+        </section>
+      </div>
       <div class="bottom">
         <section class="panel">
           <div class="ph"><b>Agent swarm</b><span class="r" id="actCount">0/0</span></div>
@@ -543,46 +633,29 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
           <div class="ph"><b>Agent activity log</b><span>live</span></div>
           <div id="log"></div>
         </section>
-        <section class="panel">
-          <div class="ph"><b>Ask the graph</b><span>what the observation never said</span></div>
-          <div class="qcard" id="qcard"><div class="lbl">Query</div><div class="q" style="color:var(--muted)">Insights appear once the agents have derived them from the data&hellip;</div></div>
-        </section>
       </div>
     </div>
-
-    <aside class="right">
-      <section class="panel obs" id="obsPanel" title="Click to expand">
-        <div class="ph"><b>Observation</b><span id="obsTag">case</span></div>
-        <div class="txt" id="obsTxt">No case running.</div>
-        <div class="chips" id="elChips"></div>
-        <div id="notes"></div>
-      </section>
-      <section class="panel" id="draftPanel">
-        <div class="ph"><b>Response draft</b><span id="dver">not started</span><span class="r" id="dcount"></span></div>
-        <div id="draft"><div style="color:var(--muted);font-size:var(--sm);line-height:1.5">The draft builds here. Regulatory claims carry citations; each one is checked by code against the versioned corpus. Click a citation chip to see its checks.</div></div>
-      </section>
-      <section class="panel score hide" id="scorePanel">
-        <div class="ph"><b>Confidence &amp; open items</b><span>computed, not guessed</span></div>
-        <div class="sc"><div><div class="num" id="scNum">0<small>/100</small></div><div class="vd"><i class="rag" id="scRag"></i><span id="scVerdict"></span></div></div><div class="scb" id="scBars"></div></div>
-        <div class="open" id="openItems"></div>
-      </section>
-      <section class="panel gate hide" id="gatePanel">
-        <div class="ph"><b>Human approval gate</b><span id="gateState">awaiting review</span><span class="r" id="gScore"></span></div>
-        <div id="gateForm">
-          <input id="revName" placeholder="Signed-in reviewer" readonly>
-          <textarea id="revNote" placeholder="Comment (optional)"></textarea>
-          <label style="font-size:.75rem;display:block;margin-bottom:.4rem"><input type="checkbox" id="ackOpen" style="width:auto"> I reviewed the evidence, interpretations, and open findings.</label>
-          <div class="bt"><button class="btn green" id="apprBtn">Approve &amp; lock</button><button class="btn red" id="chgBtn">Request changes</button><button class="btn ghost" id="docBtn">Download .docx</button><button class="btn ghost" id="audBtn">Audit trail</button></div>
-        </div>
-        <div class="sig hide" id="sigBox"></div>
-      </section>
-    </aside>
   </main>
+</div>
+<div id="responseScreen">
+  <div class="ph"><b>Response draft</b><span id="dver">not started</span><span class="r" id="dcount"></span><button class="btn ghost" id="responseFs" type="button">Full screen</button><button class="btn ghost" id="responseClose" type="button">Close</button></div>
+  <div id="batchNote"></div>
+  <div id="draft"><div style="color:var(--muted);font-size:var(--sm);line-height:1.5">The response opens here when the analysis finishes. Click a paragraph to edit it. Regulatory claims carry citations; each one is checked by code against the versioned corpus.</div></div>
+  <section class="panel gate" id="gatePanel">
+    <div class="ph"><b>Human approval gate</b><span id="gateState">awaiting review</span><span class="r" id="gScore"></span></div>
+    <div id="gateForm">
+      <input id="revName" placeholder="Signed-in reviewer" readonly>
+      <textarea id="revNote" placeholder="QA comment after reading and editing the response"></textarea>
+      <label style="font-size:.75rem;display:block;margin-bottom:.4rem"><input type="checkbox" id="ackOpen" style="width:auto"> I read the response, edited it where needed, and reviewed the evidence.</label>
+      <div class="bt"><button class="btn green" id="apprBtn">Approve &amp; lock</button><button class="btn red" id="chgBtn">Request changes</button><button class="btn ghost" id="docBtn">Download .docx</button><button class="btn ghost" id="audBtn">Audit trail</button></div>
+    </div>
+    <div class="sig hide" id="sigBox"></div>
+  </section>
 </div>
 <div id="tip"></div>
 <div class="modal" id="modal"><div class="box"><div class="ph"><b>Audit trail</b><span id="audMeta"></span><button class="btn ghost r" style="margin-left:auto;padding:.3rem .7rem" id="audClose">Close</button></div><div class="sc2"><table id="audTable"></table></div></div></div>
 <div class="modal" id="reviewModal"><div class="box"><div class="ph"><b id="reviewTitle">Evidence review</b><button class="btn ghost" id="reviewClose" style="margin-left:auto">Close</button></div><div id="reviewContent" style="overflow:auto;line-height:1.5;padding:.6rem"></div></div></div>
-<div class="modal" id="queryModal"><form class="box" id="queryForm"><div class="ph"><b>Audit queries</b><button class="btn ghost" id="queryClose" type="button" style="margin-left:auto">Close</button></div><p style="margin:.2rem 0 .4rem;color:var(--muted)">Add each observation with its plant and facility. Submit starts every query. Each query searches the current version of every document stored in the library.</p><div id="queryRows"></div><button class="btn ghost" id="addQuery" type="button">Add query</button><div id="queryRefs"></div><label class="hide"><input id="queryConsent" type="checkbox" checked> <span id="queryConsentText"></span></label><div class="actions"><button class="btn" id="querySubmit" type="submit">Submit all</button></div></form></div>
+<div class="modal" id="queryModal"><form class="box" id="queryForm"><div class="ph"><b>Audit queries</b><button class="btn ghost" id="queryClose" type="button" style="margin-left:auto">Close</button></div><p style="margin:.2rem 0 .45rem;color:var(--muted)">Add one observation or several. Tick one plant and one facility, or several. Saving assigns one query number for the whole set. Select that number on the main window and press Analyze.</p><div id="queryRows"></div><button class="btn ghost" id="addQuery" type="button">Add query</button><p id="queryError" class="hint" style="color:var(--red);min-height:1.1rem;margin:.35rem 0 0"></p><div class="actions"><button class="btn" id="querySave" type="submit">Save query</button></div></form></div>
 <div class="modal" id="loginModal"><div class="box" style="max-width:34rem;gap:.8rem;padding:1.5rem">
   <h2 style="margin:0">RegSwarm · Live evidence analysis</h2>
   <p id="loginStatus" style="margin:0">Sign in to access your site's cases and review packets.</p>
@@ -598,12 +671,12 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s==null?"":s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const CL = {OBS:{n:"Observation",c:"#6d3df0"},PLT:{n:"Plants",c:"#e38b2c"},FAC:{n:"Facilities",c:"#d45d8c"},DOC:{n:"Document types",c:"#12b5a0"},REG:{n:"US FDA",c:"#2a3fe6"},EVI:{n:"Site evidence",c:"#1fbfe0"},RSP:{n:"Response",c:"#14b8a6"}};
+const CL = {OBS:{n:"Query",c:"#6d3df0"},DIR:{n:"Direct impact",c:"#0f9f6b"},DST:{n:"Indirect impact",c:"#e38b2c"},REF:{n:"Referenced documents",c:"#5a72f7"},GDL:{n:"Guidelines",c:"#1239b8"},REG:{n:"21 CFR",c:"#2a3fe6"},PLT:{n:"Plants",c:"#e38b2c"},FAC:{n:"Facilities",c:"#d45d8c"},DOC:{n:"Document types",c:"#12b5a0"},EVI:{n:"Documents",c:"#1fbfe0"},RSP:{n:"Response",c:"#14b8a6"}};
 const AGENT_COL = {T1:"#10122b",A:"#2a3fe6",B:"#5a72f7",C:"#8a9bfa",D:"#6d3df0",E:"#a07af6",F:"#1fbfe0",G:"#48d4ea",H:"#12b5a0",T3:"#14b8a6",T4:"#0b8f6a",I:"#e38b2c",J:"#d45d8c",K:"#c4473a",L:"#7a6a4f"};
-let STAGES = [["Upload","Observation received, hashed and parsed."],["Classify","Routing by authority, document type and product class."],["Decompose","Splitting the observation into compliance elements."],["Evidence sources","Checking imported source metadata and document versions."],["Index documents","Indexing the documents supplied with this case."],["Smart pull","Ranking every document, extracting the relevant passages."],["Regulations","Retrieving and mapping clauses from the dated corpus."],["Evidence context","Linking selected passages to the observation elements."],["Frame & RCA","Building the response frame and the root-cause analysis."],["Change control","Proposing change controls and the documents they touch."],["CAPA","Correction, corrective, preventive and effectiveness plan."],["Review scope","Checking the proposed actions against supplied evidence."],["Draft","Drafting the response (v0.1) from the frame."],["Verify","Checking every citation against the corpus, by code."],["Red-team","Attacking the draft, revising to v0.2, re-verifying."],["Review gate","Evidence checks and unresolved findings, then a human decides."]];
-const VIEWS = [["intake","Intake"],["qms","QMS"],["docs","Docs"],["pull","Pull"],["graph","Graph"],["frame","Frame"],["cc","Change"],["capa","CAPA"],["summary","Summary"],["neural","Neural"],["flow","Flow"],["radar","Radar"],["orbit","Orbit"]];
-const STAGE_VIEW = ["intake","intake","intake","qms","docs","pull","graph","graph","frame","cc","capa","frame","flow","graph","graph","summary"];
-const TICK = ["Live evidence analysis","US FDA / 21 CFR corpus","Versioned source passages","Authenticated reviewer approval","No automatic regulatory submission","Every model output requires review"];
+let STAGES = [["Query to core","The uploaded query enters the RegSwarm core."],["Fetch sources","The core reads SOP, STP, BMR, and every other stored class."],["Index library","Every current document from every plant and facility is indexed."],["Fetch passages","The core pulls the matching passages from each source."],["Fetch guidelines","The core pulls 21 CFR text and the public guideline references."],["Analyze together","The core reads the query, the retrieved documents, and the guidelines together."],["Classify","Routing from the query and the retrieved sources."],["Decompose","Splitting the observation into compliance elements."],["Map","Linking each element to the fetched clauses and passages."],["Frame & RCA","Building the response frame and the root-cause analysis."],["Change control","Proposing change controls and the documents they touch."],["CAPA","Correction, corrective, preventive and effectiveness plan."],["Draft","Drafting the response from the query, the documents, and the guidelines."],["Verify","Checking every citation against the corpus, by code."],["Red-team","Attacking the draft, revising to v0.2, re-verifying."],["Review gate","Evidence checks and unresolved findings, then a human decides."]];
+const VIEWS = [["intake","Intake"],["qms","QMS"],["docs","Docs"],["pull","Pull"],["graph","Graph"],["frame","Frame"],["cc","Change"],["capa","CAPA"],["impact","Risk"],["summary","Summary"],["neural","Neural"],["flow","Flow"],["radar","Radar"],["orbit","Orbit"],["response","Response"]];
+const STAGE_VIEW = ["qms","qms","qms","qms","qms","qms","intake","intake","graph","frame","cc","capa","flow","graph","graph","summary"];
+const GUIDE_SRC = [{id:"USFDA",label:"US FDA",col:"#1239b8"},{id:"ICH",label:"ICH",col:"#a13de0"},{id:"USP",label:"USP",col:"#0c9b6e"},{id:"EP",label:"EP",col:"#6a4bff"},{id:"IP",label:"IP",col:"#e07a12"},{id:"WHO",label:"WHO",col:"#0e8f9a"},{id:"EMA",label:"EMA",col:"#3d7dff"},{id:"openFDA",label:"openFDA",col:"#1f6feb"}];
 const GROUP_COL = {"SOP":"#2451e6","STP":"#6a4bff","BMR":"#0c9b6e","MFR":"#a13de0","Protocol":"#3d7dff","Master BMR":"#6d3df0","Executed BMR":"#12b5a0","SMF":"#a07af6","Deviation":"#e23b4a","OOS":"#e07a12","Qualification":"#0e8f9a","CAPA":"#d98a00","Change control":"#f08a3c","Audit":"#c2569a","LIMS data":"#1fbfe0","Training":"#0f9f6b","Equipment":"#4b5b8f","FDA":"#1239b8"};
 const SYS_COL = {DMS:"#2451e6",FDA:"#1239b8",SOP:"#2451e6",STP:"#6a4bff",BMR:"#0c9b6e",MFR:"#a13de0",Protocol:"#3d7dff",Deviation:"#e23b4a",OOS:"#e07a12",Qualification:"#0e8f9a",MES:"#12b5a0",EQMS:"#e5384c",LIMS:"#1fbfe0",LMS:"#0f9f6b",CMMS:"#6d3df0"};
 const PLANT_PAL=["#e38b2c","#c4473a","#1f6feb","#0f9f6b","#6d3df0","#b85c38"];
@@ -614,13 +687,38 @@ const GROUP_LABEL = {"SOP":"SOPs","STP":"STPs","BMR":"Batch records","MFR":"Mast
 let ES=null, RUN=null, STATUS=null, t0=0, clockTimer=null, stageI=-1;
 let cards=[], cardIdx=0, cardTimer=null, focus=new Set();
 let draft=null, vmap={}, revised=new Set(), verCount=0, blocked=0, series=[];
+let BATCH=null, QUIET=[], AUDIT_PICKS=[];
+function paintAudits(){
+  const box=$("#auditPicks"); if(!box) return;
+  box.innerHTML=AUDIT_PICKS.map(item=>`<span class="audit-chip"><b>${esc(item.title)}</b><button type="button" data-id="${esc(item.id)}" title="Remove">×</button></span>`).join("");
+  box.querySelectorAll("button").forEach(button=>button.onclick=()=>{AUDIT_PICKS=AUDIT_PICKS.filter(item=>item.id!==button.dataset.id);paintAudits();});
+}
+function addAudit(){
+  const id=$("#caseSelect").value;
+  if(!id){ $("#msgs").innerHTML='<div class="err">Choose an audit, then press Add.</div>'; return; }
+  if(AUDIT_PICKS.some(item=>item.id===id)) return;
+  if(AUDIT_PICKS.length>=30){ $("#msgs").innerHTML='<div class="err">Thirty audits is the limit for one analysis.</div>'; return; }
+  const option=[...$("#caseSelect").options].find(item=>item.value===id);
+  AUDIT_PICKS.push({id, title:option?option.textContent:id});
+  $("#querySelect").value="";
+  paintAudits();
+  $("#msgs").innerHTML='<div class="pfok"><b>'+AUDIT_PICKS.length+' audit'+(AUDIT_PICKS.length===1?'':'s')+' added.</b> Press Analyze to run '+(AUDIT_PICKS.length===1?'it':'them')+' together.</div>';
+}
+function reportFor(id){ if(!BATCH) return null; return BATCH.reports[id]||(BATCH.reports[id]={sections:null,vmap:null,observation:"",status:"",error:""}); }
+function closeQuiet(){ QUIET.forEach(es=>{ try{es.close();}catch(err){} }); QUIET=[]; }
+function batchSettled(){ return !!(BATCH && BATCH.runs.length && BATCH.runs.every(run=>{ const rep=BATCH.reports[run.run_id]; return rep && (rep.status==="done"||rep.status==="error"); })); }
+function batchProgress(){
+  const note=$("#batchNote"); if(!note) return;
+  if(!BATCH || BATCH.runs.length<2){ note.textContent=""; return; }
+  const done=BATCH.runs.filter(run=>{ const rep=BATCH.reports[run.run_id]; return rep && (rep.status==="done"||rep.status==="error"); }).length;
+  note.textContent=done===BATCH.runs.length?BATCH.runs.length+" observations analyzed together under this query.":done+" of "+BATCH.runs.length+" observations finished. The report opens when every observation in this query is ready.";
+}
 let agents={}, nodes=[], links=[], nmap={}, hover=null, alpha=1, W=0, H=0, DPR=1;
 let view="intake", follow=true, seen=new Set(), timers=[];
 const later=(fn,ms)=>{ timers.push(setTimeout(fn,ms)); };
 let ST={};  // per-run UI data
 
-/* ---------------- ticker / rail / tabs ---------------- */
-$("#ticker").innerHTML = TICK.concat(TICK).map(t=>"<span>"+t+"</span>").join("");
+/* ---------------- rail / tabs ---------------- */
 function buildRail(){ $("#rail").innerHTML=STAGES.map((p,i)=>`<div class="st" id="st${i}" title="${esc(p[1])}"><i>${i+1}</i>${esc(p[0])}</div>`).join(""); }
 function buildTabs(){
   $("#tabs").innerHTML=VIEWS.map(v=>`<span class="tab" data-v="${v[0]}">${v[1]}</span>`).join("")+`<span class="tab auto" id="autoTab" title="Follow the current stage automatically">Auto</span>`;
@@ -629,10 +727,16 @@ function buildTabs(){
   $("#autoTab").onclick=()=>{ tour(false); follow=!follow; $("#autoTab").classList.toggle("off",!follow); if(follow && stageI>=0) applyStage(stageI); };
   $("#tourTab").onclick=()=>tour(!tourOn);
 }
-const SEQ={5:[["radar",4200],["pull"]],6:[["graph",3500],["neural"]],14:[["orbit",3800],["neural"]]};
+const SEQ={14:[["orbit",3800],["neural"]]};
 const TOUR=["neural","radar","flow","orbit","graph"];
 let seqTimers=[], tourOn=false, tourTimer=null, tourI=0;
 function applyStage(i){
+  if(follow && performance.now()<(ST.viewHoldUntil||0)){
+    showView("qms");
+    clearTimeout(ST.viewTimer);
+    ST.viewTimer=setTimeout(()=>{ if(follow) applyStage(stageI); }, Math.max(40,(ST.viewHoldUntil||0)-performance.now()+40));
+    return;
+  }
   seqTimers.forEach(clearTimeout); seqTimers=[]; const seq=SEQ[i]; if(!seq){ showView(STAGE_VIEW[i]); return; }
   const sc=1; let at=0;
   seq.forEach((st,k)=>{ const go=()=>{ if(follow&&stageI===i) showView(st[0]); }; if(k===0) go(); else seqTimers.push(setTimeout(go,at)); at+=(st[1]||0)*sc; });
@@ -641,7 +745,23 @@ function tour(on){
   tourOn=on; clearInterval(tourTimer); $("#tourTab").classList.toggle("on",on);
   if(on){ follow=false; $("#autoTab").classList.add("off"); tourI=0; showView(TOUR[0]); tourTimer=setInterval(()=>{ tourI=(tourI+1)%TOUR.length; showView(TOUR[tourI]); },6500); }
 }
+function openResponse(auto){
+  follow=false; $("#autoTab").classList.add("off");
+  clearTimeout(ST.viewTimer); seqTimers.forEach(clearTimeout); seqTimers=[];
+  const screen=$("#responseScreen");
+  screen.classList.add("on");
+  $$(".tab[data-v]").forEach(t=>t.classList.toggle("on", t.dataset.v==="response"));
+  if(auto && screen.requestFullscreen) screen.requestFullscreen().catch(()=>{});
+}
+function closeResponse(){
+  $("#responseScreen").classList.remove("on");
+  if(document.fullscreenElement && document.fullscreenElement.id==="responseScreen") document.exitFullscreen().catch(()=>{});
+  $$(".tab[data-v]").forEach(t=>t.classList.toggle("on", t.dataset.v===view));
+}
 function showView(v){
+  if(v==="response"){ openResponse(false); return; }
+  $("#responseScreen").classList.remove("on");
+  if(document.fullscreenElement && document.fullscreenElement.id==="responseScreen") document.exitFullscreen().catch(()=>{});
   view=v; seen.add(v); NV.reset_hover&&NV.reset_hover();
   $$(".view").forEach(el=>el.classList.toggle("on",el.id==="v-"+v));
   $$(".tab[data-v]").forEach(t=>{ t.classList.toggle("on",t.dataset.v===v); t.classList.toggle("seen",seen.has(t.dataset.v)); });
@@ -690,6 +810,13 @@ function countTo(el,to){
 
 /* ---------------- graph engine ---------------- */
 const cv=$("#graph"), cx=cv.getContext("2d");
+if(!CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
+    const rad=Math.max(0,Math.min(r||0,Math.abs(w)/2,Math.abs(h)/2));
+    this.moveTo(x+rad,y); this.arcTo(x+w,y,x+w,y+h,rad); this.arcTo(x+w,y+h,x,y+h,rad);
+    this.arcTo(x,y+h,x,y,rad); this.arcTo(x,y,x+w,y,rad);
+  };
+}
 function resize(){
   const r=$("#gwrap").getBoundingClientRect(); if(!r.width) return;
   DPR=window.devicePixelRatio||1; W=r.width; H=r.height;
@@ -697,10 +824,10 @@ function resize(){
   drawDonut(true); drawWeekly(); drawCapa();
 }
 window.addEventListener("resize",()=>{resize();alpha=Math.max(alpha,.5)});
-const ANCH={OBS:[.08,.5],PLT:[.26,.28],FAC:[.26,.74],DOC:[.48,.52],REG:[.68,.24],EVI:[.68,.76],RSP:[.9,.5]};
+const ANCH={OBS:[.48,.48],DIR:[.16,.28],DST:[.16,.74],REF:[.48,.84],GDL:[.82,.26],REG:[.82,.7],PLT:[.28,.18],FAC:[.28,.78],DOC:[.48,.52],EVI:[.52,.5],RSP:[.92,.5]};
 function radius(n){
   const k=n.kind;
-  const base={observation:14,element:9.5,dataset:10,location:6,sop:7.5,trend:6,aps:6,doc:6.2,change:7,deviation:4.2,sample:3.6,clause:n.status==="candidate"?4.2:(n.status==="selected"?8:6),claim:5}[k]||4.5;
+  const base={observation:14,element:9.5,dataset:10,location:7,sop:7.5,trend:6,aps:6,doc:6.2,document:7,guideline:8,change:7,deviation:4.2,sample:3.6,clause:n.status==="candidate"?4.2:(n.status==="selected"?8:6),claim:5}[k]||4.5;
   return base+(k==="location"?n.size*.9:0)+Math.min(4,n.deg*.22);
 }
 function addGraph(ns,es){
@@ -720,27 +847,55 @@ function addGraph(ns,es){
   $("#density").textContent=nodes.length?"density "+(links.length/Math.max(1,nodes.length)).toFixed(1)+" edges / node":"";
   $("#empty").classList.add("hide");
 }
+const SH={OBS:"hex",DIR:"round",DST:"diamond",REF:"tag",GDL:"pent",REG:"circle",PLT:"round",FAC:"diamond",DOC:"round",EVI:"circle",RSP:"round"};
+function nodeShape(n){
+  if(n.kind==="observation") return "hex";
+  if(n.kind==="guideline"||n.cluster==="GDL") return "pent";
+  if(n.kind==="clause"||n.cluster==="REG") return "circle";
+  if(n.cluster==="DST"||n.kind==="change") return "diamond";
+  if(n.cluster==="REF") return "tag";
+  if(n.cluster==="DIR"||n.kind==="location") return "round";
+  return SH[n.cluster]||"circle";
+}
+function shapePad(shape){ return {diamond:1.38,pent:1.32,hex:1.22,tag:1.08,round:1.12,circle:1}[shape]||1; }
+function lighten(hex){
+  const h=String(hex||"").replace("#",""); if(h.length!==6) return "#ffffff";
+  const n=parseInt(h,16), ch=s=>Math.min(255,Math.round(((n>>s)&255)*.58+107));
+  return "#"+[16,8,0].map(s=>ch(s).toString(16).padStart(2,"0")).join("");
+}
+function traceShape(ctx,x,y,r,shape){
+  ctx.beginPath();
+  if(shape==="diamond"){ ctx.moveTo(x,y-r*1.32); ctx.lineTo(x+r*1.16,y); ctx.lineTo(x,y+r*1.32); ctx.lineTo(x-r*1.16,y); ctx.closePath(); }
+  else if(shape==="round"){
+    const s=r*2.2, rad=Math.max(3.5,r*.42), x0=x-s/2, y0=y-s/2;
+    ctx.moveTo(x0+rad,y0); ctx.arcTo(x0+s,y0,x0+s,y0+s,rad); ctx.arcTo(x0+s,y0+s,x0,y0+s,rad); ctx.arcTo(x0,y0+s,x0,y0,rad); ctx.arcTo(x0,y0,x0+s,y0,rad); ctx.closePath();
+  }
+  else if(shape==="hex"){ for(let i=0;i<6;i++){ const a=-Math.PI/2+i*Math.PI/3, px=x+Math.cos(a)*r*1.2, py=y+Math.sin(a)*r*1.2; i?ctx.lineTo(px,py):ctx.moveTo(px,py); } ctx.closePath(); }
+  else if(shape==="pent"){ for(let i=0;i<5;i++){ const a=-Math.PI/2+i*Math.PI*2/5, px=x+Math.cos(a)*r*1.22, py=y+Math.sin(a)*r*1.22; i?ctx.lineTo(px,py):ctx.moveTo(px,py); } ctx.closePath(); }
+  else if(shape==="tag"){ const w=r*1.28,h=r*.9; ctx.moveTo(x-w,y-h); ctx.lineTo(x+w*.42,y-h); ctx.lineTo(x+w,y); ctx.lineTo(x+w*.42,y+h); ctx.lineTo(x-w,y+h); ctx.closePath(); }
+  else ctx.arc(x,y,r,0,7);
+}
 function updateLegend(){
   const c={}; nodes.forEach(n=>c[n.cluster]=(c[n.cluster]||0)+1);
-  $("#legend").innerHTML=Object.keys(CL).map(k=>`<div><i style="background:${CL[k].c}"></i>${CL[k].n}<em>${c[k]||0}</em></div>`).join("");
+  $("#legend").innerHTML=Object.keys(CL).filter(k=>c[k]).map(k=>`<div><i class="${SH[k]||"circle"}" style="background:${CL[k].c}"></i>${CL[k].n}<em>${c[k]}</em></div>`).join("");
 }
 function step(){
   const n=nodes.length; if(!n) return;
   const XS=Math.max(1,Math.min(2.6,(W/Math.max(H,1))*.75));
   for(let i=0;i<n;i++){
     const a=nodes[i], pinned=a.ax!=null, an=pinned?[a.ax,a.ay]:(ANCH[a.cluster]||[.5,.5]);
-    const pull=pinned?.08:.007, hold=pinned?Math.max(alpha,.4):alpha;
-    a.vx+=(W*an[0]-a.x)*pull*hold; a.vy+=(H*an[1]-a.y)*(pinned?pull: .012)*hold;
+    const pull=pinned?.08:.018, hold=pinned?Math.max(alpha,.4):alpha;
+    a.vx+=(W*an[0]-a.x)*pull*hold; a.vy+=(H*an[1]-a.y)*(pinned?pull:.024)*hold;
     for(let j=i+1;j<n;j++){
       const b=nodes[j]; let dx=b.x-a.x, dy=b.y-a.y, d2=dx*dx+dy*dy+.5, d=Math.sqrt(d2);
       const f=(a.cluster===b.cluster?520:900)/d2*alpha; dx/=d;dy/=d;
       const fx=f*XS, fy=f*.8; a.vx-=dx*fx;a.vy-=dy*fy;b.vx+=dx*fx;b.vy+=dy*fy;
-      const min=radius(a)+radius(b)+5; if(d<min){const p=(min-d)*.06;a.vx-=dx*p;a.vy-=dy*p;b.vx+=dx*p;b.vy+=dy*p;}
+      const min=radius(a)+radius(b)+16; if(d<min){const p=(min-d)*.08;a.vx-=dx*p;a.vy-=dy*p;b.vx+=dx*p;b.vy+=dy*p;}
     }
   }
   links.forEach(l=>{
     const dx=l.t.x-l.s.x, dy=l.t.y-l.s.y, d=Math.sqrt(dx*dx+dy*dy)||1;
-    const L={part:42,maps:110,cites:100,supports:80,evidences:44,addresses:90}[l.kind]||60;
+    const L={part:36,maps:110,cites:100,supports:80,evidences:54,addresses:90,direct:96,distant:190,guides:168,refers:120}[l.kind]||60;
     const f=(d-L)*.012*alpha, fx=dx/d*f, fy=dy/d*f;
     l.s.vx+=fx;l.s.vy+=fy;l.t.vx-=fx;l.t.vy-=fy;
   });
@@ -748,60 +903,75 @@ function step(){
   alpha=Math.max(.04,alpha*.985);
 }
 const ease=t=>{const c=1.70158+1;return 1+c*Math.pow(t-1,3)+1.70158*Math.pow(t-1,2)};
-const EC={maps:"109,61,240",cites:"42,63,230",supports:"31,191,224",evidences:"120,160,215",part:"109,61,240",addresses:"20,184,166"};
+const EC={maps:"109,61,240",cites:"42,63,230",supports:"31,191,224",evidences:"120,160,215",part:"109,61,240",addresses:"20,184,166",direct:"15,159,107",distant:"227,139,44",guides:"18,57,184",refers:"90,75,255"};
 function rgbOf(hex){ const h=String(hex||"").replace("#",""); if(h.length!==6) return "120,130,180"; const n=parseInt(h,16); return ((n>>16)&255)+","+((n>>8)&255)+","+(n&255); }
 function nodeColor(n){ if(n.status==="failed") return "#e5384c"; return n.color||(CL[n.cluster]||CL.EVI).c; }
 function draw(){
   if(view!=="graph" || !W) return;
   const now=performance.now();
   cx.clearRect(0,0,W,H);
+  cx.fillStyle="#fbfbfd"; cx.fillRect(0,0,W,H);
   const hasF=focus.size>0 || hover;
   const nb=new Set(); if(hover){nb.add(hover.id); links.forEach(l=>{if(l.s===hover)nb.add(l.t.id);if(l.t===hover)nb.add(l.s.id);});}
   const lit=id=> hover? nb.has(id) : (focus.size? focus.has(id):true);
+  const plates={};
   nodes.forEach(n=>{
-    const g=cx.createRadialGradient(n.x,n.y,0,n.x,n.y,54), c=nodeColor(n);
-    g.addColorStop(0,c+"1c"); g.addColorStop(1,c+"00"); cx.fillStyle=g; cx.beginPath(); cx.arc(n.x,n.y,54,0,7); cx.fill();
+    const p=plates[n.cluster]||(plates[n.cluster]={xs:[],ys:[],c:(CL[n.cluster]||CL.EVI).c});
+    p.xs.push(n.x); p.ys.push(n.y);
   });
+  Object.keys(plates).forEach(k=>{
+    const p=plates[k]; if(p.xs.length<2) return;
+    const pad=28;
+    const x=Math.min(...p.xs)-pad, y=Math.min(...p.ys)-pad-6, w=Math.max(...p.xs)-Math.min(...p.xs)+pad*2, h=Math.max(...p.ys)-Math.min(...p.ys)+pad*2+4;
+    cx.beginPath(); cx.roundRect(x,y,w,h,16);
+    cx.fillStyle=p.c+"0d"; cx.fill();
+  });
+  cx.lineCap="round"; cx.lineJoin="round";
   links.forEach(l=>{
-    const k=Math.min(1,(now-l.birth)/500); if(k<=0) return;
+    const k=Math.min(1,(now-l.birth)/420); if(k<=0) return;
     const on=hasF? (hover? (l.s===hover||l.t===hover) : (focus.has(l.s.id)||focus.has(l.t.id))):true;
     const bad=l.s.status==="failed"||l.t.status==="failed";
-    const tint=l.s.color||l.t.color; const col=bad?"229,56,76":(tint?rgbOf(tint):(EC[l.kind]||"120,130,180"));
-    cx.strokeStyle=`rgba(${col},${(on?(bad?.7:.42):.07)*k})`; cx.lineWidth=on&&hasF?1.8:(l.kind==="maps"||l.kind==="cites"?1.3:.9);
-    cx.setLineDash(bad?[4,3]:[]); cx.beginPath(); cx.moveTo(l.s.x,l.s.y);
-    cx.lineTo(l.s.x+(l.t.x-l.s.x)*k,l.s.y+(l.t.y-l.s.y)*k); cx.stroke();
-  }); cx.setLineDash([]);
+    const col=bad?"229,56,76":(EC[l.kind]||"150,158,184");
+    const dx=l.t.x-l.s.x, dy=l.t.y-l.s.y, len=Math.hypot(dx,dy)||1, ux=dx/len, uy=dy/len;
+    const x1=l.s.x+ux*(radius(l.s)+2), y1=l.s.y+uy*(radius(l.s)+2);
+    const x2=l.t.x-ux*(radius(l.t)+4), y2=l.t.y-uy*(radius(l.t)+4);
+    if(Math.hypot(x2-x1,y2-y1)<6) return;
+    const bow=Math.min(10, Math.hypot(dx,dy)*.06)*(l.s.id>l.t.id?1:-1);
+    const mx=(x1+x2)/2-uy*bow, my=(y1+y2)/2+ux*bow;
+    cx.strokeStyle=`rgba(${col},${(on?(bad?.55:.38):.06)*k})`;
+    cx.lineWidth=on&&hasF?1.35:.85;
+    cx.setLineDash([]);
+    cx.beginPath(); cx.moveTo(x1,y1); cx.quadraticCurveTo(x1+(mx-x1)*k,y1+(my-y1)*k,x1+(x2-x1)*k,y1+(y2-y1)*k); cx.stroke();
+  });
   nodes.forEach(n=>{
-    const age=(now-n.birth)/450, sc=age>=1?1:Math.max(0,ease(Math.max(0,age)));
-    const r=radius(n)*sc, on=lit(n.id), col=nodeColor(n);
-    cx.globalAlpha=(on?1:.22)*(n.status==="candidate"?.55:1);
-    cx.fillStyle=col; cx.beginPath();
-    if(n.kind==="change"){ cx.moveTo(n.x,n.y-r*1.2); cx.lineTo(n.x+r*1.2,n.y); cx.lineTo(n.x,n.y+r*1.2); cx.lineTo(n.x-r*1.2,n.y); cx.closePath(); } else cx.arc(n.x,n.y,r,0,7);
-    cx.fill();
-    cx.lineWidth=1.6; cx.strokeStyle="rgba(255,255,255,.95)"; cx.stroke();
-    if(n.status==="verified"){cx.strokeStyle="#0f9f6b";cx.lineWidth=1.8;cx.beginPath();cx.arc(n.x,n.y,r+2.6,0,7);cx.stroke();}
-    const pa=(now-n.pulse)/1000; if(pa<1){cx.strokeStyle=col;cx.globalAlpha=(1-pa)*.6;cx.lineWidth=1.5;cx.beginPath();cx.arc(n.x,n.y,r+4+pa*20,0,7);cx.stroke();}
+    const age=Math.min(1,(now-n.birth)/380), sc=age*age*(3-2*age);
+    const r=radius(n)*sc, on=lit(n.id), col=nodeColor(n), shape=nodeShape(n);
+    cx.save();
+    cx.globalAlpha=(on?1:.2)*(n.status==="candidate"?.5:1);
+    traceShape(cx,n.x,n.y,r,shape);
+    cx.fillStyle=col; cx.fill();
+    cx.lineWidth=1.25; cx.strokeStyle="rgba(255,255,255,.9)"; cx.stroke();
+    cx.restore();
+    if(n.status==="verified"){cx.globalAlpha=on?1:.25; cx.strokeStyle="#0f9f6b"; cx.lineWidth=1.2; traceShape(cx,n.x,n.y,r+2.4,shape); cx.stroke(); cx.globalAlpha=1;}
+  });
+  cx.font="600 12px ui-sans-serif, Segoe UI, sans-serif"; cx.textAlign="center"; cx.textBaseline="middle";
+  nodes.forEach(n=>{
+    const show=["observation","dataset","sop","change","guideline","document","location"].includes(n.kind)||n.status==="failed"||(n.kind==="clause"&&n.status==="cited")||n===hover;
+    if(!show||(hover&&!nb.has(n.id))||(now-n.birth)<280) return;
+    const ly=n.y+radius(n)*shapePad(nodeShape(n))+13;
+    const words=String(n.label||"").split(" ");
+    cx.globalAlpha=lit(n.id)?.95:.28;
+    cx.fillStyle=n.status==="failed"?"#e5384c":"#243056";
+    if(words.length>2 && cx.measureText(n.label).width>108){
+      const mid=Math.ceil(words.length/2);
+      cx.fillText(words.slice(0,mid).join(" "),n.x,ly);
+      cx.fillText(words.slice(mid).join(" "),n.x,ly+14);
+    } else cx.fillText(n.label,n.x,ly);
     cx.globalAlpha=1;
   });
-  cx.font="600 12px ui-monospace,Consolas,monospace"; cx.textAlign="center";
-  nodes.forEach(n=>{
-    const show=["observation","element","dataset","sop","change"].includes(n.kind)||n.status==="selected"||n.status==="failed"||(n.kind==="location")||(n.kind==="clause"&&n.status==="cited")||n===hover||(focus.has(n.id)&&n.kind!=="sample"&&n.kind!=="deviation");
-    if(!show||(hover&&!nb.has(n.id))) return;
-    if((now-n.birth)<400) return;
-    const r=radius(n); cx.fillStyle=n.status==="failed"?"#e5384c":"#23264d"; cx.globalAlpha=lit(n.id)?1:.25;
-    cx.lineWidth=3;cx.strokeStyle="rgba(246,247,255,.92)";cx.strokeText(n.label,n.x,n.y-r-6);cx.fillText(n.label,n.x,n.y-r-6); cx.globalAlpha=1;
-  });
-  const cc={};
-  nodes.forEach(n=>{const c=cc[n.cluster]||(cc[n.cluster]={x:0,y:0,n:0,miny:1e9});c.x+=n.x;c.y+=n.y;c.n++;c.miny=Math.min(c.miny,n.y);});
-  cx.font="600 11px ui-monospace,Consolas,monospace";
-  let ci=0; Object.keys(cc).forEach(k=>{
-    if(H<420||nodes.some(n=>n.cluster===k&&n.ax!=null)) return;
-    ci++; const c=cc[k], t=`CLUSTER ${ci} · ${(CL[k]||CL.EVI).n.toUpperCase()} · ${c.n}`, w=cx.measureText(t).width+12;
-    const x=Math.max(w/2+4,Math.min(W-w/2-4,c.x/c.n)), y=Math.max(18,c.miny-28); cx.fillStyle="rgba(255,255,255,.8)"; cx.fillRect(x-w/2,y-11,w,17);
-    cx.fillStyle=(CL[k]||CL.EVI).c; cx.fillText(t,x,y+2);
-  });
+  cx.textBaseline="alphabetic";
 }
-function loop(){ step(); draw(); drawQms(); drawDonut(false); NV.draw(); requestAnimationFrame(loop); }
+function loop(){ step(); draw(); drawQms(); drawDonut(false); NV.paint("neural",$("#c-live-neural")); NV.paint("radar",$("#c-live-radar")); NV.paint("flow",$("#c-live-flow")); NV.draw(); requestAnimationFrame(loop); }
 cv.addEventListener("mousemove",e=>{
   const r=cv.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top; let best=null,bd=1e9;
   nodes.forEach(n=>{const d=Math.hypot(n.x-x,n.y-y); if(d<radius(n)+6&&d<bd){bd=d;best=n;}});
@@ -818,6 +988,9 @@ function setStatus(id,st){ const n=nmap[id]; if(n){ n.status=st; n.pulse=perform
 const NV=(function(){
 const TAU=Math.PI*2, BG="#0a0d2b";
 const C={ink:"#e8ebff",dim:"#9aa2d6",faint:"#4b5396",grid:"rgba(120,140,255,.15)",blue:"#6b86ff",purple:"#a780ff",cyan:"#3fd9f5",teal:"#2fe6c4",green:"#3ee6a5",amber:"#ffbf55",red:"#ff5f76"};
+const FACE="ui-sans-serif, Segoe UI, sans-serif";
+const FH="600 11px "+FACE, FLAB="600 11px "+FACE, FSM="600 10px "+FACE, FHUB="700 9px "+FACE;
+function ink(g, font, align, base){ g.font=font; g.textAlign=align||"left"; g.textBaseline=base||"middle"; }
 function mix(hex,k){ const n=parseInt(hex.slice(1),16); let r=n>>16,g=n>>8&255,b=n&255; r=Math.round(r+(255-r)*k); g=Math.round(g+(255-g)*k); b=Math.round(b+(255-b)*k); return "#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1); }
 const gcol=g=>mix(GROUP_COL[g]||"#6d7bff",.4), scol=s=>mix(SYS_COL[s]||"#6d7bff",.4);
 const acol=c=>c==="T1"?"#dfe4ff":mix(AGENT_COL[c]||"#6d3df0",.45);
@@ -832,28 +1005,43 @@ function backdrop(g,w,h,now){
   g.strokeStyle="rgba(110,130,255,.055)"; g.lineWidth=1; g.beginPath();
   for(let x=(now/60)%36;x<w;x+=36){ g.moveTo(x,0); g.lineTo(x,h); } for(let y=0;y<h;y+=36){ g.moveTo(0,y); g.lineTo(w,y); } g.stroke();
 }
-function hint(g,w,h,t1,t2){ g.textAlign="center"; g.fillStyle=C.ink; g.font="600 17px ui-monospace,Consolas,monospace"; g.fillText(t1,w/2,h/2-6); g.fillStyle=C.dim; g.font="13px ui-monospace,Consolas,monospace"; g.fillText(t2,w/2,h/2+18); g.textAlign="left"; }
+function wrapText(g,text,cx,y,max,lh){ const words=String(text||"").split(" "); let line="", lines=[]; words.forEach(word=>{ const trial=line?line+" "+word:word; if(line&&g.measureText(trial).width>max){ lines.push(line); line=word; } else line=trial; }); if(line) lines.push(line); lines.forEach((ln,i)=>g.fillText(ln,cx,y+i*lh)); }
+function hint(g,w,h,t1,t2){ const size=w<520?12:16; ink(g,"600 "+size+"px "+FACE,"center","middle"); g.fillStyle=C.ink; wrapText(g,t1,w/2,h/2-size*.6,w-28,size+4); ink(g,"500 "+(size-1)+"px "+FACE,"center","middle"); g.fillStyle=C.dim; wrapText(g,t2,w/2,h/2+size*.7,w-28,size+3); g.textAlign="left"; }
+function ringLabel(g,text,ang,cx,cy,r){
+  const cos=Math.cos(ang), sin=Math.sin(ang), gap=8;
+  ink(g,FSM,Math.abs(cos)<.42?"center":(cos>0?"left":"right"),"middle");
+  g.fillText(text, cx+cos*(r+gap), cy+sin*(r+gap));
+}
 
 /* ---------------- data captured from the live event stream ---------------- */
 let N, hits=[], hov=null, mouse={x:0,y:0};
-const fresh=()=>{ N={elements:[],docs:{},hits:{},mapping:[],frame:[],findings:[],cc:[],inv:null,feed:[],beams:[],ripples:[],last:null,bins:{},dirty:{neural:true,flow:true,radar:true},sel:null,selAt:0}; NN=null; FL=null; RB=null; q=[]; pulses=[]; hov=null; };
+const fresh=()=>{ N={query:"",elements:[],docs:{},hits:{},mapping:[],frame:[],findings:[],cc:[],inv:null,feed:[],beams:[],ripples:[],last:null,bins:{},dirty:{neural:true,flow:true,radar:true},sel:null,selAt:0,analyzed:false}; NN=null; FL=null; RB=null; q=[]; pulses=[]; hov=null; };
 let NN=null, FL=null, RB=null, q=[], pulses=[], waveId=0, nextAuto=0, autoI=0;
 fresh();
 function bin(e){
   const k=Math.floor(performance.now()/500), b=N.bins[k]||(N.bins[k]=[0,0,0,0]);
   const t=e.type; if(t==="log") b[0]++; else if(t==="graph_add") b[1]+=(e.nodes||[]).length+(e.edges||[]).length; else if(t==="graph_status") b[1]++; else if(t==="agent_state") b[2]++; else b[3]++;
 }
+function flowSources(){
+  const seen=new Set(), groups=[];
+  Object.values(N.docs).forEach(d=>{ const g=d.group||"Record"; if(!seen.has(g)){ seen.add(g); groups.push({id:"DOC:"+g,label:g,col:GROUP_COL[g]||"#6d7bff",kind:"document"}); } });
+  const order=["SOP","STP","BMR","MFR","Protocol","Deviation","OOS","Qualification"];
+  groups.sort((a,b)=> (order.indexOf(a.label)<0?99:order.indexOf(a.label))-(order.indexOf(b.label)<0?99:order.indexOf(b.label)));
+  return groups.concat(GUIDE_SRC.map(s=>({id:"G:"+s.id,label:s.label,col:s.col,kind:"guideline"})));
+}
 function ev(e){
   bin(e); const t=e.type;
-  if(t==="elements"){ N.elements=e.elements; N.dirty.neural=true; }
-  else if(t==="doc_batch"){ e.items.forEach(d=>{ N.docs[d.id]={...d,system:e.system}; }); N.dirty.radar=true; }
+  if(t==="query_core"||t==="case_start"){ if(e.observation) N.query=e.observation; N.dirty.neural=N.dirty.flow=N.dirty.radar=true; }
+  else if(t==="analyze_core"){ N.analyzed=true; N.dirty.neural=N.dirty.flow=N.dirty.radar=true; }
+  else if(t==="elements"){ N.elements=e.elements; N.dirty.neural=true; }
+  else if(t==="doc_batch"){ e.items.forEach(d=>{ N.docs[d.id]={...d,system:d.group||e.system}; }); N.dirty.radar=N.dirty.flow=N.dirty.neural=true; }
   else if(t==="inventory"){ N.inv=e; N.dirty.flow=true; }
-  else if(t==="pull_element"){ N.hits[e.element]={hits:e.hits,scanned:e.scanned,matched:e.matched,text:e.text}; N.dirty.neural=N.dirty.radar=true; N.sel=e.element; N.selAt=performance.now(); if(NN&&NN.idx[e.element]!=null&&view==="neural") wave(NN.idx[e.element],1); }
-  else if(t==="mapping"){ N.mapping=e.items; N.dirty.neural=true; }
-  else if(t==="frame"){ N.frame=e.sections; N.dirty.neural=true; }
+  else if(t==="pull_element"){ N.hits[e.element]={hits:e.hits,scanned:e.scanned,matched:e.matched,text:e.text}; N.dirty.neural=N.dirty.flow=N.dirty.radar=true; N.sel=e.element; N.selAt=performance.now(); if(NN&&NN.idx["QRY"]!=null&&view==="neural") wave(NN.idx["QRY"],1); }
+  else if(t==="mapping"){ N.mapping=e.items; N.dirty.neural=N.dirty.flow=true; }
+  else if(t==="frame"){ N.frame=e.sections; N.dirty.neural=N.dirty.flow=true; }
   else if(t==="pull_findings"){ N.findings=e.findings; N.dirty.flow=true; }
   else if(t==="change_control"){ N.cc=e.items; N.dirty.flow=true; }
-  else if(t==="draft"&&NN&&view==="neural"&&NN.outs.length) wave(NN.outs[0],-1);
+  else if(t==="draft"){ N.dirty.neural=N.dirty.flow=true; if(NN&&view==="neural"&&NN.outs.length) wave(NN.outs[0],-1); }
   else if(t==="verify"&&NN&&view==="neural"&&NN.outs.length) NN.outs.forEach((o,i)=>setTimeout(()=>wave(o,-1),i*160));
   else if(t==="agent_state"){
     const a=STATUS&&STATUS.roster.find(x=>x.id===e.agent); const now=performance.now();
@@ -882,18 +1070,27 @@ function bindHover(c){
 function buildNeural(){
   q=[]; pulses=[]; const nodes=[], idx={}, edges=[];
   const add=(id,layer,o)=>{ if(idx[id]!=null) return idx[id]; idx[id]=nodes.length; nodes.push({id,layer,act:0,wid:0,...o}); return idx[id]; };
-  N.elements.forEach(el=>add(el.id,0,{label:el.id,title:"<b>"+esc(el.id)+"</b> "+esc(el.text),col:C.purple}));
-  const elIdx=Object.fromEntries(N.elements.map((e,i)=>[e.id,i]));
-  const score={}, prim={};
-  Object.entries(N.hits).forEach(([el,o])=>o.hits.forEach(h=>{ score[h.doc_id]=Math.max(score[h.doc_id]||0,h.relevance); prim[h.doc_id]=Math.min(prim[h.doc_id]??9,elIdx[el]??9); }));
-  N.frame.forEach(s=>(s.feeds||[]).forEach(d=>{ if(score[d]==null){ score[d]=15; prim[d]=9; } }));
-  Object.keys(score).sort((a,b)=>(prim[a]-prim[b])||(score[b]-score[a])).slice(0,26).forEach(id=>{ const d=N.docs[id]||{}; add(id,1,{label:id,title:"<b>"+esc(id)+"</b> "+esc(d.title||"")+"<br>"+esc(d.group||"")+" · "+esc(d.system||""),col:gcol(d.group)}); });
-  const regs=[]; N.mapping.forEach(m=>{ const id=m.ref.replace("21 CFR ",""); if(!regs.includes(id)){ regs.push(id); add(id,2,{label:id,title:"<b>"+esc(m.ref)+"</b> "+esc(m.heading||"")+"<br>"+esc(m.rationale||""),col:C.blue}); } });
-  N.frame.forEach(s=>add("S:"+s.id,3,{label:s.title,title:"<b>"+esc(s.title)+"</b><br>"+esc(s.purpose||""),col:C.teal}));
+  if(N.query) add("QRY",0,{label:"Q",title:"<b>Query</b><br>"+esc(N.query),col:C.purple});
+  const sources=N.query?flowSources():[];
+  sources.forEach(s=>add(s.id,1,{label:s.label,title:"<b>"+esc(s.label)+"</b><br>"+(s.kind==="guideline"?"Guideline source":"Stored documents"),col:s.col}));
+  const knowledge=[];
+  const byGroup={};
+  Object.values(N.docs).forEach(d=>{ const g=d.group||"Record"; (byGroup[g]=byGroup[g]||[]).push(d); });
+  Object.keys(byGroup).forEach(g=>{
+    const id="K:"+g; knowledge.push(id);
+    add(id,2,{label:g,title:"<b>"+esc(g)+"</b><br>"+byGroup[g].length+" stored record(s) read for this query",col:gcol(g)});
+  });
+  const clauses=[];
+  N.mapping.forEach(m=>{ const id="C:"+m.ref; if(clauses.includes(id)) return; clauses.push(id); knowledge.push(id); add(id,2,{label:m.ref.replace("21 CFR ",""),title:"<b>"+esc(m.ref)+"</b> "+esc(m.heading||""),col:"#1239b8"}); });
+  GUIDE_SRC.filter(s=>s.id!=="USFDA").forEach(s=>{ const id="K:"+s.id; knowledge.push(id); add(id,2,{label:s.label,title:"<b>"+esc(s.label)+"</b><br>Official publication consulted with the query. The quoted requirement is the retrieved 21 CFR text.",col:s.col}); });
+  const outputs=N.frame.length?N.frame:[{id:"response",title:"Response",purpose:"Formed from the query, the retrieved records, and the guidelines."}];
+  if(N.query) outputs.forEach(s=>add("S:"+s.id,3,{label:s.title,title:"<b>"+esc(s.title)+"</b><br>"+esc(s.purpose||""),col:C.teal}));
   const E=(a,b,w)=>{ if(idx[a]==null||idx[b]==null) return; edges.push({a:idx[a],b:idx[b],w,glow:0}); };
-  Object.entries(N.hits).forEach(([el,o])=>o.hits.forEach(h=>E(el,h.doc_id,h.relevance/100)));
-  N.mapping.forEach(m=>E(m.element,m.ref.replace("21 CFR ",""),.7));
-  N.frame.forEach(s=>{ (s.feeds||[]).forEach(d=>E(d,"S:"+s.id,.5)); (s.regs||[]).forEach(r=>E(r,"S:"+s.id,.6)); });
+  sources.forEach(s=>E("QRY",s.id,.8));
+  Object.keys(byGroup).forEach(g=>E("DOC:"+g,"K:"+g,.7));
+  clauses.forEach(id=>E("G:USFDA",id,.8));
+  GUIDE_SRC.filter(s=>s.id!=="USFDA").forEach(s=>E("G:"+s.id,"K:"+s.id,.45));
+  outputs.forEach(s=>knowledge.forEach(id=>E(id,"S:"+s.id,.35)));
   const out=nodes.map(()=>[]), inn=nodes.map(()=>[]); edges.forEach((e,i)=>{ out[e.a].push(i); inn[e.b].push(i); });
   NN={nodes,edges,out,inn,idx,ins:nodes.map((n,i)=>n.layer===0?i:-1).filter(i=>i>=0),outs:nodes.map((n,i)=>n.layer===3?i:-1).filter(i=>i>=0)};
   N.dirty.neural=false;
@@ -907,14 +1104,23 @@ function wave(start,dir){
 function drawNeural(g,w,h,now){
   backdrop(g,w,h,now);
   if(N.dirty.neural) buildNeural();
-  if(!NN||!NN.nodes.length){ hint(g,w,h,"Neural trace builds as the swarm works","Elements → evidence → clauses → response sections"); return; }
-  const padT=40,padB=18, right=Math.min(170,w*.17), xs=[w*.055,w*.30,w*.55,w-right-24], cnt=[0,0,0,0], tot=[0,0,0,0];
+  if(!NN||!NN.nodes.length){
+    const names=["Query","Sources","Knowledge","Output"], ys=[.34,.5,.66,.82], xs=[.14,.38,.62,.86].map(p=>w*p);
+    ink(g,FH,"center","middle"); g.fillStyle=C.dim;
+    names.forEach((name,i)=>{ const x=xs[i]; g.fillText(name.toUpperCase(),x,16);
+      ys.forEach((p,k)=>{ const y=h*p, pulse=(Math.sin(now/700+i+k)*.5+.5); g.strokeStyle=rgba(i===3?C.teal:C.cyan,.25+pulse*.35); g.lineWidth=1.4; g.beginPath(); g.arc(x,y,i===0?7:4.5,0,TAU); g.stroke();
+        if(i<3){ g.strokeStyle="rgba(127,146,255,.16)"; g.beginPath(); g.moveTo(x+12,y); g.bezierCurveTo(x+(xs[i+1]-x)*.35,y,x+(xs[i+1]-x)*.65,h*ys[(k+i)%ys.length],xs[i+1]-12,h*ys[(k+i)%ys.length]); g.stroke(); }
+      });
+    });
+    return;
+  }
+  const compact=w<640, padT=40,padB=compact?16:22, right=compact?8:Math.min(170,w*.17), xs=compact?[w*.16,w*.40,w*.64,w*.86]:[w*.10,w*.34,w*.58,w-right-24], cnt=[0,0,0,0], tot=[0,0,0,0];
   NN.nodes.forEach(n=>tot[n.layer]++);
   NN.nodes.forEach(n=>{ n.x=xs[n.layer]; n.y=padT+(cnt[n.layer]++ +.5)*(h-padT-padB)/tot[n.layer]; });
   const hn=hov!=null&&NN.idx[hov]!=null?NN.idx[hov]:null;
   // headers
-  g.font="600 11px ui-monospace,Consolas,monospace"; g.fillStyle=C.dim; g.textAlign="left";
-  ["Observation elements","Site evidence","21 CFR clauses","Response sections"].forEach((t,i)=>{ g.fillText((t+" · "+tot[i]).toUpperCase(),i===0?12:(i===3?xs[3]-8:xs[i]-30),20); });
+  ink(g,FH,"center","middle"); g.fillStyle=C.dim;
+  (compact?["Query","Sources","Knowledge","Output"]:["Query","Pulled sources","Collected knowledge","Formulated output"]).forEach((t,i)=>{ g.fillText((t+"  "+tot[i]).toUpperCase(),xs[i],16); });
   // activation queue
   if(!drawNeural.t) drawNeural.t=now; const dt=Math.min(60,now-drawNeural.t); drawNeural.t=now;
   q=q.filter(x=>{ if(x.at<=now){ const n=NN.nodes[x.i]; if(n){ n.act=1; } return false; } return true; });
@@ -934,7 +1140,7 @@ function drawNeural(g,w,h,now){
     for(let k=0;k<6;k++){ const tt=p.dir>0?Math.max(0,t-k*.035):Math.min(1,1-t+k*.035); const [x,y]=bz(a,b,tt); g.fillStyle=rgba(col,(1-k/6)*.85); g.beginPath(); g.arc(x,y,3.6-k*.45,0,TAU); g.fill(); }
   });
   // auto firing when idle
-  if(view==="neural"&&now>nextAuto&&pulses.length<4&&NN.ins.length){ wave(NN.ins[autoI++%NN.ins.length],1); nextAuto=now+2300; }
+  if(now>nextAuto&&pulses.length<4&&NN.ins.length){ wave(NN.ins[autoI++%NN.ins.length],1); nextAuto=now+2300; }
   // nodes
   hits=[]; g.textBaseline="middle";
   NN.nodes.forEach((n,i)=>{
@@ -942,31 +1148,38 @@ function drawNeural(g,w,h,now){
     if(n.act>.03){ const gr=g.createRadialGradient(n.x,n.y,0,n.x,n.y,r*4.2); gr.addColorStop(0,rgba(n.col,.55*n.act)); gr.addColorStop(1,rgba(n.col,0)); g.fillStyle=gr; g.beginPath(); g.arc(n.x,n.y,r*4.2,0,TAU); g.fill(); }
     g.fillStyle=n.act>.03?rgba(n.col,.25+.75*n.act):"#131949"; g.strokeStyle=rgba(n.col,i===hn?1:.85); g.lineWidth=i===hn?2.4:1.6;
     g.beginPath(); g.arc(n.x,n.y,r,0,TAU); g.fill(); g.stroke();
-    if(n.layer===0){ g.fillStyle=n.act>.4?"#fff":C.ink; g.font="700 12px ui-monospace,Consolas,monospace"; g.textAlign="center"; g.fillText(n.label,n.x,n.y+.5); g.textAlign="left"; }
-    else if(n.layer===3){ g.fillStyle=C.ink; g.font="600 12.5px ui-sans-serif,Segoe UI,Arial"; g.fillText(clip(g,n.label,right+18),n.x+r+8,n.y+.5); }
-    else if(n.act>.25||i===hn){ g.font="600 11px ui-monospace,Consolas,monospace"; const t=n.label, tw=g.measureText(t).width; g.fillStyle="rgba(10,13,43,.85)"; g.fillRect(n.x+r+3,n.y-8,tw+8,16); g.fillStyle=C.ink; g.fillText(t,n.x+r+7,n.y+.5); }
+    if(n.layer===0){ ink(g,"700 11px "+FACE,"center","middle"); g.fillStyle=n.act>.4?"#fff":C.ink; g.fillText(n.label,n.x,n.y); }
+    else if(n.layer===3){ ink(g,FLAB,compact?"right":"left","middle"); g.fillStyle=C.ink; g.fillText(clip(g,n.label,compact?xs[3]-xs[2]-24:right+18),compact?n.x-r-6:n.x+r+8,n.y); }
+    else if(n.act>.25||i===hn){ ink(g,FSM,"center","middle"); const t=n.label, tw=g.measureText(t).width; g.fillStyle="rgba(10,13,43,.88)"; g.fillRect(n.x-tw/2-5,n.y-r-18,tw+10,15); g.fillStyle=C.ink; g.fillText(t,n.x,n.y-r-10.5); }
     hits.push({id:n.id,x:n.x,y:n.y,r:r+2,html:n.title});
   });
   g.textBaseline="alphabetic";
-  g.fillStyle=C.dim; g.font="11px ui-monospace,Consolas,monospace"; g.fillText("EACH PULSE = A TRACEABLE REASON · CYAN/PURPLE = FORWARD EVIDENCE · GREEN = VERIFICATION FLOWING BACK",14,h-5);
+  if(!compact){ ink(g,FSM,"left","middle"); g.fillStyle=C.dim; g.fillText("Query pulls every source    Knowledge is collected    The output is formed for this query",14,h-10); }
 }
 
 /* ================= 2. EVIDENCE FLOW (moving-arrow Sankey) ================= */
 function buildFlow(){
   const cols=[[],[],[],[]], links=[], byId=[{},{},{},{}];
-  const put=(c,o)=>{ byId[c][o.id]=o; cols[c].push(o); return o; };
-  if(N.inv){
-    N.inv.systems.forEach(s=>put(0,{id:s.id,label:s.short,sub:s.name,v:s.count,col:scol(s.id),tip:"<b>"+esc(s.name)+"</b><br>"+esc(s.kind)+"<br>"+esc(s.protocol)+" · read-only · "+s.count+" records"}));
-    N.inv.systems.forEach(s=>s.groups.forEach(gr=>{ const n=byId[1][gr.group]||put(1,{id:gr.group,label:gr.label,v:0,col:gcol(gr.group),tip:"<b>"+esc(gr.label)+"</b>"}); links.push({a:byId[0][s.id],b:n,v:gr.count}); }));
-  }
-  (N.findings||[]).forEach(f=>put(2,{id:f.id,label:f.id+"  "+f.title,v:0,col:f.severity==="high"?C.red:C.amber,tip:"<b>"+esc(f.id)+" · "+esc(f.title)+"</b><br>"+esc(f.detail),sev:f.severity,f}));
-  (N.cc||[]).forEach(c=>put(3,{id:c.id,label:c.id+"  "+c.title,v:0,col:C.purple,tip:"<b>"+esc(c.id)+" · "+esc(c.class)+" · "+esc(c.type)+"</b><br>"+esc(c.title)+"<br>Why: "+esc(c.why)+"<br>"+esc(c.owner)+" · "+esc(c.due),c}));
-  cols[2].forEach(fn=>{ const cnt={}; (fn.f.docs||[]).forEach(d=>{ const dd=N.docs[d]; if(dd&&byId[1][dd.group]) cnt[dd.group]=(cnt[dd.group]||0)+1; }); Object.entries(cnt).forEach(([gname,v])=>links.push({a:byId[1][gname],b:fn,v})); });
-  cols[3].forEach(cn=>cols[2].forEach(fn=>{ const sh=(cn.c.elements||[]).filter(x=>(fn.f.elements||[]).includes(x)).length; if(sh) links.push({a:fn,b:cn,v:sh}); }));
+  const put=(c,o)=>{ if(byId[c][o.id]) return byId[c][o.id]; byId[c][o.id]=o; cols[c].push(o); return o; };
+  const link=(a,b,v)=>{ if(a&&b) links.push({a,b,v:Math.max(1,v||1)}); };
+  if(N.query) put(0,{id:"QRY",label:"Query",v:1,col:C.purple,tip:"<b>Query</b><br>"+esc(N.query)});
+  const counts={};
+  Object.values(N.docs).forEach(d=>{ const g=d.group||"Record"; counts[g]=(counts[g]||0)+1; });
+  flowSources().forEach(s=>{
+    const n=put(1,{id:s.id,label:s.label,v:s.kind==="document"?(counts[s.label]||1):1,col:s.col,tip:"<b>"+esc(s.label)+"</b><br>"+(s.kind==="document"?"Stored records pulled for the query":"Guideline source pulled for the query")});
+    link(byId[0].QRY,n,n.v);
+    const know=put(2,{id:"K:"+s.id,label:s.label,v:n.v,col:s.col,tip:"<b>"+esc(s.label)+"</b><br>Knowledge collected from this source"});
+    link(n,know,n.v);
+  });
+  const outputs=N.frame.length?N.frame.map(s=>({id:s.id,label:s.title,tip:"<b>"+esc(s.title)+"</b><br>"+esc(s.purpose||"")})):[{id:"response",label:"Response",tip:"<b>Response</b><br>Formed for this query from the collected knowledge"}];
+  if(N.query) outputs.forEach(s=>{
+    const out=put(3,{id:"O:"+s.id,label:s.label,v:1,col:C.teal,tip:s.tip});
+    cols[2].forEach(k=>link(k,out,1));
+  });
   cols.forEach(c=>c.forEach(n=>{ n.vin=0; n.vout=0; }));
-  links.forEach(l=>{ l.a.vout+=l.v; l.b.vin+=l.v; });
-  cols.forEach(c=>c.forEach(n=>{ n.tot=Math.max(n.vin,n.vout,1); }));
-  FL={cols,links}; N.dirty.flow=false;
+  links.forEach(l=>{ if(!l.a||!l.b) return; l.a.vout+=l.v; l.b.vin+=l.v; });
+  cols.forEach(c=>c.forEach(n=>{ n.tot=Math.max(n.vin,n.vout,n.v||1); }));
+  FL={cols,links:links.filter(l=>l.a&&l.b)}; N.dirty.flow=false;
 }
 function layoutCol(list,x,nw,padT,availH){
   const n=list.length; if(!n) return; const gap=2, minH=Math.max(12,Math.min(15,(availH-gap*(n-1))/Math.max(n,13))), tot=list.reduce((a,b)=>a+b.tot,0)||1; let k=(availH-gap*(n-1))/tot;
@@ -977,11 +1190,23 @@ function layoutCol(list,x,nw,padT,availH){
 function drawFlow(g,w,h,now){
   backdrop(g,w,h,now);
   if(N.dirty.flow) buildFlow();
-  if(!FL||!FL.cols[0].length){ hint(g,w,h,"Evidence flow builds as documents arrive","QMS systems → document types → findings → change controls"); return; }
-  const padX=14,padT=32,padB=26, nw=Math.max(110,Math.min(190,(w-2*padX)/4-70)), step=(w-2*padX-nw)/3, availH=h-padT-padB;
+  if(!FL||!FL.cols[0].length){
+    const names=["Query","Sources","Knowledge","Output"], gap=w*.045, colW=(w-gap*5)/4;
+    ink(g,FH,"center","middle");
+    names.forEach((name,i)=>{
+      const x=gap+i*(colW+gap), y=30, bh=h-46;
+      g.fillStyle="rgba(120,140,255,.08)"; g.fillRect(x,y,colW,bh);
+      g.strokeStyle="rgba(140,160,255,.22)"; g.strokeRect(x+.5,y+.5,colW-1,bh-1);
+      g.fillStyle=C.dim; g.fillText(name.toUpperCase(),x+colW/2,15);
+      const t=((now/2200)+i*.18)%1, py=y+10+t*(bh-20);
+      g.fillStyle=i===3?C.teal:C.cyan; g.globalAlpha=.85; g.beginPath(); g.arc(x+colW/2,py,3.2,0,TAU); g.fill(); g.globalAlpha=1;
+    });
+    return;
+  }
+  const compact=w<640, padX=compact?6:14,padT=compact?22:32,padB=compact?14:26, nw=compact?Math.max(28,(w-2*padX)/4-6):Math.max(110,Math.min(190,(w-2*padX)/4-70)), step=(w-2*padX-nw)/3, availH=h-padT-padB;
   FL.cols.forEach((c,i)=>layoutCol(c,padX+i*step,nw,padT,availH));
-  g.font="600 11px ui-monospace,Consolas,monospace"; g.fillStyle=C.dim;
-  ["QMS systems","Document types","Cross-record findings","Change controls"].forEach((t,i)=>{ g.fillText(t.toUpperCase()+" · "+FL.cols[i].length,padX+i*step,20); });
+  ink(g,FH,"center","middle"); g.fillStyle=C.dim;
+  (compact?["Query","Sources","Knowledge","Output"]:["Query","Pulled sources","Collected knowledge","Formulated output"]).forEach((t,i)=>{ g.fillText((t+"  "+FL.cols[i].length).toUpperCase(),padX+i*step+nw/2,14); });
   const hv=hov, related=l=>hv==null||l.a.id===hv||l.b.id===hv;
   FL.links.sort((x,y)=>(x.a.y-y.a.y)||(x.b.y-y.b.y));
   FL.cols.forEach(c=>c.forEach(o=>{ o.oo=0; o.io=0; }));
@@ -998,48 +1223,59 @@ function drawFlow(g,w,h,now){
   // nodes
   hits=[]; g.textBaseline="middle";
   FL.cols.forEach((c,ci)=>{
-    if(!c.length){ g.fillStyle=C.faint; g.font="12px ui-monospace,Consolas,monospace"; g.fillText("awaiting stage…",padX+ci*step,padT+40); }
+    if(!c.length){ ink(g,FSM,"left","middle"); g.fillStyle=C.faint; g.fillText("Awaiting stage",padX+ci*step,padT+28); }
     c.forEach(o=>{
       const on=hv===o.id; g.fillStyle=on?"#1c2470":"#111750"; g.fillRect(o.x,o.y,o.w,o.h); g.fillStyle=o.col; g.fillRect(o.x,o.y,3,o.h);
       g.strokeStyle=on?C.cyan:"rgba(140,160,255,.25)"; g.lineWidth=1; g.strokeRect(o.x+.5,o.y+.5,o.w-1,o.h-1);
-      g.font="600 11px ui-sans-serif,Segoe UI,Arial"; g.fillStyle=C.ink; const val=ci<2?String(o.tot):""; const vw=val?g.measureText(val).width+8:0;
-      g.fillText(clip(g,o.label,o.w-14-vw),o.x+8,o.y+o.h/2+.5); if(val){ g.fillStyle=C.dim; g.font="600 11px ui-monospace,Consolas,monospace"; g.textAlign="right"; g.fillText(val,o.x+o.w-5,o.y+o.h/2+.5); g.textAlign="left"; }
+      if(o.w>=72){ ink(g,FLAB,"left","middle"); g.fillStyle=C.ink; const val=ci<2?String(o.tot):""; const vw=val?g.measureText(val).width+10:0;
+      g.fillText(clip(g,o.label,o.w-16-vw),o.x+10,o.y+o.h/2); if(val){ ink(g,FSM,"right","middle"); g.fillStyle=C.dim; g.fillText(val,o.x+o.w-6,o.y+o.h/2); } }
       hits.push({id:o.id,rx:o.x,ry:o.y,rw:o.w,rh:o.h,html:o.tip});
     });
   });
-  g.textBaseline="alphabetic"; g.fillStyle=C.dim; g.font="11px ui-monospace,Consolas,monospace"; g.fillText("ARROWS = EVIDENCE MOVING FROM SOURCE SYSTEM TO ACTION · RIBBON WIDTH = NUMBER OF RECORDS · HOVER A NODE TO TRACE IT",14,h-6);
+  if(!compact){ ink(g,FSM,"left","middle"); g.fillStyle=C.dim; g.fillText("The query pulls every document and guideline    Knowledge is collected    The output is formed for this query",14,h-12); }
 }
 
 /* ================= 3. RADAR SWEEP ================= */
-const SYS_ORDER=["DMS","MES","EQMS","LIMS","LMS","CMMS"];
+function radarSectors(){
+  const found=new Set(Object.values(N.docs).map(d=>d.group||"Record"));
+  const order=["SOP","STP","BMR","MFR","Protocol","Deviation","OOS","Qualification"];
+  return order.filter(g=>found.has(g)).concat([...found].filter(g=>!order.includes(g)).sort());
+}
 function buildRadar(){
-  const by={}; Object.values(N.docs).forEach(d=>(by[d.system]=by[d.system]||[]).push(d)); const bl=[];
-  SYS_ORDER.forEach((s,si)=>{ const arr=(by[s]||[]).sort((a,b)=>a.group.localeCompare(b.group)||a.id.localeCompare(b.id)); arr.forEach((d,i)=>{ const old=RB&&RB.find(x=>x.d.id===d.id); bl.push({d,ang:-Math.PI/2+(si+(i+.5)/arr.length)*TAU/6,cr:old?old.cr:.9,lit:0,rel:0}); }); });
-  RB=bl; N.dirty.radar=false;
+  const sectors=radarSectors(), by={}, bl=[];
+  Object.values(N.docs).forEach(d=>{ const g=d.group||"Record"; (by[g]=by[g]||[]).push(d); });
+  const n=Math.max(1,sectors.length);
+  sectors.forEach((s,si)=>{ const arr=(by[s]||[]).sort((a,b)=>a.id.localeCompare(b.id)); arr.forEach((d,i)=>{ const old=RB&&RB.find(x=>x.d.id===d.id); bl.push({d,sector:s,ang:-Math.PI/2+(si+(i+.5)/Math.max(1,arr.length))*TAU/n,cr:old?old.cr:.72,lit:0,rel:0}); }); });
+  RB=bl; N.sectors=sectors; N.dirty.radar=false;
 }
 function drawRadar(g,w,h,now){
   backdrop(g,w,h,now);
   if(N.dirty.radar||!RB) buildRadar();
   const els=Object.keys(N.hits).sort();
-  if(!RB.length){ hint(g,w,h,"Radar arms once documents are fetched","Every document is scanned and re-ranked for each compliance element"); return; }
   if(els.length&&(!N.sel||!N.hits[N.sel]||now-N.selAt>3800)){ if(!N.hits[N.sel]||now-N.selAt>3800){ N.sel=els[(Math.max(0,els.indexOf(N.sel))+1)%els.length]; N.selAt=now; } }
   const cur=N.sel&&N.hits[N.sel], rel={}; if(cur) cur.hits.forEach(x=>{ rel[x.doc_id]=x; });
-  const lw=Math.max(200,Math.min(300,w*.3)), cx=lw+(w-lw)/2, cy=h/2, R=Math.min((w-lw)/2-30,h/2-22);
+  const compact=w<640, lw=compact?0:Math.max(200,Math.min(300,w*.3)), cx=compact?w/2:lw+(w-lw)/2, cy=compact?h/2-2:(h/2-6), R=Math.min(compact?w/2-42:(w-lw)/2-46, h/2-36);
   // left panel
-  g.textAlign="left"; g.fillStyle=C.cyan; g.font="700 12px ui-monospace,Consolas,monospace"; g.fillText("RE-RANKING FOR "+(N.sel||"…"),16,24);
-  g.fillStyle=C.ink; g.font="13px ui-sans-serif,Segoe UI,Arial"; let y=46;
+  g.textAlign="left";
+  if(!compact){ ink(g,"700 12px "+FACE,"left","middle"); g.fillStyle=C.cyan; g.fillText("Collecting for the query",16,22);
+  ink(g,"500 13px "+FACE,"left","middle"); g.fillStyle=C.ink; let y=48;
   if(cur){ const words=(cur.text||"").split(" "); let line=""; const lines=[]; words.forEach(wd=>{ if(g.measureText(line+" "+wd).width>lw-30){ lines.push(line); line=wd; } else line=(line?line+" ":"")+wd; }); lines.push(line); lines.slice(0,4).forEach(l=>{ g.fillText(l,16,y); y+=17; }); y+=6;
-    g.fillStyle=C.dim; g.font="11px ui-monospace,Consolas,monospace"; g.fillText(cur.scanned+" SCANNED · "+cur.matched+" MATCHED",16,y); y+=22; g.fillText("TOP HITS",16,y); y+=8;
-    cur.hits.slice(0,Math.max(3,Math.floor((h-y-14)/22))).forEach(x=>{ y+=18; g.fillStyle="rgba(120,140,255,.18)"; g.fillRect(16,y-9,lw-40,15); g.fillStyle=rgba(gcol(x.group),.55); g.fillRect(16,y-9,(lw-40)*x.relevance/100,15); g.fillStyle=C.ink; g.font="600 11px ui-monospace,Consolas,monospace"; g.fillText(x.relevance+"  "+clip(g,x.doc_id,lw-90),21,y+2); }); }
-  else { g.fillStyle=C.dim; g.font="12px ui-monospace,Consolas,monospace"; g.fillText("Scanning… ranking starts when",16,y); g.fillText("the smart-pull stage begins.",16,y+16); }
+    ink(g,FSM,"left","middle"); g.fillStyle=C.dim; g.fillText(cur.scanned+" scanned    "+cur.matched+" matched",16,y); y+=22; g.fillText("Top hits",16,y); y+=6;
+    cur.hits.slice(0,Math.max(3,Math.floor((h-y-14)/22))).forEach(x=>{ y+=18; g.fillStyle="rgba(120,140,255,.18)"; g.fillRect(16,y-8,lw-40,16); g.fillStyle=rgba(gcol(x.group),.55); g.fillRect(16,y-8,(lw-40)*x.relevance/100,16); ink(g,FSM,"left","middle"); g.fillStyle=C.ink; g.fillText(x.relevance+"   "+clip(g,x.doc_id,lw-90),22,y); }); }
+    else { ink(g,FLAB,"left","middle"); g.fillStyle=C.dim; g.fillText("The query is pulling documents",16,y); g.fillText("and each guideline source.",16,y+18); } }
   // radar disc
   const gr=g.createRadialGradient(cx,cy,0,cx,cy,R); gr.addColorStop(0,"rgba(63,217,245,.10)"); gr.addColorStop(1,"rgba(63,217,245,.01)"); g.fillStyle=gr; g.beginPath(); g.arc(cx,cy,R,0,TAU); g.fill();
-  g.strokeStyle=C.grid; g.lineWidth=1; g.font="10px ui-monospace,Consolas,monospace";
-  [90,70,50,30].forEach(v=>{ const r=(1-.85*v/100)*R; g.beginPath(); g.arc(cx,cy,r,0,TAU); g.stroke(); g.fillStyle=C.dim; g.fillText(String(v),cx+4,cy-r+11); });
+  g.strokeStyle=C.grid; g.lineWidth=1;
+  [90,70,50,30].forEach(v=>{ const r=(1-.85*v/100)*R; g.beginPath(); g.arc(cx,cy,r,0,TAU); g.stroke(); if(!compact){ ink(g,FSM,"left","middle"); g.fillStyle=C.dim; g.fillText(String(v),cx+8,cy-r); } });
   g.beginPath(); g.arc(cx,cy,R,0,TAU); g.stroke();
-  for(let i=0;i<6;i++){ const a=-Math.PI/2+i*TAU/6; g.beginPath(); g.moveTo(cx,cy); g.lineTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R); g.stroke(); const m=a+TAU/12, tx=cx+Math.cos(m)*(R+14), ty=cy+Math.sin(m)*(R+14); g.fillStyle=scol(SYS_ORDER[i]); g.beginPath(); g.arc(tx-14,ty,3.5,0,TAU); g.fill(); g.fillStyle=C.ink; g.font="600 11px ui-monospace,Consolas,monospace"; g.textAlign="left"; g.fillText(SYS_ORDER[i],tx-8,ty+4); }
+  const sectors=N.sectors&&N.sectors.length?N.sectors:["SOP","STP","BMR","MFR","Protocol","Deviation","OOS","Qualification"];
+  const short={Protocol:"Proto",Deviation:"Dev",Qualification:"Qual"};
+  sectors.forEach((name,i)=>{ const a=-Math.PI/2+i*TAU/sectors.length; g.beginPath(); g.moveTo(cx,cy); g.lineTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R); g.stroke(); const m=a+TAU/(sectors.length*2); g.fillStyle=gcol(name); g.beginPath(); g.arc(cx+Math.cos(m)*(R-1),cy+Math.sin(m)*(R-1),3,0,TAU); g.fill(); g.fillStyle=C.ink; ringLabel(g,compact?(short[name]||name):name,m,cx,cy,R); });
+  GUIDE_SRC.forEach((s,i)=>{ const a=-Math.PI/2+i*TAU/GUIDE_SRC.length, rad=R*.62, px=cx+Math.cos(a)*rad, py=cy+Math.sin(a)*rad; g.fillStyle=s.col; g.beginPath(); g.arc(px,py,compact?2.6:3.6,0,TAU); g.fill();
+    const t=((now/2400)+i/GUIDE_SRC.length)%1, ux=cx+(px-cx)*(1-t), uy=cy+(py-cy)*(1-t); g.fillStyle=s.col; g.beginPath(); g.arc(ux,uy,2.4,0,TAU); g.fill(); });
   for(let i=0;i<72;i++){ const a=i*TAU/72, L=i%6===0?7:3.5; g.beginPath(); g.moveTo(cx+Math.cos(a)*(R-L),cy+Math.sin(a)*(R-L)); g.lineTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R); g.stroke(); }
   // sweep
+  const prevT=drawRadar.t||now; drawRadar.t=now; const sweepSteps=Math.min(4,(now-prevT)/16);
   const sw=((now/3800)%1)*TAU-Math.PI/2, prev=drawRadar.p==null?sw:drawRadar.p; drawRadar.p=sw;
   for(let k=0;k<26;k++){ g.fillStyle=`rgba(63,217,245,${.2*(1-k/26)*(1-k/26)})`; g.beginPath(); g.moveTo(cx,cy); g.arc(cx,cy,R,sw-(k+1)*.028,sw-k*.028); g.closePath(); g.fill(); }
   g.strokeStyle=C.cyan; g.lineWidth=1.8; g.beginPath(); g.moveTo(cx,cy); g.lineTo(cx+Math.cos(sw)*R,cy+Math.sin(sw)*R); g.stroke();
@@ -1047,16 +1283,16 @@ function drawRadar(g,w,h,now){
   hits=[]; const span=(sw-prev+TAU)%TAU;
   RB.forEach(b=>{
     const x=rel[b.d.id]; b.rel=x?x.relevance:0; const tr=x?1-.85*x.relevance/100:.76+.22*hash(b.d.id); b.cr+=(tr-b.cr)*.07;
-    if(((b.ang-prev+TAU)%TAU)<=span&&span<1) b.lit=1; b.lit=Math.max(0,b.lit-.011);
+    if(((b.ang-prev+TAU)%TAU)<=span&&span<1) b.lit=1; b.lit=Math.max(0,b.lit-.011*sweepSteps);
     const px=cx+Math.cos(b.ang)*b.cr*R, py=cy+Math.sin(b.ang)*b.cr*R, hit=!!x, r=hit?4.6:2.6, col=gcol(b.d.group);
     if(b.lit>.02){ g.strokeStyle=rgba(col,b.lit*.7); g.lineWidth=1.5; g.beginPath(); g.arc(px,py,r+3+(1-b.lit)*12,0,TAU); g.stroke(); }
     g.fillStyle=rgba(col,hit?.95:(.32+.5*b.lit)); g.beginPath(); g.arc(px,py,r,0,TAU); g.fill();
-    if(hit&&(x.relevance>=70||b.lit>.2)){ g.font="600 10.5px ui-monospace,Consolas,monospace"; const t=b.d.id, tw=g.measureText(t).width; g.fillStyle="rgba(10,13,43,.85)"; g.fillRect(px+7,py-8,tw+6,15); g.fillStyle=C.ink; g.fillText(t,px+10,py+3); }
+    if(hit&&(x.relevance>=70||b.lit>.2)){ ink(g,FSM,"left","middle"); const t=b.d.id, tw=g.measureText(t).width; g.fillStyle="rgba(10,13,43,.9)"; g.fillRect(px+8,py-8,tw+8,16); g.fillStyle=C.ink; g.fillText(t,px+12,py); }
     hits.push({id:b.d.id,x:px,y:py,r:r+2,html:"<b>"+esc(b.d.id)+"</b> "+esc(b.d.title)+"<br>"+esc(b.d.group)+" · "+esc(b.d.system)+"<br>"+(hit?"relevance "+x.relevance+" for "+N.sel:"scanned · below the relevance cut-off")});
   });
-  g.fillStyle=C.dim; g.font="11px ui-monospace,Consolas,monospace"; g.textAlign="left"; g.fillText("CENTRE = MOST RELEVANT · OUTER BAND = SCANNED, BELOW CUT-OFF",lw+8,h-6);
-  // core
-  g.fillStyle=C.cyan; g.beginPath(); g.arc(cx,cy,3,0,TAU); g.fill();
+  if(!compact){ ink(g,FSM,"left","middle"); g.fillStyle=C.dim; g.fillText("The sweep collects documents and each guideline. The centre forms the output for this query.",lw+8,h-12); }
+  g.fillStyle="#0f1650"; g.strokeStyle=C.cyan; g.lineWidth=1.5; g.beginPath(); g.arc(cx,cy,15,0,TAU); g.fill(); g.stroke();
+  ink(g,FHUB,"center","middle"); g.fillStyle=C.ink; g.fillText("QUERY",cx,cy);
 }
 
 /* ================= 4. AGENT ORBIT + TELEMETRY ================= */
@@ -1084,31 +1320,46 @@ function drawOrbit(g,w,h,now){
   // core
   const pul=(Math.sin(now/420)+1)/2; const cg=g.createRadialGradient(cx,cy,0,cx,cy,26+pul*6); cg.addColorStop(0,"rgba(63,217,245,.55)"); cg.addColorStop(1,"rgba(63,217,245,0)"); g.fillStyle=cg; g.beginPath(); g.arc(cx,cy,26+pul*6,0,TAU); g.fill();
   g.fillStyle="#0f1650"; g.strokeStyle=C.cyan; g.lineWidth=1.6; g.beginPath(); g.arc(cx,cy,12,0,TAU); g.fill(); g.stroke();
-  g.fillStyle=C.ink; g.font="700 8px ui-monospace,Consolas,monospace"; g.textAlign="center"; g.fillText("CORE",cx,cy+3); g.textAlign="left";
+  ink(g,FHUB,"center","middle"); g.fillStyle=C.ink; g.fillText("CORE",cx,cy);
+  const sources=flowSources();
+  sources.forEach((s,i)=>{
+    const ang=-Math.PI/2+i/Math.max(1,sources.length)*TAU, rad=.2;
+    const x=cx+Math.cos(ang)*rad*R, y=cy+Math.sin(ang)*rad*RY;
+    g.fillStyle=s.col; g.beginPath(); g.arc(x,y,3.3,0,TAU); g.fill();
+    if(N.query){ const t=((now/1800)+i/sources.length)%1, px=x+(cx-x)*t, py=y+(cy-y)*t; g.globalAlpha=.85; g.beginPath(); g.arc(px,py,2.2,0,TAU); g.fill(); g.globalAlpha=1; }
+    hits.push({id:s.id,x,y,r:6,html:"<b>"+esc(s.label)+"</b><br>"+(s.kind==="document"?"Stored records pulled into the core":"Guideline pulled into the core")});
+  });
+  if(N.frame.length||N.analyzed){
+    const ox=Math.min(aw-28,cx+R*.55), oy=cy;
+    g.strokeStyle=rgba(C.teal,.7); g.lineWidth=1.4; g.beginPath(); g.moveTo(cx+14,cy); g.lineTo(ox-12,oy); g.stroke();
+    const t=(now/1600)%1, px=cx+14+(ox-12-(cx+14))*t; g.fillStyle=C.teal; g.beginPath(); g.arc(px,oy,3,0,TAU); g.fill();
+    g.fillStyle="#0f1650"; g.strokeStyle=C.teal; g.beginPath(); g.arc(ox,oy,11,0,TAU); g.fill(); g.stroke();
+    ink(g,FHUB,"center","middle"); g.fillStyle=C.ink; g.fillText("OUT",ox,oy);
+  }
   // agents
   STATUS.roster.forEach(a=>{
     const p=pos[a.id]; if(!p) return; const st=agents[a.id], col=acol(a.cluster); let r=a.implemented?3.6:2.3;
     if(st==="active"){ r=6.2; const ph=(now/500)%1; g.strokeStyle=rgba(col,1-ph); g.lineWidth=1.5; g.beginPath(); g.arc(p.x,p.y,r+3+ph*12,0,TAU); g.stroke(); const gg=g.createRadialGradient(p.x,p.y,0,p.x,p.y,r*3.6); gg.addColorStop(0,rgba(col,.6)); gg.addColorStop(1,rgba(col,0)); g.fillStyle=gg; g.beginPath(); g.arc(p.x,p.y,r*3.6,0,TAU); g.fill(); }
     else if(st==="done"){ r=4.8; g.strokeStyle=rgba(C.green,.9); g.lineWidth=1.4; g.beginPath(); g.arc(p.x,p.y,r+2.4,0,TAU); g.stroke(); }
     g.fillStyle=st?col:(a.implemented?rgba(col,.55):"#2c3477"); g.beginPath(); g.arc(p.x,p.y,r,0,TAU); g.fill();
-    if(st==="active"){ g.font="700 10.5px ui-monospace,Consolas,monospace"; const tw=g.measureText(a.id).width; g.fillStyle="rgba(10,13,43,.88)"; g.fillRect(p.x+9,p.y-8,tw+8,15); g.fillStyle=C.ink; g.fillText(a.id,p.x+13,p.y+3); }
+    if(st==="active"){ ink(g,FSM,"left","middle"); const tw=g.measureText(a.id).width; g.fillStyle="rgba(10,13,43,.9)"; g.fillRect(p.x+8,p.y-8,tw+8,16); g.fillStyle=C.ink; g.fillText(a.id,p.x+12,p.y); }
     hits.push({id:a.id,x:p.x,y:p.y,r:Math.max(r,4),html:"<b>"+esc(a.id)+" · "+esc(a.name)+"</b><br>"+esc(a.cluster_label)+"<br>"+(st?esc(st):(a.implemented?"idle · implemented":"roadmap · not simulated"))});
   });
   N.ripples=N.ripples.filter(r=>now-r.birth<1200); N.ripples.forEach(r=>{ const p=pos[r.id]; if(!p) return; const t=(now-r.birth)/1200; g.strokeStyle=rgba(r.col,1-t); g.lineWidth=2; g.beginPath(); g.arc(p.x,p.y,6+t*22,0,TAU); g.stroke(); });
   // right column: live activity + legend
-  const rx=aw+18, rw=w-rx-14; g.font="700 11px ui-monospace,Consolas,monospace"; g.fillStyle=C.cyan; g.fillText("AGENT HAND-OFFS · LIVE",rx,20);
-  const rows=Math.max(3,Math.floor((ah-112)/19)); const feed=N.feed.filter(f=>f.state!=="skipped").slice(0,rows);
-  if(!feed.length){ g.fillStyle=C.dim; g.font="12px ui-monospace,Consolas,monospace"; g.fillText("Waiting for the swarm…",rx,44); }
-  feed.forEach((f,i)=>{ const y=44+i*19, a=Math.max(.3,1-i*.09); g.globalAlpha=a; g.fillStyle=f.state==="active"?C.cyan:C.green; g.beginPath(); g.arc(rx+4,y-4,3.4,0,TAU); g.fill(); g.fillStyle=C.ink; g.font="600 11.5px ui-monospace,Consolas,monospace"; g.fillText(f.id,rx+14,y); g.font="12px ui-sans-serif,Segoe UI,Arial"; g.fillStyle=C.dim; g.fillText(clip(g,(f.label||f.name),rw-58),rx+52,y); g.globalAlpha=1; });
+  const rx=aw+18, rw=w-rx-14; ink(g,"700 12px "+FACE,"left","middle"); g.fillStyle=C.cyan; g.fillText("Agent hand-offs",rx,18);
+  const rows=Math.max(3,Math.floor((ah-112)/22)); const feed=N.feed.filter(f=>f.state!=="skipped").slice(0,rows);
+  if(!feed.length){ ink(g,FLAB,"left","middle"); g.fillStyle=C.dim; g.fillText("Waiting for the swarm",rx,46); }
+  feed.forEach((f,i)=>{ const y=46+i*22, a=Math.max(.35,1-i*.08); g.globalAlpha=a; g.fillStyle=f.state==="active"?C.cyan:C.green; g.beginPath(); g.arc(rx+4,y,3.2,0,TAU); g.fill(); ink(g,FLAB,"left","middle"); g.fillStyle=C.ink; g.fillText(f.id,rx+14,y); const idw=g.measureText(f.id).width; ink(g,FLAB,"left","middle"); g.fillStyle=C.dim; g.fillText(clip(g,(f.label||f.name),rw-idw-28),rx+22+idw,y); g.globalAlpha=1; });
   const lg=[["T1","Orchestration"],["A","US FDA"],["B","EU / EMA"],["C","Global"],["D","CGT"],["E","Vaccines"],["F","Quality"],["G","Facilities"],["H","Production"],["T3","Drafting"],["T4","Verification"]];
-  const ly0=44+rows*19+22, cw=Math.max(80,rw/3); g.font="10.5px ui-monospace,Consolas,monospace";
-  lg.forEach((l,i)=>{ const x=rx+(i%3)*cw, y=ly0+Math.floor(i/3)*14; if(y>ah-2) return; g.fillStyle=acol(l[0]); g.beginPath(); g.arc(x+4,y-3.5,3.2,0,TAU); g.fill(); g.fillStyle=C.dim; g.fillText(l[1],x+12,y); });
+  const ly0=46+rows*22+18, cw=Math.max(88,rw/3); ink(g,FSM,"left","middle");
+  lg.forEach((l,i)=>{ const x=rx+(i%3)*cw, y=ly0+Math.floor(i/3)*16; if(y>ah-8) return; g.fillStyle=acol(l[0]); g.beginPath(); g.arc(x+4,y,3.2,0,TAU); g.fill(); g.fillStyle=C.dim; g.fillText(l[1],x+14,y); });
   // telemetry strip
   drawTele(g,10,h-teleH,w-20,teleH-6,now);
 }
 function drawTele(g,x0,y0,w,h,now){
   g.strokeStyle="rgba(140,160,255,.28)"; g.lineWidth=1; g.strokeRect(x0+.5,y0+.5,w-1,h-1);
-  g.font="700 11px ui-monospace,Consolas,monospace"; g.fillStyle=C.cyan; g.fillText("TELEMETRY · EVENTS / SECOND",x0+10,y0+16);
+  ink(g,"700 11px "+FACE,"left","middle"); g.fillStyle=C.cyan; g.fillText("Telemetry    events / second",x0+10,y0+14);
   const NB=120, k1=Math.floor(now/500), series=[[C.blue,"LOG",0],[C.teal,"GRAPH",1],[C.purple,"AGENTS",2]];
   const val=(s,i)=>{ const b=N.bins[k1-i]; return b?b[s]*2:0; };
   const sm=(s,i)=>(val(s,i)+val(s,i+1)+val(s,i+2))/3;
@@ -1119,16 +1370,17 @@ function drawTele(g,x0,y0,w,h,now){
     g.beginPath(); for(let i=NB-1;i>=0;i--){ const x=px+pw*(1-i/(NB-1))-((now%500)/500)*(pw/(NB-1)), y=py+ph-(sm(s,i)/mx)*ph; if(i===NB-1) g.moveTo(x,y); else g.lineTo(x,y); }
     g.strokeStyle=col; g.lineWidth=1.7; g.stroke(); g.lineTo(px+pw,py+ph); g.lineTo(px,py+ph); g.closePath(); g.fillStyle=rgba(col,.10); g.fill();
   });
-  let lx=x0+w-10; g.font="600 11px ui-monospace,Consolas,monospace"; g.textAlign="right";
-  series.slice().reverse().forEach(([col,name,s])=>{ const txt=name+" "+Math.round((val(s,0)+val(s,1))/2); g.fillStyle=C.ink; g.fillText(txt,lx,y0+16); const tw=g.measureText(txt).width; g.fillStyle=col; g.fillRect(lx-tw-14,y0+9,8,8); lx-=tw+28; });
+  let lx=x0+w-10; ink(g,FSM,"right","middle");
+  series.slice().reverse().forEach(([col,name,s])=>{ const txt=name+"  "+Math.round((val(s,0)+val(s,1))/2); g.fillStyle=C.ink; g.fillText(txt,lx,y0+14); const tw=g.measureText(txt).width; g.fillStyle=col; g.fillRect(lx-tw-16,y0+10,8,8); lx-=tw+26; });
   g.textAlign="left";
 }
 
 /* ---------------- registry / loop ---------------- */
 const V={neural:{id:"c-neural",draw:drawNeural},flow:{id:"c-flow",draw:drawFlow},radar:{id:"c-radar",draw:drawRadar},orbit:{id:"c-orbit",draw:drawOrbit}};
 function draw(){ const v=V[view]; if(!v) return; const f=fit(v.c||(v.c=$("#"+v.id))); if(!f) return; v.draw(f.g,f.w,f.h,performance.now()); }
+function paint(name, canvas){ const v=V[name]; if(!v||!canvas) return; const f=fit(canvas); if(!f) return; v.draw(f.g,f.w,f.h,performance.now()); }
 function init(){ Object.values(V).forEach(v=>bindHover(v.c=$("#"+v.id))); }
-return {ev,draw,reset:fresh,init,reset_hover:()=>{hov=null;$("#tip").style.display="none";},views:Object.keys(V),wave:i=>NN&&wave(i,1)};
+return {ev,draw,paint,reset:fresh,init,reset_hover:()=>{hov=null;$("#tip").style.display="none";},views:Object.keys(V),wave:i=>NN&&wave(i,1)};
 })();
 
 /* ================= views ================= */
@@ -1213,16 +1465,11 @@ function paintSources(){
   const order=["SOP","STP","BMR","MFR","Protocol","Deviation","OOS","Qualification"];
   const names=order.filter(g=>counts[g]).concat(Object.keys(counts).filter(g=>!order.includes(g)));
   const list=names.map(g=>({id:g,short:g,name:GROUP_LABEL[g]||g,count:counts[g]}));
-  list.push({id:"FDA",short:"US FDA",name:"US FDA 21 CFR",count:ST.clauses.length||0});
   buildSystems(list);
   names.forEach(id=>{
     const el=$("#sys-"+id); if(el) el.className="sysc connected";
     if(ST.qms[id]) ST.qms[id].state="connected";
   });
-  if(ST.clauses.length){
-    const el=$("#sys-FDA"); if(el) el.className="sysc connected";
-    if(ST.qms.FDA) ST.qms.FDA.state="connected";
-  }
 }
 function paintPlaces(){
   const tree={};
@@ -1239,36 +1486,97 @@ function paintPlaces(){
   }).join(""):"Plant and facility records appear as the library is read.";
 }
 function paintFda(){
-  const box=$("#fdaFlow"), el=$("#sys-FDA");
-  if(el){ el.className="sysc connected"; const n=el.querySelector(".n"); if(n) n.textContent=ST.clauses.length||n.textContent; }
-  if(!box) return;
-  box.innerHTML=ST.clauses.length?ST.clauses.map(c=>`<span style="--chip:#1239b8">${esc(String(c.ref||"").replace("21 CFR ","§"))}</span>`).join(""):"21 CFR clauses appear when the observation is mapped.";
+  const el=$("#guide-USFDA");
+  if(el){ el.classList.add("connected"); const n=el.querySelector(".n"); if(n) n.textContent=ST.clauses.length||""; }
+  const box=$("#fdaFlow"); if(!box) return;
+  box.innerHTML=ST.clauses.length?ST.clauses.map(c=>`<span style="--chip:#1239b8">${esc(String(c.ref||"").replace("21 CFR ","§"))}</span>`).join(""):"";
 }
 function qmsSystem(e){
   const el=$("#sys-"+e.id); if(!el) return;
   el.className="sysc "+e.state; el.querySelector(".n").textContent=e.state==="connected"?e.count:"…";
-  ST.qms[e.id]=Object.assign(ST.qms[e.id]||{},{state:e.state,col:SYS_COL[e.id]||"#2a3fe6"});
+  ST.qms[e.id]=Object.assign(ST.qms[e.id]||{},{state:e.state,col:SYS_COL[e.id]||sourceColor(e.id)});
+  if(e.id==="FDA" && e.state==="connected"){ const g=$("#guide-USFDA"); if(g){ g.classList.add("connected"); const n=g.querySelector(".n"); if(n&&e.count) n.textContent=e.count; } }
+  if(e.state==="connected" && ST.phase!=="analyze") setCore("fetch","The core is fetching the documents and each guideline source.");
+}
+function paintGuides(){
+  const on=ST.phase==="fetch"||ST.phase==="analyze";
+  const box=$("#guideCol"); if(!box) return;
+  const count=$("#guide-USFDA .n"); const kept=count?count.textContent:"";
+  box.innerHTML=GUIDE_SRC.map(s=>`<div class="sysc${on?" connected":""}" id="guide-${s.id}" data-col="${s.col}" data-label="${esc(s.label)}" style="--src:${s.col}"><i class="dot"></i><b>${esc(s.label)}</b><span class="n">${s.id==="USFDA"?esc(kept):""}</span></div>`).join("");
+}
+function playQueryIngest(){
+  const pill=$("#queryIngest"), host=$("#v-qms"), orb=$("#coreOrb");
+  if(!pill||!host||!orb) return;
+  const text=clipName((ST.obs||"Query").replace(/\s+/g," "), 36);
+  pill.textContent=text||"Query";
+  const hr=host.getBoundingClientRect(), or=orb.getBoundingClientRect();
+  const x=or.left-hr.left+or.width/2, y=or.top-hr.top+or.height/2;
+  pill.style.left=x+"px"; pill.style.top="14px"; pill.style.opacity="1";
+  pill.getAnimations().forEach(a=>a.cancel());
+  pill.animate([
+    {opacity:0, top:"14px", transform:"translate(-50%,0) scale(.82)"},
+    {opacity:1, top:"14px", transform:"translate(-50%,0) scale(1)", offset:.12},
+    {opacity:1, top:(y-8)+"px", transform:"translate(-50%,-50%) scale(1)", offset:.74},
+    {opacity:0, top:y+"px", transform:"translate(-50%,-50%) scale(.12)"}
+  ], {duration:1800, easing:"cubic-bezier(.4,0,.2,1)", fill:"forwards"});
+  orb.classList.remove("absorb");
+  setTimeout(()=>{ if($("#coreOrb")) $("#coreOrb").classList.add("absorb"); }, 1450);
+}
+function setCore(phase, note){
+  if((phase==="fetch"||phase==="analyze") && performance.now()<(ST.queryHoldUntil||0)){
+    if(!ST.pendingPhase || phase==="analyze") ST.pendingPhase={phase:phase,note:note};
+    return;
+  }
+  ST.phase=phase;
+  const orb=$("#coreOrb"), label=$("#corePhase"), noteEl=$("#coreNote");
+  if(orb) orb.classList.toggle("phase-analyze", phase==="analyze");
+  if(label) label.textContent=phase==="query"?"query in":phase==="fetch"?"fetching":"analyzing";
+  if(noteEl&&note) noteEl.textContent=note;
+  paintGuides();
+}
+function releaseCore(){
+  if(ST.pendingPhase && performance.now()>=(ST.queryHoldUntil||0)){
+    const pending=ST.pendingPhase; ST.pendingPhase=null; setCore(pending.phase, pending.note);
+  }
 }
 let qsz={w:0,h:0};
 function drawQms(){
   if(view!=="qms") return;
+  releaseCore();
   const c=$("#qcv"), host=$("#v-qms"), r=host.getBoundingClientRect(); if(!r.width) return;
   if(qsz.w!==r.width||qsz.h!==r.height){ qsz={w:r.width,h:r.height}; c.width=r.width*DPR; c.height=r.height*DPR; }
   const g=c.getContext("2d"); g.setTransform(DPR,0,0,DPR,0,0); g.clearRect(0,0,r.width,r.height);
   const o=$("#coreOrb").getBoundingClientRect(), ox=o.left-r.left+o.width/2, oy=o.top-r.top+o.height/2, now=performance.now();
+  const showingQuery=(ST.phase||"query")==="query"||now<(ST.queryHoldUntil||0);
   const streams=[];
   Object.keys(ST.qms||{}).forEach(id=>{
     const el=$("#sys-"+id); if(!el) return; const b=el.getBoundingClientRect();
     if(b.bottom<r.top+8||b.top>r.bottom-8) return;
-    const s=ST.qms[id], flowing=s.state==="connected"||s.count>0;
-    streams.push({x:b.right-r.left,y:b.top-r.top+b.height/2,col:s.col||sourceColor(id),on:flowing,ing:s.state==="connecting",side:1,label:id==="FDA"?"US FDA":id});
+    const s=ST.qms[id], flowing=!showingQuery&&(s.state==="connected"||s.count>0);
+    streams.push({x:b.right-r.left,y:b.top-r.top+b.height/2,col:s.col||sourceColor(id),on:flowing,ing:!showingQuery&&s.state==="connecting",side:1,label:id==="FDA"?"US FDA":id});
   });
-  $$("#placeFlow .place").forEach(el=>{
-    const b=el.getBoundingClientRect();
-    streams.push({x:b.left-r.left,y:b.top-r.top+b.height/2,col:el.dataset.col||"#e38b2c",on:true,ing:false,side:-1});
-  });
-  const fda=$("#qFda");
-  if(fda&&ST.clauses.length){ const b=fda.getBoundingClientRect(); streams.push({x:b.left-r.left,y:b.top-r.top+18,col:"#1239b8",on:true,ing:false,side:-1}); }
+  if(!showingQuery){
+    $$("#placeFlow .place").forEach(el=>{
+      const b=el.getBoundingClientRect();
+      streams.push({x:b.left-r.left,y:b.top-r.top+b.height/2,col:el.dataset.col||"#e38b2c",on:true,ing:false,side:-1});
+    });
+    $$("#guideCol .sysc.connected").forEach(el=>{
+      const b=el.getBoundingClientRect();
+      if(b.bottom<r.top+8||b.top>r.bottom-8) return;
+      streams.push({x:b.left-r.left,y:b.top-r.top+b.height/2,col:el.dataset.col||"#1239b8",on:true,ing:false,side:-1,label:el.dataset.label});
+    });
+  }
+  if(showingQuery){
+    const started=ST.queryStarted||now, p=Math.max(0,Math.min(1,(now-started)/1800));
+    const x1=ox, y1=22, cxm=ox;
+    const u=1-p;
+    const px=u*u*u*x1+3*u*u*p*cxm+3*u*p*p*cxm+p*p*p*ox, py=u*u*u*y1+3*u*u*p*y1+3*u*p*p*oy+p*p*p*oy;
+    g.beginPath(); g.moveTo(x1,y1); g.bezierCurveTo(cxm,y1,cxm,oy,ox,oy);
+    g.lineWidth=2.8; g.strokeStyle="#6d3df0"; g.globalAlpha=.35+.45*p; g.stroke(); g.globalAlpha=1;
+    if(p<0.96){
+      g.fillStyle="#6d3df0"; g.beginPath(); g.arc(px,py,5,0,7); g.fill();
+    } else if($("#coreOrb")) $("#coreOrb").classList.add("absorb");
+  }
   streams.forEach((s,i)=>{
     const x1=s.x, y1=s.y, tx=ox+(s.side>0?-o.width/2:o.width/2), cxm=(x1+tx)/2;
     g.beginPath(); g.moveTo(x1,y1); g.bezierCurveTo(cxm,y1,cxm,oy,tx,oy);
@@ -1283,7 +1591,7 @@ function drawQms(){
         const tw=g.measureText(s.label).width+10;
         g.fillStyle="#fff"; g.strokeStyle=s.col; g.lineWidth=1.4;
         g.beginPath(); g.roundRect(px+7,py-8,tw,16,8); g.fill(); g.stroke();
-        g.fillStyle=s.col; g.fillText(s.label,px+12,py+4);
+        g.font="700 10px ui-sans-serif, Segoe UI, sans-serif"; g.textAlign="left"; g.textBaseline="middle"; g.fillStyle=s.col; g.fillText(s.label,px+12,py);
       }
     }
   });
@@ -1291,6 +1599,7 @@ function drawQms(){
 
 /* ---- documents ---- */
 function docBatch(e){
+  if(ST.phase!=="analyze") setCore("fetch","The core is fetching the documents and the open guideline sources.");
   ST.fetched=e.fetched; countTo($("#kDocs"),e.fetched); $("#dTotal").textContent=e.fetched;
   e.items.forEach(d=>{
     ST.docs.push(d); sourceGraph(d);
@@ -1379,7 +1688,7 @@ function drawWeekly(){
   const d=a.weekly, n=d.length, mx=Math.max(2,...d.map(x=>x.excursions)), pl=6, pb=18, pt=6, w=r.width-pl*2, h=r.height-pb-pt, bw=w/n;
   g.strokeStyle="#e3e6fa"; g.lineWidth=1; for(let i=0;i<=2;i++){ const y=pt+h*i/2; g.beginPath(); g.moveTo(pl,y); g.lineTo(pl+w,y); g.stroke(); }
   d.forEach((x,i)=>{ const bh=h*x.excursions/mx, bx=pl+i*bw+bw*.18; g.fillStyle=x.excursions?(x.excursions>1?"#e5384c":"#f07a87"):"#dfe3f7"; g.fillRect(bx,pt+h-Math.max(2,bh),bw*.64,Math.max(2,bh));
-    g.fillStyle="#666c96"; g.font="600 11px ui-monospace,Consolas,monospace"; g.textAlign="center"; g.fillText("W"+x.week,bx+bw*.32,r.height-4); if(x.excursions){ g.fillStyle="#10122b"; g.fillText(x.excursions,bx+bw*.32,pt+h-bh-3); } });
+    g.font="600 11px ui-sans-serif, Segoe UI, sans-serif"; g.textAlign="center"; g.textBaseline="alphabetic"; g.fillStyle="#5c6288"; g.fillText("W"+x.week,bx+bw*.32,r.height-4); if(x.excursions){ g.textBaseline="bottom"; g.fillStyle="#10122b"; g.fillText(String(x.excursions),bx+bw*.32,pt+h-bh-4); } });
   const xs=d.map((_,i)=>i), ys=d.map(x=>x.excursions), mxs=(n-1)/2, mys=ys.reduce((p,q)=>p+q,0)/n;
   const sl=xs.reduce((p,x,i)=>p+(x-mxs)*(ys[i]-mys),0)/xs.reduce((p,x)=>p+(x-mxs)**2,0), ic=mys-sl*mxs;
   g.strokeStyle="#6d3df0"; g.setLineDash([5,4]); g.lineWidth=2; g.beginPath(); [0,n-1].forEach((i,k)=>{ const y=pt+h-h*(ic+sl*i)/mx, x=pl+i*bw+bw/2; k?g.lineTo(x,y):g.moveTo(x,y); }); g.stroke(); g.setLineDash([]);
@@ -1396,14 +1705,41 @@ function frameFill(sections,res){
     const rem=s.claims.filter(c=>res&&res[c.id]&&res[c.id].status==="removed").length, st=el.querySelector(".st");
     st.textContent=(rem?rem+" blocked · ":"")+s.claims.length+(s.claims.length===1?" claim":" claims"); st.className="st tag "+(rem?"r":"g"); el.querySelector(".prog s").style.width="100%"; });
 }
+function proposalBar(kind, label){
+  const state=((ST.proposals||{})[kind]||{}).decision||"proposed";
+  const word=state==="confirm"?"QA confirmed":state==="reject"?"QA rejected":"Proposed for QA";
+  const reviewer=STATUS&&STATUS.user&&STATUS.user.role==="reviewer";
+  return `<div class="card prop"><b>${word} · ${esc(label)}</b><button class="btn green" data-prop="${kind}" data-dec="confirm" ${reviewer?"":"disabled"} title="${reviewer?"Confirm this proposal":"Reviewer role required"}">Confirm</button><button class="btn red" data-prop="${kind}" data-dec="reject" ${reviewer?"":"disabled"} title="${reviewer?"Reject this proposal":"Reviewer role required"}">Reject</button></div>`;
+}
+function bindProposals(root){
+  if(!root) return;
+  root.querySelectorAll("[data-prop]").forEach(button=>button.onclick=()=>sendProposal(button.dataset.prop, button.dataset.dec));
+}
+async function sendProposal(kind, decision){
+  if(!RUN) return;
+  const response=await fetch("/api/run/"+RUN+"/proposal",{method:"POST",headers:requestHeaders(),body:JSON.stringify({kind,decision})});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok){ flash(data.error||"The proposal was not recorded", false); return; }
+  ST.proposals=data.proposals||{};
+  if(data.sections){ draft={sections:data.sections}; renderDraft(); }
+  if(data.doc_sha256) reviewDigest=data.doc_sha256;
+  if(ST.ccItems) changeControl({items:ST.ccItems});
+  if(ST.impact) impact(ST.impact);
+  if($("#capaDecision")) $("#capaDecision").innerHTML=proposalBar("capa","CAPA");
+  bindProposals($("#v-cc")); bindProposals($("#v-impact")); bindProposals($("#capaDecision"));
+  flash(decision==="confirm"?"QA confirmed the proposal":"QA rejected the proposal. It is out of the response.", decision==="confirm");
+}
 function changeControl(e){
-  $("#v-cc").innerHTML=e.items.map((c,i)=>`<div class="card ccard" style="animation-delay:${i*120}ms" title="${esc(c.title)} — Why: ${esc(c.why)} | Validation: ${esc(c.validation)} | Filing: ${esc(c.filing)}"><div><div class="h"><b>${esc(c.id)}</b><span class="tag ${c.class==="Major"?"r":"a"}">${esc(c.class)}</span></div><div class="ty">${esc(c.type)}</div></div>
+  ST.ccItems=e.items||[];
+  if(!e.items||!e.items.length){ $("#v-cc").innerHTML=proposalBar("change","Change control")+'<div class="card">Change control is not proposed. No retrieved procedure was shown to omit the missing step.</div>'; bindProposals($("#v-cc")); return; }
+  $("#v-cc").innerHTML=proposalBar("change","Change control")+e.items.map((c,i)=>`<div class="card ccard" style="animation-delay:${i*120}ms" title="${esc(c.title)} — Why: ${esc(c.why)} | Validation: ${esc(c.validation)} | Filing: ${esc(c.filing)}"><div><div class="h"><b>${esc(c.id)}</b><span class="tag ${c.class==="Major"?"r":"a"}">${esc(c.class)}</span></div><div class="ty">${esc(c.type)}</div></div>
     <div class="t">${esc(c.title)}</div><div><p class="w"><u>Why</u>${esc(c.why)}</p><p class="v"><u>Validation</u>${esc(c.validation)}</p><p class="f"><u>Filing</u>${esc(c.filing)}</p></div>
     <div class="own">${esc(c.owner)}<b>${esc(c.due)}</b></div>
-    <div class="chs">${(c.target_docs||[]).slice(0,innerHeight<820?1:2).map(d=>`<span class="tag b">${esc(d.id)}</span>`).join("")}${c.impacted&&c.impacted.length?`<span class="tag a" title="${esc(c.impacted.map(d=>d.id).join(", "))}">+${c.impacted.length} dependent docs</span>`:""}</div></div>`).join("");
+    <div class="chs">${(c.targets||[]).slice(0,3).map(d=>`<span class="tag b">${esc(d)}</span>`).join("")}${(c.target_docs||[]).slice(0,innerHeight<820?1:2).map(d=>`<span class="tag b">${esc(d.id)}</span>`).join("")}${c.impacted&&c.impacted.length?`<span class="tag a" title="${esc(c.impacted.map(d=>d.id).join(", "))}">+${c.impacted.length} dependent docs</span>`:""}</div></div>`).join("");
+  bindProposals($("#v-cc"));
 }
 const LANE={correction:["Correction","#e5384c"],corrective:["Corrective","#2a3fe6"],preventive:["Preventive","#6d3df0"],effectiveness:["Effectiveness","#0f9f6b"]};
-function capa(e){ ST.capa=e.plan; drawCapa(true); }
+function capa(e){ ST.capa=e.plan; const bar=$("#capaDecision"); if(bar){ bar.innerHTML=proposalBar("capa","CAPA"); bindProposals(bar); } drawCapa(true); }
 function drawCapa(anim){
   const plan=ST.capa; if(!plan||view!=="capa") return;
   const svg=$("#capasvg"), W0=1000, rowH=30, top=34, left=430, right=960, maxD=Math.max(120,...plan.map(p=>p.day)), H0=top+plan.length*rowH+34;
@@ -1424,15 +1760,28 @@ function drawCapa(anim){
 }
 const LV=["–","LOW","MED","HIGH"];
 function impact(e){
-  ST.impact=e; const m=e.matrix, cols=m.columns.length, g=$("#imat"); g.style.gridTemplateColumns=`minmax(0,3fr) repeat(${cols},minmax(0,1fr))`; g.style.gridTemplateRows=`auto repeat(${m.rows.length},1fr)`;
+  if(!e||!e.matrix) return;
+  ST.impact=e; const m=e.matrix, cols=m.columns.length, g=$("#imat"); if(!g) return;
+  g.style.gridTemplateColumns=`minmax(8rem,2.2fr) repeat(${cols},minmax(2.4rem,1fr))`; g.style.gridTemplateRows=`auto repeat(${m.rows.length},minmax(1.7rem,auto))`;
   let h=`<div></div>`+m.columns.map(c=>`<div class="im-h" title="${esc(c)}">${esc(c.replace("Documentation","Docs"))}</div>`).join("");
-  m.rows.forEach(r=>{ h+=`<div class="im-r" title="${esc(r.area)} — ${esc(r.note)}"><span style="overflow:hidden;text-overflow:ellipsis">${esc(r.area)}</span><small>${esc(r.note)}</small></div>`+r.levels.map((l,i)=>`<div class="im-c l0" data-l="${l}" title="${esc(r.area)} · ${esc(m.columns[i])}: ${LV[l]}">${LV[l]}</div>`).join(""); });
+  m.rows.forEach(r=>{ h+=`<div class="im-r" title="${esc(r.area)} — ${esc(r.note)}"><span style="overflow:hidden;text-overflow:ellipsis">${esc(r.area)}</span><small>${esc(r.note)}</small></div>`+r.levels.map((l,i)=>`<div class="im-c l0" data-l="${l}" title="${esc(r.area)} · ${esc(m.columns[i])}: ${LV[l]||l}">${LV[l]||l}</div>`).join(""); });
   g.innerHTML=h;
   $$("#imat .im-c").forEach((c,i)=>later(()=>{ const l=+c.dataset.l; c.className="im-c l"+l; },100+i*35));
-  const s=e.summary;
-  $("#itiles").innerHTML=[["batches","batches with an excursion",s.in_scope,""],["dist","already distributed",s.distributed,"bad"],["docs","documents to revise",s.docs,""],["lines","production lines",s.lines,""],["sys","quality systems",s.systems,""],["ops","operators overdue",s.operators,"bad"]].map(t=>`<div class="it ${t[3]}"><b>${t[2]}</b><span>${t[1]}</span></div>`).join("");
-  $("#bstrip").innerHTML=e.batches.map(b=>`<div class="bch ${b.excursion?(b.disposition==="Distributed"?"d":"r"):"ok"}" title="${esc(b.batch)} · ${esc(b.disposition)} · ${b.interventions} interventions${b.lapsed.length?" · overdue: "+esc(b.lapsed.join(", ")):""}">${b.week}</div>`).join("");
-  $("#idocs").innerHTML=e.docs.map(d=>`<span class="tag b" title="${esc(d.title)} · ${esc(d.reason)}">${esc(d.id)}</span>`).join("");
+  const s=e.summary||{};
+  const tiles=s.severity!=null?[[s.records||0,"records retrieved",""],[s.classes||0,"document classes",""],[s.actions||0,"proposed actions",""],[s.severity,"proposed severity",s.severity==="High"?"bad":""]]:[["–","assessment",""]];
+  $("#itiles").innerHTML=tiles.map(t=>`<div class="it ${t[2]}"><b>${esc(t[0])}</b><span>${esc(t[1])}</span></div>`).join("");
+  const docs=e.docs||[];
+  $("#bstrip").innerHTML=(e.batches&&e.batches.length)?e.batches.map(b=>`<div class="bch ${b.excursion?(b.disposition==="Distributed"?"d":"r"):"ok"}" title="${esc(b.batch)}">${esc(b.week||b.batch)}</div>`).join(""):docs.map(d=>`<div class="bch ok" title="${esc(d.title)}">${esc(d.reason||"Record")}</div>`).join("");
+  $("#idocs").innerHTML=docs.map(d=>`<span class="tag b" title="${esc(d.title)} · ${esc(d.reason)}">${esc(d.id)} · ${esc(d.reason||"")}</span>`).join("");
+  const why=$("#riskWhy");
+  if(why) why.innerHTML=`<p><b>${esc(s.severity||"—")}</b>proposed severity for QA to confirm. This is not a completed ICH Q9 score.</p><p>${esc(s.pair||"The rating is waiting for the retrieved passages.")}</p><p>Occurrence ${esc(s.occurrence||"is not confirmed by the retrieved records")}.</p>`;
+  const table=$("#fieldTable");
+  const fields=s.fields||[];
+  if(table) table.innerHTML=fields.length?`<table class="fields"><thead><tr><th>Check</th><th>Requirement</th><th>Entry</th><th>Sign-off</th><th>History</th><th>Route</th></tr></thead><tbody>${fields.map(row=>`<tr><td>${esc(row.check)}</td><td>${esc(row.requirement)}</td><td>${esc(row.entry)}</td><td>${esc(row.signoff)}</td><td>${esc(row.history)}</td><td>${esc(row.route)}</td></tr>`).join("")}</tbody></table>`:"";
+  const decision=$("#riskDecision");
+  if(decision) decision.innerHTML=proposalBar("risk","Risk assessment");
+  bindProposals($("#riskDecision"));
+  if(follow && performance.now()>=(ST.viewHoldUntil||0)) showView("impact");
 }
 
 /* ---- summary ---- */
@@ -1466,31 +1815,70 @@ let flT=null;
 function flash(t,ok){ if(view!=="graph"&&follow===false) {} const f=$("#flash"); f.textContent=t; f.className="flash show"+(ok?" ok":""); clearTimeout(flT); flT=setTimeout(()=>f.className="flash"+(ok?" ok":""),2600);}
 
 /* ---------------- draft ---------------- */
-function renderDraft(){
-  if(!draft) return; let tot=0, rem=0;
-  const html=draft.sections.map(s=>{
-    const cls=s.claims.map(c=>{
-      tot++; const v=vmap[c.id], removed=v&&v.status==="removed"; if(removed) rem++;
+function sectionHtml(sections, results, prefix){
+  let tot=0, rem=0;
+  const html=(sections||[]).map(s=>{
+    const cls=(s.claims||[]).map(c=>{
+      tot++; const v=results[c.id], removed=v&&v.status==="removed"; if(removed) rem++;
       const cites=(c.cites||[]).map((ct,ix)=>{
         const r=v&&v.cites&&v.cites[ix]; const st=r?(r.status==="verified"?"ok":"bad"):"pend";
-        const id="ck-"+c.id+"-"+ix;
+        const id="ck-"+prefix+"-"+c.id+"-"+ix;
         const checks=r?r.checks.map(k=>`<div class="${k.ok?"n":"f"}">${k.ok?"✓":"✕"} ${esc(k.name)}${k.detail?" — "+esc(k.detail):""}</div>`).join(""):"";
         return `<span class="cite ${st}" data-ck="${id}">${st==="ok"?"✓":st==="bad"?"✕":"·"} ${esc(ct.ref.replace("21 CFR ","§"))}</span><div class="checks" id="${id}">${checks}${ct.quote?`<div style="margin-top:.25rem;color:#555">"${esc(ct.quote)}"</div>`:""}</div>`;
       }).join("");
       const ev=(c.evidence&&c.evidence.length)?`<div class="ev">${c.evidence.slice(0,4).map(x=>esc(x.replace(/^EV-/,""))).join(" · ")}${c.evidence.length>4?" +"+(c.evidence.length-4):""}</div>`:"";
-      const kind={regulatory:"REG",site_fact:"SITE",action:"COMMIT"}[c.kind]||"";
-      return `<div class="cl ${c.kind} ${removed?"removed":""} ${revised.has(c.id)?"revised":""}"><span class="k">${kind} ${esc(c.id)}</span><span class="tx">${esc(c.text)}</span>${cites}${ev}${removed?`<div class="why">BLOCKED BY VERIFIER · ${esc(v.reason)}</div>`:""}</div>`;
+      return `<div class="cl ${c.kind} ${removed?"removed":""} ${revised.has(c.id)?"revised":""}"><span class="tx" contenteditable="true" spellcheck="true" data-claim="${esc(c.id)}" data-run="${esc(prefix)}">${esc(c.text)}</span>${cites}${ev}${removed?`<div class="why">BLOCKED BY VERIFIER · ${esc(v.reason)}</div>`:""}</div>`;
     }).join("");
-    return `<h4>${esc(s.title)}</h4>${cls}`;
+    const tone={query:"query",response:"response",capa:"capa",risk:"risk"}[s.id]||"";
+    return `<h4 class="${tone}">${esc(s.title)}</h4>${cls}`;
   }).join("");
-  const sc=$("#draft").scrollTop; $("#draft").innerHTML=html; $("#draft").scrollTop=sc;
+  return {html, tot, rem};
+}
+function renderDraft(){
+  let blocks=[], tot=0, rem=0;
+  if(BATCH && BATCH.runs.length>1){
+    blocks=BATCH.runs.map((run,index)=>{
+      const rep=BATCH.reports[run.run_id]||{};
+      const place=run.facility?" · "+esc(run.facility):"";
+      const head=`<h3>Observation ${index+1}${place}</h3>`;
+      if(!rep.sections) return head+`<p style="color:var(--muted)">${rep.error?esc(rep.error):"This observation is still being analyzed."}</p>`;
+      const part=sectionHtml(rep.sections, run.run_id===RUN?vmap:(rep.vmap||{}), run.run_id);
+      tot+=part.tot; rem+=part.rem;
+      return head+part.html;
+    });
+  } else if(draft){
+    const part=sectionHtml(draft.sections, vmap, "one");
+    blocks=[part.html]; tot=part.tot; rem=part.rem;
+  } else return;
+  const sc=$("#draft").scrollTop; $("#draft").innerHTML=blocks.join(""); $("#draft").scrollTop=sc;
   $("#dcount").textContent=tot+" claims"+(rem?" · "+rem+" blocked":"");
+  batchProgress();
   $$(".cite").forEach(el=>el.onclick=()=>{const b=$("#"+el.dataset.ck); if(b) b.classList.toggle("open");});
+  $$("#draft .tx[contenteditable]").forEach(el=>el.oninput=()=>{
+    const text=el.textContent;
+    const apply=sections=>{(sections||[]).forEach(section=>(section.claims||[]).forEach(claim=>{ if(claim.id===el.dataset.claim) claim.text=text; }));};
+    if(el.dataset.run==="one"&&draft) apply(draft.sections);
+    else if(BATCH&&BATCH.reports[el.dataset.run]) apply(BATCH.reports[el.dataset.run].sections);
+  });
+}
+function watchBatch(id){
+  const es=new EventSource("/api/run/"+encodeURIComponent(id)+"/events");
+  QUIET.push(es);
+  es.onmessage=m=>{
+    const e=JSON.parse(m.data); const rep=reportFor(id); if(!rep) return;
+    if(e.type==="case_start"&&e.observation) rep.observation=e.observation;
+    if(e.type==="draft") rep.sections=e.sections;
+    if(e.type==="verify") rep.vmap=e.results;
+    if(e.type==="done"||e.type==="error"){
+      rep.status=e.type; if(e.type==="error") rep.error=e.message||"This observation failed.";
+      es.close(); batchProgress(); renderDraft(); if(batchSettled()) openResponse(true);
+    }
+  };
 }
 
 /* ---------------- insights ---------------- */
 function showCard(){
-  if(!cards.length) return; const c=cards[cardIdx%cards.length]; cardIdx++;
+  if(!cards.length||!$("#qcard")) return; const c=cards[cardIdx%cards.length]; cardIdx++;
   const mx=Math.max(1,...c.bars.map(b=>b.value));
   $("#qcard").innerHTML=`<div class="lbl">Query<span class="stat">${((cardIdx-1)%cards.length)+1} / ${cards.length} · derived</span></div><div class="q">${esc(c.q)}</div><div><span class="big">${esc(c.big)}</span><span class="unit">${esc(c.unit)}</span></div><div class="sub">${esc(c.sub)}</div>
     <div class="bars">${c.bars.slice(0,2).map(b=>`<div class="bar"><span>${esc(b.label)}</span><div class="t"><s data-w="${Math.round(100*b.value/mx)}"></s></div><b>${b.value}</b></div>`).join("")}</div>`;
@@ -1500,12 +1888,7 @@ function showCard(){
 
 /* ---------------- score / gate ---------------- */
 function showScore(s){
-  $("#scorePanel").classList.remove("hide");
-  const el=$("#scNum"); let v=0; const iv=setInterval(()=>{v+=3; if(v>=s.composite){v=s.composite;clearInterval(iv);} el.innerHTML=v+"<small>/100</small>";},22);
-  $("#scRag").className="rag "+s.rag; $("#scVerdict").textContent=s.verdict; $("#gScore").innerHTML=`<i class="rag ${s.rag}" style="display:inline-block;vertical-align:middle;margin-right:.3rem"></i>${s.composite}/100`;
-  $("#scBars").innerHTML=s.components.map(c=>`<div class="r" title="${esc(c.note)}"><span>${esc(c.name)}</span><div class="t"><s data-w="${c.value}"></s></div><b>${c.value}</b></div>`).join("");
-  setTimeout(()=>$$("#scBars s").forEach(x=>x.style.width=x.dataset.w+"%"),50);
-  $("#openItems").innerHTML="<ul>"+s.open_items.map(i=>"<li>"+esc(i)+"</li>").join("")+"</ul>";
+  if($("#gScore")) $("#gScore").innerHTML=`<i class="rag ${s.rag}" style="display:inline-block;vertical-align:middle;margin-right:.3rem"></i>${s.composite}/100`;
   summary(s); summaryTiles();
 }
 
@@ -1513,17 +1896,27 @@ function showScore(s){
 const H_={
  case_start(e){
    $("#modeTxt").textContent="Live analysis"; $("#modePill").className="pill live";
-   $("#modePill").title=e.mode_label; $("#obsTxt").textContent=e.observation; $("#obsTag").textContent="imported case";
-   $("#notes").innerHTML=(e.notes||[]).map(n=>`<div class="note">${esc(n)}</div>`).join("");
+   $("#modePill").title=e.mode_label;
    if(e.stages){ STAGES=e.stages.map(s=>[s.name,s.sub]); buildRail(); }
-   ST.obs=e.observation; ST.total=e.n_docs; buildSystems(e.systems);
+   ST.obs=e.observation; ST.total=e.n_docs; ST.phase="query"; ST.queryStarted=performance.now(); ST.queryHoldUntil=ST.queryStarted+1800; ST.viewHoldUntil=ST.queryStarted+4200; buildSystems((e.systems||[]).filter(s=>s.id!=="FDA"));
+   const rep=reportFor(RUN); if(rep&&e.observation) rep.observation=e.observation;
+   paintGuides();
+   setCore("query","The query is entering the RegSwarm core.");
+   showView("qms"); requestAnimationFrame(()=>playQueryIngest());
+ },
+ query_core(e){
+   if(e&&e.observation) ST.obs=e.observation;
+   ST.queryStarted=performance.now(); ST.queryHoldUntil=ST.queryStarted+1800; ST.viewHoldUntil=ST.queryStarted+4200;
+   setCore("query","The query is entering the RegSwarm core.");
+   showView("qms"); requestAnimationFrame(()=>playQueryIngest());
+ },
+ analyze_core(){
+   setCore("analyze","The core is analyzing the query, the documents, and the guidelines together.");
  },
  stage(e){ setStage(e.n,e.name,e.sub); },
  upload,
  classification(e){ routing(e); },
  elements(e){
-   $("#elChips").innerHTML=e.elements.map(x=>`<span class="chip" data-e="${x.id}" title="${esc(x.text)}">${x.id}</span>`).join("");
-   $$(".chip").forEach(c=>{c.onmouseenter=()=>{hover=nmap[c.dataset.e]||null;};c.onmouseleave=()=>{hover=null;};});
    $("#elList").innerHTML=e.elements.map((x,i)=>`<div style="animation-delay:${i*120}ms"><b>${esc(x.id)}</b><span>${esc(x.text)}</span></div>`).join("");
  },
  qms_system:qmsSystem,
@@ -1537,24 +1930,27 @@ const H_={
    (e.items||[]).forEach(item=>{ if(!ST.clauses.some(c=>c.ref===item.ref)) ST.clauses.push(item); });
    linkGraph((e.items||[]).map(item=>({s:"SRC-FDA",t:item.ref,kind:"part"})));
    paintSources(); paintFda();
+   if(ST.phase!=="analyze") setCore("analyze","The core is analyzing the query, the documents, and the guidelines together.");
  }, rca(e){},
  analysis,
  frame,
  change_control:changeControl,
  capa,
  impact,
+ proposal(e){ ST.proposals=e.proposals||{}; },
  draft(e){
-   draft={sections:e.sections}; revised=new Set(e.revised||[]); $("#dver").textContent=e.version; renderDraft();
+   draft={sections:e.sections}; revised=new Set(e.revised||[]); $("#dver").textContent=e.version;
+   const rep=reportFor(RUN); if(rep) rep.sections=e.sections; renderDraft();
    frameFill(e.sections,vmap);
  },
  verify(e){
-   vmap=e.results; renderDraft(); verCount=e.ok_cites; blocked=(e.removed||[]).length; if(e.version==="v0.1") ST.firstBlocked=blocked;
+   vmap=e.results; const rep=reportFor(RUN); if(rep) rep.vmap=e.results; renderDraft(); verCount=e.ok_cites; blocked=(e.removed||[]).length; if(e.version==="v0.1") ST.firstBlocked=blocked;
    countTo($("#kVer"),e.ok_cites); frameFill(draft.sections,vmap);
    if(!blocked) flash("✓ ALL "+e.total_cites+" CITATIONS VERIFIED AGAINST THE CORPUS",true);
  },
  redteam(e){},
  score(e){ showScore(e); },
- insights(e){ cards=e.cards; cardIdx=0; showCard(); clearInterval(cardTimer); cardTimer=setInterval(()=>{ if(!$("#qcard").matches(":hover")) showCard(); },7000); },
+ insights(e){ cards=e.cards; cardIdx=0; },
  graph_add(e){ addGraph(e.nodes,e.edges); },
  graph_status(e){ setStatus(e.id,e.status); },
  log(e){ addLog(e); },
@@ -1571,35 +1967,53 @@ const H_={
      $("#gateState").textContent="approved · locked"; }
    else { b.innerHTML=`<b style="color:var(--amber)">${esc(s.meaning)}</b><br>by ${esc(s.name)} · ${esc(s.timestamp)}`; $("#gateState").textContent=e.status; }
  },
- error(e){ $("#msgs").innerHTML=`<div class="err">Run failed: ${esc(e.message)}</div>`; stopClock(); },
- done(e){ stopClock(); Object.keys(agents).forEach(k=>{ if(agents[k]==="active") agentState(k,"done"); }); summaryTiles(); }
+ error(e){ $("#msgs").innerHTML=`<div class="err">Run failed: ${esc(e.message)}</div>`; stopClock(); const rep=reportFor(RUN); if(rep){ rep.status="error"; rep.error=e.message||"This observation failed."; } batchProgress(); if(batchSettled()) openResponse(true); },
+ done(e){ stopClock(); Object.keys(agents).forEach(k=>{ if(agents[k]==="active") agentState(k,"done"); }); summaryTiles(); const rep=reportFor(RUN); if(rep) rep.status="done"; batchProgress(); if(draft && (!BATCH || BATCH.runs.length<2 || batchSettled())) openResponse(true); }
 };
 
 /* ---------------- run control ---------------- */
 function fmt(s){s=Math.floor(s);return [s/3600|0,(s%3600)/60|0,s%60].map(x=>String(x).padStart(2,"0")).join(":");}
 function stopClock(){ clearInterval(clockTimer); }
-function freshState(){ ST={obs:"",qms:{},dsys:{},dcur:{},gcount:{},pull:{byEl:{},user:false},passages:0,findings:0,firstBlocked:0,total:0,docs:[],clauses:[]}; }
-function reset(){
+function freshState(){ ST={obs:"",qms:{},dsys:{},dcur:{},gcount:{},pull:{byEl:{},user:false},passages:0,findings:0,firstBlocked:0,total:0,docs:[],clauses:[],phase:"query",queryStarted:0,queryHoldUntil:0,viewHoldUntil:0,pendingPhase:null,proposals:{},ccItems:null,impact:null}; }
+function reset(opts){
+  opts=opts||{};
+  if(!opts.keepBatch){ closeQuiet(); BATCH=null; }
   NV.reset(); tour(false); seqTimers.forEach(clearTimeout); seqTimers=[];
   if(ES) ES.close(); clearInterval(cardTimer); timers.forEach(clearTimeout); timers=[]; freshState();
   nodes=[];links=[];nmap={};agents={};series=[];draft=null;vmap={};revised=new Set();cards=[];focus=new Set();stageI=-1;hover=null;verCount=0;blocked=0; follow=true; seen=new Set();
+  closeResponse();
   $("#autoTab").classList.remove("off");
   $$(".sq").forEach(s=>s.classList.remove("active","done","skipped"));
-  ["#gScore","#log","#draft","#elChips","#notes","#msgs","#sigBox","#entBox","#elList","#gTiles","#stream","#dLegend","#eTabs","#eTxt","#hList","#finds","#heat","#orgRow","#v-frame","#v-cc","#imat","#itiles","#bstrip","#idocs","#gauge","#stiles","#sOpen","#gLegend","#capasvg","#placeFlow","#fdaFlow"].forEach(s=>{ const el=$(s); if(el) el.innerHTML=""; });
+  ["#gScore","#log","#draft","#elChips","#notes","#msgs","#batchNote","#sigBox","#entBox","#elList","#gTiles","#stream","#dLegend","#eTabs","#eTxt","#hList","#finds","#heat","#orgRow","#v-frame","#v-cc","#imat","#itiles","#bstrip","#idocs","#riskWhy","#fieldTable","#gauge","#stiles","#sOpen","#gLegend","#capasvg","#placeFlow","#fdaFlow","#guideCol"].forEach(s=>{ const el=$(s); if(el) el.innerHTML=""; });
   $("#funnel").innerHTML="<h5>Smart pull funnel</h5>";
   $("#routeKv").innerHTML="<span>Status</span><span>classifying…</span>"; $("#upBody").textContent="Receiving…"; $("#upTag").textContent="waiting"; $("#upScan").classList.add("hide");
   $("#dTotal").textContent="0"; $("#gNum").textContent="0"; $("#gVerdict").textContent="review checks";
   $("#draft").innerHTML='<div style="color:var(--muted);font-size:var(--sm)">Drafting…</div>';
-  $("#qcard").innerHTML='<div class="lbl">Query</div><div class="q" style="color:var(--muted)">Insights appear once the agents have derived them from the data…</div>';
-  ["#scorePanel","#gatePanel"].forEach(s=>$(s).classList.add("hide")); $("#gateForm").classList.remove("hide"); $("#sigBox").classList.add("hide");
+  $("#gatePanel").classList.remove("await"); $("#gateForm").classList.remove("hide"); $("#sigBox").classList.add("hide"); $("#gateState").textContent="awaiting review";
   ["#kNodes","#kEdges","#kVer","#kAct","#kDocs"].forEach(s=>{$(s).textContent="0";cnt.set($(s),0);});
   $("#dver").textContent="v0.1";$("#dcount").textContent="";$("#actCount").textContent="0/"+STATUS.roster.length;
   buildRail(); updateLegend(); $("#empty").classList.add("hide"); showView("intake"); setStageIdle();
 }
 function setStageIdle(){ $("#thTitle").innerHTML="<em>0/16</em>Starting"; $("#thSub").textContent="Opening the case…"; }
 async function run(){
-  if(!STATUS.authenticated||!STATUS.cases.length||!STATUS.live_available) return;
+  if(!STATUS.authenticated||!STATUS.live_available) return;
+  const saved=$("#querySelect").value;
+  if(!saved && !STATUS.cases.length){ $("#msgs").innerHTML='<div class="err">Save a query first, then select its number here.</div>'; return; }
   if(!STATUS.corpus_ready){ $("#msgs").innerHTML='<div class="err">The regulation corpus is empty. In a terminal run:  python ingest\\fetch_ecfr.py   then reload this page.</div>'; return; }
+  const chosen=AUDIT_PICKS.map(item=>item.id);
+  if(saved || chosen.length>1){
+    reset(); $("#runBtn").disabled=true; $("#ackOpen").checked=false;
+    try{
+      const response=await fetch(saved?"/api/audits":"/api/run",{method:"POST",headers:requestHeaders(),body:JSON.stringify(saved?{query_set:saved,provider:$("#provider").value,consent:true}:{cases:chosen,provider:$("#provider").value,consent:true})});
+      const result=await response.json();
+      if(!response.ok) throw Error(result.error||"Request failed");
+      const ids=(result.runs||[]).map(item=>item.run_id).filter(Boolean);
+      sessionStorage.setItem("regswarm-batch",JSON.stringify(result.runs||[]));
+      location.href=ids.length>1?"/?runs="+ids.join(","):"/?run="+encodeURIComponent(ids[0]);
+    }catch(error){ $("#runBtn").disabled=false; $("#msgs").innerHTML='<div class="err">'+esc(error.message)+'</div>'; }
+    return;
+  }
+  if(chosen.length===1) $("#caseSelect").value=chosen[0];
   reset(); $("#runBtn").disabled=true;
   $("#ackOpen").checked=false;
   const r=await fetch("/api/run",{method:"POST",headers:requestHeaders(),body:JSON.stringify({case:$("#caseSelect").value,provider:$('#provider').value,consent:true})});
@@ -1633,16 +2047,23 @@ async function refreshStatus(){
   STATUS=await (await fetch('/api/status')).json();
   $('#loginModal').classList.remove('show');
   $('#providerSetup').textContent=STATUS.providers.map(p=>p.id+': '+(p.ready?'configured':'setup required')).join(' · ');
-  $('#caseSelect').innerHTML=STATUS.cases.length?STATUS.cases.map(c=>`<option value="${esc(c.id)}">${esc(c.title)}</option>`).join(''):'<option>No evidence case imported</option>';
+  $('#caseSelect').innerHTML=STATUS.cases.length?STATUS.cases.map(c=>`<option value="${esc(c.id)}">${esc(c.title)}</option>`).join(''):'<option value="">No audit saved yet</option>';
+  const known=new Map((STATUS.cases||[]).map(item=>[item.id,item.title]));
+  AUDIT_PICKS=AUDIT_PICKS.filter(item=>known.has(item.id)).map(item=>({id:item.id,title:known.get(item.id)}));
+  paintAudits();
+  const kept=$('#querySelect').value;
+  const sets=STATUS.query_sets||[];
+  $('#querySelect').innerHTML='<option value="">Saved query</option>'+sets.map(item=>`<option value="${esc(item.number)}">${esc(item.title)}</option>`).join('');
+  if(kept && [...$('#querySelect').options].some(option=>option.value===kept)) $('#querySelect').value=kept;
   $('#provider').innerHTML=STATUS.providers.map(p=>`<option value="${esc(p.id)}" ${p.ready?'':'disabled'}>${esc(p.id)}${p.model?' · '+esc(p.model):''}${p.ready?'':' — setup required'}</option>`).join('');
   const available=STATUS.providers.find(p=>p.ready); if(available) $('#provider').value=available.id;
   paintConsent();
-  $('#runBtn').disabled=!STATUS.authenticated||!STATUS.cases.length||!STATUS.live_available||!STATUS.corpus_ready;
+  $('#runBtn').disabled=!STATUS.authenticated||!STATUS.live_available||!STATUS.corpus_ready||!(STATUS.cases.length||(STATUS.query_sets||[]).length);
   $('#importBtn').disabled=!STATUS.authenticated;
   $('#logoutBtn').classList.add('hide');
   $('#revName').value=STATUS.user?STATUS.user.name:'';
   if(STATUS.user){$('#apprBtn').disabled=STATUS.user.role!=='reviewer';$('#chgBtn').disabled=STATUS.user.role!=='reviewer';}
-  $('#upBody').textContent=!STATUS.authenticated?'Sign in to access the evidence workspace.':!STATUS.cases.length?'Import an observation and its versioned source documents to begin.':'Select an imported case and a configured live provider, then Analyze case.';
+  $('#upBody').textContent=!STATUS.authenticated?'Sign in to access the evidence workspace.':!STATUS.cases.length?'Import an observation and its versioned source documents to begin.':'Choose an audit and press Add. Add several, then Analyze runs them together.';
 }
 async function login(){
   const password=$('#loginPassword').value.trim();
@@ -1653,7 +2074,7 @@ async function login(){
 }
 async function importCase(file){
   if(!file)return;
-  try{if(file.size>4500000)throw new Error('Evidence package must be under 4.5 MB');const package_=JSON.parse(await file.text());const r=await fetch('/api/cases',{method:'POST',headers:requestHeaders(),body:JSON.stringify({package:package_})});const j=await r.json();if(!r.ok)throw new Error(j.error);await refreshStatus();$('#caseSelect').value=j.case_id;$('#msgs').innerHTML='<div class="pfok">Evidence package imported. Review its scope before starting analysis.</div>';}
+  try{if(file.size>4500000)throw new Error('Evidence package must be under 4.5 MB');const package_=JSON.parse(await file.text());const r=await fetch('/api/cases',{method:'POST',headers:requestHeaders(),body:JSON.stringify({package:package_})});const j=await r.json();if(!r.ok)throw new Error(j.error);await refreshStatus();$('#caseSelect').value=j.case_id;addAudit();}
   catch(error){$('#msgs').innerHTML='<div class="err">'+esc(error.message)+'</div>';}
   $('#caseFile').value='';
 }
@@ -1696,8 +2117,8 @@ async function showHistory(){
     $$('.saved-run').forEach(button=>button.onclick=()=>restoreRun(button.dataset.run));
   }catch(error){reviewShell('Saved runs',esc(error.message));}
 }
-async function restoreRun(id){
-  reset(); RUN=id; reviewDigest=null; $('#ackOpen').checked=false; $('#reviewModal').classList.remove('show');
+async function restoreRun(id, keepBatch){
+  reset(keepBatch?{keepBatch:true}:{}); RUN=id; reviewDigest=null; $('#ackOpen').checked=false; $('#reviewModal').classList.remove('show');
   ES=new EventSource('/api/run/'+RUN+'/events');
   ES.onmessage=m=>{const e=JSON.parse(m.data);try{NV.ev(e);(H_[e.type]||(()=>{}))(e);}catch(error){console.error(error);} };
   ES.onerror=()=>{ES.close();stopClock();};
@@ -1711,12 +2132,26 @@ async function showAudit(){
 
 /* ---------------- init ---------------- */
 async function init(){
-  freshState(); buildRail(); buildTabs(); showView("intake"); resize(); requestAnimationFrame(loop);
+  freshState(); buildRail(); buildTabs(); paintGuides(); showView("intake"); resize(); requestAnimationFrame(loop);
   try{ STATUS=await (await fetch("/api/status")).json(); }catch(e){ $("#msgs").innerHTML='<div class="err">Cannot reach the RegSwarm server.</div>'; return; }
   buildGrid(); NV.init();
   await refreshStatus();
-  const pendingRun=new URLSearchParams(location.search).get('run');
-  if(pendingRun&&STATUS.authenticated) restoreRun(pendingRun);
+  const params=new URLSearchParams(location.search);
+  const many=(params.get('runs')||'').split(',').map(item=>item.trim()).filter(Boolean);
+  let batchMeta=[];
+  const savedBatchRaw=sessionStorage.getItem('regswarm-batch');
+  if(savedBatchRaw){ sessionStorage.removeItem('regswarm-batch'); try{ batchMeta=JSON.parse(savedBatchRaw)||[]; }catch(err){ batchMeta=[]; } }
+  if(many.length>1&&STATUS.authenticated){
+    BATCH={runs:many.map(id=>{ const found=batchMeta.find(item=>item.run_id===id)||{}; return {run_id:id, facility:found.facility||'', title:found.title||''}; }), reports:{}};
+    many.forEach(reportFor);
+    restoreRun(many[0], true);
+    many.slice(1).forEach(watchBatch);
+    $('#msgs').innerHTML='<div class="pfok"><b>'+many.length+' observations</b> are analyzing together under this query. The report opens when every observation is ready.</div>';
+  } else {
+    const pendingRun=params.get('run');
+    if(pendingRun&&STATUS.authenticated) restoreRun(pendingRun);
+    if(batchMeta.length){$('#msgs').insertAdjacentHTML('beforeend','<div class="pfok"><b>'+batchMeta.length+' quer'+(batchMeta.length===1?'y':'ies')+' submitted.</b> '+batchMeta.map((item,index)=>'<a href="/?run='+encodeURIComponent(item.run_id)+'">'+(index+1)+'. '+esc(item.facility||'Query')+'</a>').join(' · ')+'</div>');}
+  }
   $('#reviewBtn').onclick=showReview; $('#historyBtn').onclick=showHistory;
   $('#reviewClose').onclick=()=>$('#reviewModal').classList.remove('show');
   $('#loginBtn').onclick=login;
@@ -1725,60 +2160,71 @@ async function init(){
   $('#importBtn').onclick=()=>$('#caseFile').click();
   $('#caseFile').onchange=e=>importCase(e.target.files[0]);
   $('#provider').onchange=paintConsent;
-  $("#obsPanel").onclick=()=>$("#obsPanel").classList.toggle("open");
-  $("#runBtn").onclick=run; $("#apprBtn").onclick=()=>decide("approve"); $("#chgBtn").onclick=()=>decide("changes");
+  $("#runBtn").onclick=run; $("#addAudit").onclick=addAudit;
+  $("#querySelect").onchange=()=>{ if($("#querySelect").value){ AUDIT_PICKS=[]; paintAudits(); } }; $("#apprBtn").onclick=()=>decide("approve"); $("#chgBtn").onclick=()=>decide("changes");
   $("#docBtn").onclick=()=>location.href="/api/run/"+RUN+"/export.docx"; $("#audBtn").onclick=showAudit; $("#audClose").onclick=()=>$("#modal").classList.remove("show");
   $("#modal").onclick=e=>{ if(e.target.id==="modal") $("#modal").classList.remove("show"); };
   $("#fsBtn").onclick=()=>{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); };
+  $("#responseClose").onclick=closeResponse;
+  $("#responseFs").onclick=()=>{ const screen=$("#responseScreen"); screen.classList.add("on"); if(document.fullscreenElement) document.exitFullscreen(); else if(screen.requestFullscreen) screen.requestFullscreen(); };
   document.addEventListener("keydown",e=>{ if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"||e.target.tagName==="SELECT") return; if($('#queryModal').classList.contains('show')) return; if(e.key==="r"||e.key==="R") run(); });
-  const savedRefs=sessionStorage.getItem('regswarm-refs');
-  if(savedRefs){sessionStorage.removeItem('regswarm-refs');try{const data=JSON.parse(savedRefs);const rec=data.recommendation||{};const recalls=(data.recalls||[]).slice(0,2).map(item=>esc(item.recall_number||'')+' '+esc(item.reason||'')).join(' · ');$('#msgs').innerHTML='<div class="pfok"><b>References.</b> '+esc(rec.best_for_the_response||'')+'. Public API: '+esc(rec.best_public_api||'')+'. '+(recalls||esc(data.note||''))+'</div>';}catch(e){}}
-  const savedBatch=sessionStorage.getItem('regswarm-batch');
-  if(savedBatch){sessionStorage.removeItem('regswarm-batch');try{const runs=JSON.parse(savedBatch);if(runs.length){$('#msgs').insertAdjacentHTML('beforeend','<div class="pfok"><b>'+runs.length+' quer'+(runs.length===1?'y':'ies')+' submitted.</b> '+runs.map((item,index)=>'<a href="/?run='+encodeURIComponent(item.run_id)+'">'+(index+1)+'. '+esc(item.facility||'Query')+'</a>').join(' · ')+'</div>');}}catch(e){}}
   $('#openQuery').onclick=openQuery;
   $('#queryClose').onclick=()=>$('#queryModal').classList.remove('show');
   $('#queryModal').onclick=event=>{if(event.target.id==='queryModal')$('#queryModal').classList.remove('show');};
   $('#addQuery').onclick=()=>addQueryRow();
-  $('#queryForm').onsubmit=submitQuery;
+  $('#queryForm').onsubmit=saveQuery;
 }
 async function openQuery(){
   const data=await (await fetch('/api/facilities')).json();
   window.queryCatalog=data;
   $('#queryRows').innerHTML='';
   addQueryRow();
-  const ready=(STATUS.providers||[]).find(item=>item.ready);
-  $('#queryConsentText').textContent=ready&&(ready.id==='ollama'||ready.id==='local')?'Analyze these queries on this computer'+(ready.model?' with '+ready.model:'')+'.':'Send each facility\'s documents and its query to the configured AI provider.';
   $('#queryModal').classList.add('show');
-  loadQueryRefs();
 }
 function addQueryRow(){
   const row=document.createElement('div');
   row.className='qrow';
-  row.innerHTML='<label>Plant<select class="q-plant" required></select></label><label>Facility<select class="q-facility" required></select></label><label>Product<select class="q-product" required><option>Vaccine</option><option>Cell and gene therapy</option></select></label><button class="btn ghost q-remove" type="button">Remove</button><label>Query<textarea class="q-text" rows="3" required maxlength="2000" placeholder="Retained labels from the previous lot were found at line clearance."></textarea></label>';
+  const plants=window.queryCatalog.plants||[];
+  row.innerHTML='<div class="qtop"><label class="cap">Product<select class="q-product"><option>Vaccine</option><option>Cell and gene therapy</option></select></label><button class="btn ghost q-remove" type="button">Remove</button></div><div class="qpicks"><div><div class="cap">Plants</div><div class="pick q-plants"></div></div><div><div class="cap">Facilities</div><div class="pick q-facilities"><span class="hint">Tick a plant, then tick the facilities you want. Leave its facilities unticked to include every facility in that plant.</span></div></div></div><label class="cap">Query<textarea class="q-text" rows="3" maxlength="2000" placeholder="Describe the observation."></textarea></label>';
   $('#queryRows').appendChild(row);
-  const plant=row.querySelector('.q-plant');
-  plant.innerHTML=(window.queryCatalog.plants||[]).map(item=>`<option value="${esc(item.id)}">${esc(item.name)}</option>`).join('');
-  plant.onchange=()=>fillRowFacilities(row);
-  row.querySelector('.q-text').onchange=loadQueryRefs;
+  row.querySelector('.q-plants').innerHTML=plants.map(item=>`<label><input type="checkbox" value="${esc(item.id)}"> ${esc(item.name)}</label>`).join('')||'<span class="hint">No plants are stored yet.</span>';
+  row.querySelector('.q-plants').onchange=()=>fillRowFacilities(row);
   row.querySelector('.q-remove').onclick=()=>{if(document.querySelectorAll('#queryRows .qrow').length>1)row.remove();};
-  fillRowFacilities(row);
 }
 function fillRowFacilities(row){
-  const rows=(window.queryCatalog.facilities||[]).filter(item=>item.plant_id===row.querySelector('.q-plant').value);
-  row.querySelector('.q-facility').innerHTML=rows.map(item=>`<option value="${esc(item.id)}">${esc(item.name)} · ${item.document_count} documents</option>`).join('')||'<option value="">No facility</option>';
+  const selected=new Set([...row.querySelectorAll('.q-plants input:checked')].map(item=>item.value));
+  const kept=new Set([...row.querySelectorAll('.q-facilities input:checked')].map(item=>item.value));
+  const rows=(window.queryCatalog.facilities||[]).filter(item=>selected.has(item.plant_id));
+  const box=row.querySelector('.q-facilities');
+  box.innerHTML=rows.length?rows.map(item=>`<label><input type="checkbox" value="${esc(item.id)}" ${kept.has(item.id)?'checked':''}> ${esc(item.name)}</label>`).join(''):'<span class="hint">Tick a plant, then tick the facilities you want. Leave its facilities unticked to include every facility in that plant.</span>';
 }
-async function loadQueryRefs(){
-  const text=[...document.querySelectorAll('#queryRows .q-text')].map(item=>item.value).filter(Boolean).join('\n');
-  try{const data=await (await fetch('/api/references?q='+encodeURIComponent(text))).json();window.queryRefs=data;const rec=data.recommendation||{};$('#queryRefs').innerHTML=`<div class="ref"><b>${esc(rec.best_for_the_response||'')}</b><br>Best public API: ${esc(rec.best_public_api||'')}. ${esc(rec.reason||'')} ${esc(data.note||'')}</div>`+(data.recalls||[]).slice(0,3).map(item=>`<div class="ref"><b>openFDA ${esc(item.classification)} ${esc(item.recall_number)}</b><br>${esc(item.reason)}</div>`).join('');}catch(e){$('#queryRefs').textContent='';}
+function rowFacilities(row){
+  const plants=[...row.querySelectorAll('.q-plants input:checked')].map(item=>item.value);
+  const picked=new Set([...row.querySelectorAll('.q-facilities input:checked')].map(item=>item.value));
+  const ids=[];
+  plants.forEach(plant=>{
+    const rows=(window.queryCatalog.facilities||[]).filter(item=>item.plant_id===plant);
+    const chosen=rows.filter(item=>picked.has(item.id));
+    (chosen.length?chosen:rows).forEach(item=>{ if(!ids.includes(item.id)) ids.push(item.id); });
+  });
+  return ids;
 }
-async function submitQuery(event){
+async function saveQuery(event){
   event.preventDefault();
-  const items=[...document.querySelectorAll('#queryRows .qrow')].map(row=>({facility_id:row.querySelector('.q-facility').value,product_class:row.querySelector('.q-product').value,query:row.querySelector('.q-text').value.trim()}));
-  if(!items.length||items.some(item=>!item.facility_id||!item.query)){$('#msgs').innerHTML='<div class="err">Each query needs a facility and an observation.</div>';return;}
-  const ready=(STATUS.providers||[]).find(item=>item.ready);
-  if(!ready){$('#msgs').innerHTML='<div class="err">Configure a live provider before processing audit queries.</div>';return;}
-  $('#querySubmit').disabled=true;
-  try{if(window.queryRefs)sessionStorage.setItem('regswarm-refs',JSON.stringify(window.queryRefs));const response=await fetch('/api/audits',{method:'POST',headers:requestHeaders(),body:JSON.stringify({items,provider:ready.id,consent:true})});const result=await response.json();if(!response.ok)throw Error(result.error||'Request failed');sessionStorage.setItem('regswarm-batch',JSON.stringify(result.runs||[]));location.href='/?run='+encodeURIComponent(result.runs[0].run_id);}catch(error){$('#querySubmit').disabled=false;$('#msgs').innerHTML='<div class="err">'+esc(error.message)+'</div>';}
+  const items=[...document.querySelectorAll('#queryRows .qrow')].map(row=>({facility_ids:rowFacilities(row),product_class:row.querySelector('.q-product').value,query:row.querySelector('.q-text').value.trim()}));
+  if(!items.length||items.some(item=>!item.facility_ids.length||!item.query)){$('#queryError').textContent='Each query needs a plant or facility, and an observation.';return;}
+  $('#queryError').textContent='';
+  $('#querySave').disabled=true;
+  try{
+    const response=await fetch('/api/query-sets',{method:'POST',headers:requestHeaders(),body:JSON.stringify({items})});
+    const result=await response.json();
+    if(!response.ok) throw Error(result.error||'Request failed');
+    $('#queryModal').classList.remove('show');
+    await refreshStatus();
+    $('#querySelect').value=result.number;
+    $('#msgs').innerHTML='<div class="pfok">Saved <b>'+esc(result.number)+'</b>. It is selected above. Press Analyze when you want to run '+(result.count===1?'it':'all '+result.count+' queries')+'.</div>';
+  }catch(error){$('#queryError').textContent=error.message;}
+  $('#querySave').disabled=false;
 }
 init();
 })();

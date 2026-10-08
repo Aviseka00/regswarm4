@@ -45,6 +45,18 @@ class IntakeTests(unittest.TestCase):
         kinds = [claim["kind"] for section in draft["sections"] for claim in section["claims"]]
         self.assertIn("site_fact", kinds)
         self.assertIn("regulatory", kinds)
+        self.assertEqual([section["title"] for section in draft["sections"]], ["Query", "Response", "CAPA", "Risk assessment"])
+
+    def test_the_report_states_the_query_without_the_index_preface(self):
+        model = llm.make_llm("live", {"provider": "local"})
+        observation = "Audit queries for Filling: The current version of 4 stored document(s) is indexed. Other facilities are included when they are the same product.\n1. Fill-weight checks were not recorded."
+        draft = model.call("draft", {"input": {"observation": observation, "elements": [{"id": "E1", "text": "Fill-weight checks were not recorded."}], "evidence": {}}})
+        self.assertEqual([section["title"] for section in draft["sections"]], ["Query", "Response", "CAPA", "Risk assessment"])
+        query = " ".join(claim["text"] for claim in draft["sections"][0]["claims"])
+        response = " ".join(claim["text"] for claim in draft["sections"][1]["claims"])
+        self.assertIn("Fill-weight checks were not recorded.", query)
+        self.assertNotIn("stored document", query)
+        self.assertIn("This response is against the query above.", response)
         self.assertEqual(model.calls[0]["usage"]["output_tokens"], 0)
 
     def test_roster_lists_300_specialists(self):
@@ -85,6 +97,116 @@ class IntakeTests(unittest.TestCase):
         text = " ".join(claim["text"] for section in draft["sections"] for claim in section["claims"]).lower()
         self.assertIn("oos investigation", text)
         self.assertIn("assay oos worksheet", text)
+
+    def test_change_control_names_the_procedure_that_omits_the_field(self):
+        model = llm.make_llm("live", {"provider": "local"})
+        observation = "Fill-weight checks were not recorded during line clearance."
+        evidence = {
+            "EV-SOP-9": {"label": "Line clearance SOP", "kind": "SOP",
+                         "passages": [{"text": "Line clearance is completed before filling starts."}]},
+            "EV-BMR-9": {"label": "Filling batch record", "kind": "BMR",
+                         "passages": [{"text": "Line clearance was signed before filling started."}]},
+        }
+        changes = model.call("change_control", {"input": {"observation": observation, "evidence": evidence, "elements": [{"id": "E1", "text": observation}]}})
+        self.assertEqual(len(changes["items"]), 1)
+        self.assertEqual(changes["items"][0]["targets"], ["SOP-9"])
+        self.assertIn("fill", changes["items"][0]["title"].lower())
+        draft = model.call("draft", {"input": {"observation": observation, "evidence": evidence, "elements": [{"id": "E1", "text": observation}]}})
+        text = " ".join(claim["text"] for section in draft["sections"] for claim in section["claims"])
+        self.assertIn("Line clearance SOP", text)
+        self.assertIn("Filling batch record", text)
+        self.assertIn("not a completed ICH Q9 score", text)
+
+    def test_aligned_records_do_not_propose_a_change_or_capa(self):
+        model = llm.make_llm("live", {"provider": "local"})
+        observation = "Fill-weight checks were not recorded."
+        evidence = {
+            "EV-SOP-2": {"label": "Filling SOP", "kind": "SOP",
+                         "passages": [{"text": "Fill-weight checks are recorded before the batch continues."}]},
+            "EV-BMR-2": {"label": "Filling batch record", "kind": "BMR",
+                         "passages": [{"text": "Fill-weight checks are recorded on the filling batch record."}]},
+        }
+        changes = model.call("change_control", {"input": {"observation": observation, "evidence": evidence, "elements": [{"id": "E1", "text": observation}]}})
+        self.assertEqual(changes["items"], [])
+        draft = model.call("draft", {"input": {"observation": observation, "evidence": evidence, "elements": [{"id": "E1", "text": observation}]}})
+        text = " ".join(claim["text"] for section in draft["sections"] for claim in section["claims"])
+        self.assertIn("do not confirm the discrepancy", text)
+        self.assertIn("not proposed", text.lower())
+
+    def test_a_form_that_names_a_field_is_not_a_completed_entry(self):
+        observation = "Fill-weight checks were not recorded during line clearance."
+        finding = llm.discrepancy(observation, {
+            "EV-BMR-02": {"label": "Executed batch record, filling", "kind": "BMR",
+                          "passages": [{"text": "The filling batch record records line clearance, stopper lot, fill-weight checks, and the environmental monitoring session."}]},
+            "EV-DEV-01": {"label": "Line clearance deviation", "kind": "Deviation",
+                          "passages": [{"text": "Line clearance found retained labels from the previous lot."}]},
+        })
+        self.assertEqual(finding["stance"], "entry_not_shown")
+        self.assertFalse(finding["propose_capa"])
+        self.assertFalse(finding["propose_change"])
+        self.assertIn("describes the form", finding["pair"])
+        self.assertIn("not confirmed as a repeat", finding["occurrence"])
+        self.assertIn("Related history only", finding["occurrence"])
+        self.assertIn("Line clearance deviation", finding["occurrence"])
+
+    def test_field_table_follows_the_batch_row(self):
+        blank = llm.discrepancy("Fill-weight checks were not recorded.", {
+            "EV-SOP-1": {"label": "Filling SOP", "kind": "SOP",
+                         "passages": [{"text": "Fill-weight checks are required before the lot continues."}]},
+            "EV-BMR-1": {"label": "Filling batch record", "kind": "BMR",
+                         "passages": [{"text": "Fill-weight | blank | 9.5-10.5 g |"}]},
+        })
+        self.assertTrue(blank["propose_capa"])
+        self.assertFalse(blank["propose_change"])
+        self.assertEqual(blank["fields"][0]["signoff"], "absent")
+        self.assertIn("Blank", blank["fields"][0]["entry"])
+        self.assertEqual(blank["fields"][0]["route"], "Propose a CAPA")
+        done = llm.discrepancy("Fill-weight checks were not recorded.", {
+            "EV-BMR-1": {"label": "Filling batch record", "kind": "BMR",
+                         "passages": [{"text": "Fill-weight | 10.2 g | 9.5-10.5 g | signed"}]},
+        })
+        self.assertFalse(done["propose_capa"])
+        self.assertFalse(done["propose_change"])
+        self.assertEqual(done["fields"][0]["route"], "Stop")
+        self.assertEqual(done["fields"][0]["signoff"], "present")
+        self.assertIn("do not confirm the discrepancy", done["pair"])
+
+    def test_a_linked_record_is_not_scored_as_an_unresolved_defect(self):
+        held = llm.local_answer("redteam", {"observation": "Fill-weight checks were not recorded.", "evidence": {
+            "EV-BMR-1": {"label": "Filling batch record", "kind": "BMR",
+                         "passages": [{"text": "The filling batch record records fill-weight checks."}]}}})
+        self.assertEqual(held["issues"], [])
+        unsupported = llm.local_answer("redteam", {"observation": "Fill-weight checks were not recorded.", "evidence": {}})
+        self.assertEqual(unsupported["issues"][0]["severity"], "high")
+
+    def test_a_table_row_past_the_first_page_is_read(self):
+        filler = "Line clearance was signed before filling started.\n" * 80
+        finding = llm.discrepancy("Fill-weight checks were not recorded.", {
+            "EV-SOP-1": {"label": "Filling SOP", "kind": "SOP",
+                         "passages": [{"text": "Fill-weight checks are required before the lot continues."}]},
+            "EV-BMR-1": {"label": "Filling batch record", "kind": "BMR",
+                         "passages": [{"text": filler}, {"text": "Fill-weight | blank | 9.5-10.5 g |"}]},
+        })
+        self.assertTrue(finding["propose_capa"])
+        self.assertIn("Blank", finding["fields"][0]["entry"])
+
+    def test_occurrence_uses_another_retrieved_deviation(self):
+        observation = "Retained labels were found at line clearance again."
+        alone = llm.discrepancy(observation, {"EV-BMR-1": {"label": "Filling batch record", "kind": "BMR", "passages": [{"text": "Line clearance was signed."}]}})
+        self.assertIn("not confirmed", alone["occurrence"])
+        repeated = llm.discrepancy(observation, {
+            "EV-BMR-1": {"label": "Filling batch record", "kind": "BMR", "passages": [{"text": "Line clearance was signed."}]},
+            "EV-DEV-1": {"label": "Earlier line clearance deviation", "kind": "Deviation", "passages": [{"text": "Retained labels were found at line clearance on the previous lot."}]},
+        })
+        self.assertIn("Earlier line clearance deviation", repeated["occurrence"])
+
+    def test_rejected_proposal_is_removed_from_the_response_text(self):
+        draft = {"sections": [{"id": "risk", "claims": [{"id": "c-risk", "text": "Severity is Medium."}]}]}
+        llm.stamp_proposal(draft, "risk", "reject")
+        self.assertEqual(draft["sections"][0]["claims"][0]["text"], "QA rejected this proposal. It is not part of the approved response.")
+        llm.stamp_proposal(draft, "risk", "confirm")
+        self.assertIn("QA confirmed this proposal.", draft["sections"][0]["claims"][0]["text"])
+        self.assertIn("Severity is Medium.", draft["sections"][0]["claims"][0]["text"])
 
     def test_ollama_provider_uses_the_local_model(self):
         payload = json.dumps({"message": {"content": json.dumps({"elements": [{"id": "E1", "text": "Labels remained at line clearance."}], "queries": [], "doc_queries": {}})},
@@ -215,6 +337,33 @@ class ServiceTests(unittest.TestCase):
     def test_analyst_cannot_approve(self):
         headers = self.login(analyst=True)
         self.assertEqual(self.request("POST", "/api/run/anything/decision", {}, headers)[0], 403)
+
+    def test_several_audits_start_together(self):
+        headers = self.login()
+        identifiers = []
+        for title in ("First audit", "Second audit"):
+            pack = package()
+            pack["title"] = title
+            status, result, _ = self.request("POST", "/api/cases", {"package": pack}, headers)
+            self.assertEqual(status, 201)
+            identifiers.append(result["case_id"])
+        started = []
+
+        def finish(run, connection, speed=0):
+            started.append(run.case["title"])
+            run.status = "awaiting_review"
+            connection.close()
+
+        with patch("regswarm.db.corpus_stats", return_value={"sections": 1}), patch("regswarm.pipeline.execute", finish):
+            status, result, _ = self.request("POST", "/api/run", {"cases": identifiers, "consent": True, "provider": "groq"}, headers)
+            for _ in range(40):
+                if len(started) >= 2:
+                    break
+                time.sleep(0.05)
+        self.assertEqual(status, 202)
+        self.assertEqual(result["count"], 2)
+        self.assertEqual(sorted(item["title"] for item in result["runs"]), ["First audit", "Second audit"])
+        self.assertEqual(sorted(started), ["First audit", "Second audit"])
 
     def test_scripted_run_and_unconsented_run_rejected(self):
         headers = self.login()
