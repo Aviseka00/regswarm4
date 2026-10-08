@@ -1,4 +1,4 @@
-"""Live Anthropic and Groq adapters. Scripted generation is unavailable."""
+"""Live Ollama, Anthropic, and Groq adapters. Scripted generation is unavailable."""
 import json
 import os
 import re
@@ -182,7 +182,11 @@ class AnthropicLLM:
 def make_llm(mode, case):
     if mode != "live":
         raise ValueError("Scripted generation has been removed; live processing is required")
-    provider = case.get("provider", "anthropic")
+    provider = case.get("provider", "local")
+    if provider == "local":
+        return LocalLLM(case)
+    if provider == "ollama":
+        return OllamaLLM(case)
     if provider == "groq":
         return GroqLLM(case)
     if provider == "anthropic":
@@ -200,11 +204,11 @@ def parse_output(role, text):
         raise ValueError(f"{role}: invalid structured model output") from exc
 
 
-def request_json(request):
+def request_json(request, timeout=60):
     request.add_header("User-Agent", "RegSwarm/1.0")
     for attempt in range(3):
         try:
-            with urllib.request.urlopen(request, timeout=60) as response:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
                 return json.loads(response.read(4000000))
         except urllib.error.HTTPError as error:
             if error.code in (429, 502, 503, 504) and attempt < 2:
@@ -249,8 +253,464 @@ class GroqLLM:
         return parse_output(role, choice["message"]["content"])
 
 
+OLLAMA_URL = os.environ.get("REGSWARM_OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
+OLLAMA_SYSTEM = (
+    "Return one JSON object matching the schema. Cite only supplied clause references and copy quotations from the supplied clause text. "
+    "Site facts may use only supplied evidence IDs. Do not invent section numbers, dates, or data."
+)
+
+
+def _clip(value, limit):
+    text = value if isinstance(value, str) else ""
+    return text[:limit]
+
+
+def ollama_prompt(role, inputs):
+    """Keep each local-model step short. Prompt reading on the CPU is what makes a run slow."""
+    inputs = inputs or {}
+    elements = []
+    for item in (inputs.get("elements") or [])[:6]:
+        if isinstance(item, dict) and isinstance(item.get("id"), str):
+            elements.append({"id": item["id"], "text": _clip(item.get("text"), 180)})
+    library = {}
+    for key, text in list((inputs.get("clause_library") or {}).items())[:6]:
+        if isinstance(key, str):
+            library[key] = _clip(text, 220)
+    evidence = {}
+    for key, record in list((inputs.get("evidence") or {}).items())[:6]:
+        if not isinstance(key, str) or not isinstance(record, dict):
+            continue
+        passage = ""
+        passages = record.get("passages") or []
+        if passages and isinstance(passages[0], dict):
+            passage = _clip(passages[0].get("text"), 180)
+        evidence[key] = {"label": _clip(record.get("label"), 80), "passage": passage}
+    observation = _clip(inputs.get("observation"), 900)
+    if role == "classify":
+        roster = [{"id": item.get("id"), "name": item.get("name")}
+                  for item in (inputs.get("roster") or [])[:16] if isinstance(item, dict)]
+        payload = {"observation": observation, "authority": inputs.get("authority"),
+                   "product_class": inputs.get("product_class"), "roster": roster}
+    elif role == "decompose":
+        payload = {"observation": observation}
+    elif role == "map":
+        payload = {"elements": elements, "clause_library": library}
+    elif role == "redteam":
+        claims = []
+        draft = inputs.get("draft") if isinstance(inputs.get("draft"), dict) else {}
+        for section in (draft.get("sections") or [])[:6]:
+            if not isinstance(section, dict):
+                continue
+            for claim in (section.get("claims") or [])[:3]:
+                if isinstance(claim, dict):
+                    claims.append({"id": claim.get("id"), "kind": claim.get("kind"), "text": _clip(claim.get("text"), 180)})
+        payload = {"claims": claims}
+    elif role == "revise":
+        payload = {"red_team": inputs.get("red_team") or [], "failed_citations": inputs.get("failed_citations") or []}
+    else:
+        payload = {"observation": observation, "elements": elements, "evidence": evidence, "clause_library": library}
+    return f"TASK: {TASKS[role]}\nOUTPUT SCHEMA: {SCHEMAS[role]}\n" + json.dumps(payload, ensure_ascii=False)
+
+
+def ollama_models():
+    """Model names served by the local Ollama daemon, or an empty list when it is down."""
+    try:
+        request = urllib.request.Request(OLLAMA_URL + "/api/tags")
+        with urllib.request.urlopen(request, timeout=2) as response:
+            data = json.loads(response.read(1000000))
+    except (urllib.error.URLError, TimeoutError, ValueError, OSError, json.JSONDecodeError):
+        return []
+    return [item["name"] for item in data.get("models", []) if isinstance(item, dict) and isinstance(item.get("name"), str)]
+
+
+def ollama_model_name():
+    requested = os.environ.get("REGSWARM_OLLAMA_MODEL", "qwen2.5:1.5b")
+    installed = ollama_models()
+    if requested in installed:
+        return requested
+    if not os.environ.get("REGSWARM_OLLAMA_MODEL") and installed:
+        return installed[0]
+    return requested
+
+
+def model_needed(model, role):
+    """Ollama spends its time on regulatory mapping. The other steps finish from retrieved records."""
+    roles = getattr(model, "model_roles", None)
+    return roles is None or role in roles
+
+
+class OllamaLLM:
+    """Free model that runs on this computer. It does not call Groq and has no cloud rate limit."""
+    mode = "live"
+    model_roles = frozenset({"map"})
+
+    def __init__(self, case, api_key=None, model=None):
+        installed = ollama_models()
+        self.model = model or ollama_model_name()
+        if self.model not in installed:
+            raise RuntimeError("Ollama is not running, or the selected model is not installed")
+        self.label = f"Ollama on this computer ({self.model})"
+        self.calls = []
+
+    def call(self, role, ctx):
+        started = time.monotonic()
+        message = ollama_prompt(role, ctx.get("input", {}))
+        if len(message.encode()) > 200000:
+            raise ValueError("Case context exceeds the configured prompt size limit")
+        body = json.dumps({"model": self.model, "stream": False, "format": "json", "keep_alive": "30m",
+                           "messages": [{"role": "system", "content": OLLAMA_SYSTEM}, {"role": "user", "content": message}],
+                           "options": {"temperature": 0, "num_predict": 280 if role == "map" else 480}}).encode()
+        request = urllib.request.Request(OLLAMA_URL + "/api/chat", data=body,
+            headers={"Content-Type": "application/json"})
+        data = request_json(request, timeout=180)
+        content = (data.get("message") or {}).get("content", "")
+        if data.get("done_reason") == "length" or not content:
+            raise RuntimeError("Ollama output was incomplete; this step will finish from the retrieved records")
+        self.calls.append({"role": role, "model": self.model, "provider": "ollama",
+                           "usage": {"input_tokens": data.get("prompt_eval_count", 0), "output_tokens": data.get("eval_count", 0)},
+                           "seconds": round(time.monotonic() - started, 3)})
+        return parse_output(role, content)
+
+
+def _sentences(observation):
+    parts = []
+    for line in re.split(r"[\n]+", observation or ""):
+        line = re.sub(r"^\d+\.\s*", "", line.strip())
+        if len(line) > 15:
+            parts.append(line[:500])
+    if not parts and (observation or "").strip():
+        parts = [observation.strip()[:500]]
+    return parts[:6] or ["Observation text was not supplied."]
+
+
+def _elements(observation):
+    return [{"id": f"E{index}", "text": text} for index, text in enumerate(_sentences(observation), 1)]
+
+
+def _quote(text):
+    words = (text or "").split()
+    if not words:
+        return ""
+    quote, count = [], 0
+    for word in words:
+        count += len(word) + 1
+        if count > 180 and quote:
+            break
+        quote.append(word)
+    return " ".join(quote)
+
+
+def _case_text(inputs, elements):
+    observation = inputs.get("observation") or ""
+    if observation.strip():
+        return observation
+    return "\n".join(item.get("text", "") for item in elements if isinstance(item, dict))
+
+
+def _words(text):
+    return set(re.findall(r"[a-z]{4,}", (text or "").lower()))
+
+
+def _contains(text, keys):
+    lower = (text or "").lower()
+    return any(key in lower for key in keys)
+
+
+def _impacted(observation, evidence):
+    words = _words(observation)
+    scored = []
+    for key, record in evidence.items():
+        if not isinstance(key, str) or not isinstance(record, dict):
+            continue
+        passages = " ".join(item.get("text", "") for item in record.get("passages") or [] if isinstance(item, dict))
+        overlap = len(words & _words(f"{record.get('label', '')} {record.get('kind', '')} {passages}"))
+        scored.append((overlap, key, record, passages[:400]))
+    scored.sort(key=lambda item: (-item[0], item[1]))
+    matched = [item for item in scored if item[0] > 0]
+    return (matched or scored)[:4]
+
+
+def _routes(text):
+    found = []
+    if _contains(text, ("out of specification", "out-of-specification", "oos result", "retest", "assay result")):
+        found.append("oos")
+    if _contains(text, ("line clearance", "retained label", "label reconciliation", "wrong label", "labels were")):
+        found.append("deviation")
+    if _contains(text, ("environmental", "settle plate", "action limit", "action-limit", "excursion")):
+        found.append("deviation")
+    if _contains(text, ("residue", "dirty-hold", "dirty hold", "cleaning limit", "cleaning validation")):
+        found.append("capa")
+    if _contains(text, ("batch record", "not recorded", "reviewer signature", "yield", "dispensing")):
+        found.append("capa")
+    ordered = []
+    for route in found:
+        if route not in ordered:
+            ordered.append(route)
+    return ordered or ["investigation"]
+
+
+def _plan(route, labels):
+    named = ", ".join(labels) if labels else "the records retrieved for this case"
+    if route == "oos":
+        return {
+            "title": "Open an OOS investigation",
+            "rca": f"The observation concerns a laboratory result. {named} do not confirm a manufacturing root cause. QA opens an OOS investigation, checks the method, the reference standard, and the sample preparation, and decides only after that whether a manufacturing investigation is required.",
+            "correction": "QA withholds batch release and keeps the original result in the OOS file. A retest is not started until the laboratory checks are recorded.",
+            "corrective": f"QA records the method, standard, and sample-preparation checks in {named} before any retest decision.",
+            "preventive": "QA adds the confirmed laboratory gap to the next method review and trains the analysts who perform the test.",
+            "effectiveness": "QA reviews the next three OOS or atypical results for the same test and records whether the laboratory checks were completed before retest.",
+            "change": f"Revise the laboratory investigation record for {named}",
+        }
+    if route == "deviation":
+        return {
+            "title": "Raise a deviation",
+            "rca": f"A confirmed root cause is not established by {named}. QA raises a deviation, records the product-impact assessment, and completes root-cause analysis before any CAPA is treated as effective.",
+            "correction": f"QA quarantines the affected lot and holds further processing until the failed check is repeated and recorded against {named}.",
+            "corrective": f"QA revises {named} so the missing check is a required entry before the next batch moves forward.",
+            "preventive": "QA adds the confirmed gap to the next periodic review of the same process and trains the people who perform the check.",
+            "effectiveness": "QA reviews the next three executed records for the same check and records whether it was completed.",
+            "change": f"Revise {named}",
+        }
+    if route == "capa":
+        return {
+            "title": "Open a CAPA",
+            "rca": f"{named} show the gap described in the observation. A single root cause is not confirmed until the investigation is complete. QA opens a CAPA and also raises a deviation if the same gap already occurred on an in-process or released batch.",
+            "correction": f"QA identifies in-process batches that used {named} and holds any batch whose record does not contain the missing information.",
+            "corrective": f"QA updates {named} so the missing limit, signature, or data field is required on the next record.",
+            "preventive": "QA adds the confirmed gap to the next procedure review and checks that training covers the revised step.",
+            "effectiveness": "QA reviews the next three executed records and records whether the missing field is present.",
+            "change": f"Revise {named}",
+        }
+    return {
+        "title": "Investigate, then choose deviation or CAPA",
+        "rca": f"The retrieved records ({named}) do not by themselves establish a confirmed root cause. QA reads the linked documents, then raises a deviation if an event already occurred or opens a CAPA if the gap is in the procedure.",
+        "correction": f"QA holds any batch whose record in {named} does not support release until the missing information is found or the event is recorded.",
+        "corrective": f"QA updates the impacted record in {named} after the investigation confirms the gap.",
+        "preventive": "QA adds the confirmed gap to the next quality-system review.",
+        "effectiveness": "QA checks a later record of the same activity and records whether the gap recurred.",
+        "change": f"Review and, where confirmed, revise {named}",
+    }
+
+
+def _best_ref(text, library):
+    words = _words(text)
+    best, score = None, -1
+    for ref, body in library.items():
+        overlap = len(words & _words(body))
+        if overlap > score:
+            best, score = ref, overlap
+    return best
+
+
+def _search_words(text):
+    extra = []
+    groups = (
+        (("clearance", "label"), "line clearance label SOP BMR deviation"),
+        (("residue", "cleaning", "dirty"), "cleaning residue SOP protocol"),
+        (("environmental", "excursion", "settle"), "environmental monitoring SOP deviation"),
+        (("specification", "retest", "assay"), "OOS assay STP deviation"),
+        (("batch record", "signature", "yield", "dispensing", "not recorded"), "batch record BMR MFR"),
+        (("qualification", "validation"), "qualification protocol"),
+    )
+    for keys, words in groups:
+        if _contains(text, keys):
+            extra.append(words)
+    return (" ".join((text or "").split()[:12]) + " " + " ".join(extra)).strip()[:240]
+
+
+def _activate(text, evidence):
+    from . import roster
+    chosen = ["T102", "T103", "A01", "F10", "T301", "T302", "T303", "T305", "T401"]
+    groups = (
+        (("clearance", "label", "retained"), ["F01", "H01", "I01", "I02", "J03", "K01", "L12"]),
+        (("out of specification", "out-of-specification", "retest", "assay"), ["F04", "I16", "J07", "K06"]),
+        (("residue", "cleaning", "dirty-hold", "dirty hold"), ["G05", "I08", "J01", "K13"]),
+        (("environmental", "excursion", "settle"), ["G02", "I06", "J06", "K01"]),
+        (("batch record", "signature", "yield", "dispensing", "not recorded"), ["H01", "I11", "J03", "K13"]),
+        (("formula", "master"), ["I25", "J05"]),
+        (("qualification", "validation"), ["I25", "J08"]),
+        (("data integrity", "audit trail"), ["F05", "I40"]),
+    )
+    for keys, agents in groups:
+        if _contains(text, keys):
+            chosen.extend(agents)
+    for record in evidence.values():
+        kind = str(record.get("kind") or "").upper() if isinstance(record, dict) else ""
+        chosen.append({"SOP": "J01", "STP": "J02", "BMR": "J03", "PROTOCOL": "J04", "MFR": "J05",
+                       "DEVIATION": "J06", "OOS": "J07", "QUALIFICATION": "J08"}.get(kind, ""))
+    found = []
+    for agent_id in chosen:
+        if agent_id and agent_id in roster.BY_ID and agent_id not in found:
+            found.append(agent_id)
+    return found[:16]
+
+
+def _angles(text):
+    found = []
+    labels = (
+        (("clearance", "label", "retained"), "Line clearance and labels"),
+        (("out of specification", "out-of-specification", "retest", "assay"), "Laboratory result"),
+        (("residue", "cleaning", "dirty"), "Cleaning and residue limits"),
+        (("environmental", "excursion", "settle"), "Environmental monitoring"),
+        (("batch record", "signature", "yield", "dispensing"), "Batch-record completeness"),
+        (("data integrity", "audit trail"), "Data integrity"),
+    )
+    for keys, label in labels:
+        if _contains(text, keys):
+            found.append(label)
+    return found or ["Quality systems"]
+
+
+def _reference_text(public):
+    public = public if isinstance(public, dict) else {}
+    lines = []
+    for item in public.get("catalog") or []:
+        if isinstance(item, dict) and item.get("title") and item.get("url"):
+            lines.append(f"{item.get('body') or 'Reference'}: {item['title']} ({item['url']})")
+    recalls = []
+    for item in public.get("recalls") or []:
+        if isinstance(item, dict) and item.get("recall_number"):
+            recalls.append(f"{item['recall_number']}: {(item.get('reason') or '')[:160]}".strip())
+    text = ("Guideline references for the reviewer. These are official publication links. "
+            "Only a 21 CFR quotation copied from the cited paragraph is used as a requirement. ")
+    if lines:
+        text += " ".join(lines)
+    if recalls:
+        text += " Related openFDA recall reports, which are context and not requirements: " + "; ".join(recalls) + "."
+    if public.get("note"):
+        text += " " + str(public["note"])
+    return text.strip()
+
+
+def _action(claim_id, text, element_ids):
+    return {"id": claim_id, "kind": "action", "elements": element_ids, "text": text, "cites": [], "evidence": []}
+
+
+def local_answer(role, inputs):
+    """Finish a workflow step on this computer from the observation and the retrieved records."""
+    inputs = inputs or {}
+    elements = inputs.get("elements") or []
+    observation = _case_text(inputs, elements)
+    if not elements:
+        elements = _elements(observation)
+    evidence = inputs.get("evidence") if isinstance(inputs.get("evidence"), dict) else {}
+    library = inputs.get("clause_library") if isinstance(inputs.get("clause_library"), dict) else {}
+    element_ids = [item["id"] for item in elements if isinstance(item, dict) and item.get("id")]
+    impacted = _impacted(observation, evidence)
+    labels = []
+    for _, key, record, _passage in impacted:
+        label = record.get("label") or key
+        if label not in labels:
+            labels.append(label)
+    route = _routes(observation)[0]
+    plan = _plan(route, labels)
+    if len(_routes(observation)) > 1:
+        others = []
+        for item in _routes(observation)[1:]:
+            other = _plan(item, labels)
+            others.append(f"{other['title']}: {other['corrective']}")
+        plan = dict(plan)
+        plan["rca"] = plan["rca"] + " The same observation has further points. " + " ".join(others)
+        plan["title"] = plan["title"] + "; " + "; ".join(_plan(item, labels)["title"] for item in _routes(observation)[1:])
+    targets = []
+    for _, key, _record, _passage in impacted:
+        document_id = key[3:] if key.startswith("EV-") else key
+        if document_id and document_id not in targets:
+            targets.append(document_id)
+    if role == "classify":
+        return validate(role, {"authority": inputs.get("authority") or "US FDA", "document_type": "Inspection response",
+            "product_class": inputs.get("product_class") or "Vaccine", "domains": _angles(observation),
+            "activate": _activate(observation, evidence), "skip": [], "confidence": 1})
+    if role == "decompose":
+        found = _elements(observation)
+        return validate(role, {"elements": found, "queries": [{"agent": "A01", "q": item["text"][:240]} for item in found],
+            "doc_queries": {item["id"]: _search_words(item["text"]) for item in found}})
+    if role == "map":
+        items = []
+        for element in elements:
+            if not library or not isinstance(element, dict) or not element.get("id"):
+                continue
+            ref = _best_ref(element.get("text") or observation, library)
+            if ref:
+                items.append({"element": element["id"], "ref": ref,
+                              "rationale": "The retrieved 21 CFR paragraph shares the subject of this observation point. A reviewer confirms that it governs the point."})
+        return validate(role, {"items": items})
+    if role == "frame":
+        sections = [("ack", "Acknowledgement", "State each observation point and the response route."),
+                    ("basis", "Linked records and requirements", "Name the retrieved documents and the 21 CFR paragraph that shares their subject."),
+                    ("rca", "Root cause", plan["rca"]),
+                    ("correction", "Immediate action", plan["correction"]),
+                    ("capa", plan["title"], plan["corrective"]),
+                    ("timeline", "Timeline and references", "Give relative due points and the official publication links.")]
+        return validate(role, {"sections": [{"id": sid, "title": title, "purpose": purpose, "elements": element_ids} for sid, title, purpose in sections]})
+    if role == "rca":
+        return validate(role, {"root_causes": [{"id": "RC1", "text": plan["rca"]}]})
+    if role == "change_control":
+        return validate(role, {"items": [{"id": "CC-NEW-01", "title": plan["change"][:180], "type": "Procedure", "class": "Minor",
+            "targets": targets[:3], "why": plan["corrective"], "validation": "QA confirms whether the revision changes a validated process or method.",
+            "filing": "QA confirms whether the revision needs a regulatory filing assessment.", "owner": "QA", "due": "Day 30", "elements": element_ids}]})
+    if role == "capa":
+        return validate(role, {
+            "correction": [{"text": plan["correction"], "owner": "QA", "due": "Day 2"}],
+            "corrective": [{"text": plan["corrective"], "owner": "QA", "due": "Day 30"}],
+            "preventive": [{"text": plan["preventive"], "owner": "QA", "due": "Day 60"}],
+            "effectiveness": [{"text": plan["effectiveness"], "owner": "QA", "due": "Day 90"}]})
+    if role == "draft":
+        site_claims = []
+        for index, (overlap, key, record, passage) in enumerate(impacted[:3], 1):
+            claim_id = "c-site" if index == 1 else f"c-site-{index}"
+            relation = "shares words with the observation" if overlap else "was retrieved for this case"
+            site_claims.append({"id": claim_id, "kind": "site_fact", "elements": element_ids,
+                "text": f"Linked record {record.get('label') or key} ({record.get('kind') or 'record'}) {relation}. {(passage or '').strip()}".strip(),
+                "cites": [], "evidence": [key]})
+        regulatory = []
+        ref = _best_ref(observation, library) if library else None
+        quote = _quote(library.get(ref, "")) if ref else ""
+        if ref and quote:
+            regulatory.append({"id": "c-reg", "kind": "regulatory", "elements": element_ids,
+                "text": f"{ref} was retrieved because its text shares the subject of this observation. A reviewer confirms that it governs the response.",
+                "cites": [{"ref": ref, "quote": quote}], "evidence": []})
+        points = "; ".join(item.get("text", "") for item in elements if isinstance(item, dict)) or observation
+        reference = _reference_text(inputs.get("public_references"))
+        return validate(role, {"sections": [
+            {"id": "ack", "title": "Acknowledgement", "claims": [_action("c-ack", f"The observation is addressed as {len(element_ids) or 1} point(s): {points[:700]}. The response route is: {plan['title']}.", element_ids)]},
+            {"id": "basis", "title": "Linked records and requirements", "claims": site_claims + regulatory},
+            {"id": "rca", "title": "Root cause", "claims": [_action("c-rca", plan["rca"], element_ids)]},
+            {"id": "correction", "title": "Immediate action", "claims": [_action("c-cor", plan["correction"], element_ids)]},
+            {"id": "capa", "title": plan["title"], "claims": [_action("c-capa", plan["corrective"], element_ids), _action("c-prev", plan["preventive"], element_ids)]},
+            {"id": "timeline", "title": "Timeline and references", "claims": [_action("c-time", f"{plan['effectiveness']} Correction is due on day 2, the procedure revision on day 30, prevention on day 60, and the effectiveness check on day 90. {reference}", element_ids)]}]})
+    if role == "redteam":
+        named = ", ".join(labels) if labels else "no linked document"
+        return validate(role, {"issues": [{"id": "R1", "severity": "high" if not labels else "medium",
+            "attack": f"The proposed route is “{plan['title']}” from the observation wording and {named}. A reviewer still has to confirm the route, the linked passages, and the 21 CFR quotation. The investigation has to establish the root cause before the CAPA is treated as effective.",
+            "fix": "A qualified reviewer compares the route with the observation, the linked record passages, and the 21 CFR quotation before the response is approved."}]})
+    if role == "revise":
+        return validate(role, {"replace": {}, "add": [], "resolves": []})
+    raise ValueError(f"Unknown local step {role}")
+
+
+class LocalLLM:
+    """Free analysis that stays on this computer and does not call a provider."""
+    mode = "live"
+
+    def __init__(self, case, api_key=None, model=None):
+        self.model = "on-this-computer"
+        self.label = "Free on-computer analysis"
+        self.calls = []
+
+    def call(self, role, ctx):
+        started = time.monotonic()
+        result = local_answer(role, ctx.get("input", {}))
+        self.calls.append({"role": role, "model": self.model, "provider": "local", "usage": {"input_tokens": 0, "output_tokens": 0},
+                           "seconds": round(time.monotonic() - started, 3)})
+        return result
+
+
 def provider_status():
-    providers = []
+    installed = ollama_models()
+    model = ollama_model_name()
+    providers = [{"id": "local", "model": "on-this-computer", "ready": True, "key_configured": False},
+                 {"id": "ollama", "model": model, "ready": model in installed, "key_configured": False}]
     for provider, model in (("anthropic", os.environ.get("REGSWARM_MODEL", "")),
                             ("groq", os.environ.get("REGSWARM_GROQ_MODEL", "qwen/qwen3.8-27b"))):
         try:

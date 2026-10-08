@@ -50,10 +50,14 @@ def validate(package):
         passages = [{"ref": text(section, "ref", 200), "text": text(section, "text", 20000)} for section in sections if isinstance(section, dict)]
         if len(passages) != len(sections):
             raise ValueError(f"{identifier}: invalid passage")
+        group = text(doc, "group", 100)
+        plant = doc.get("plant") if isinstance(doc.get("plant"), str) else ""
+        facility_name = doc.get("facility") if isinstance(doc.get("facility"), str) else ""
         record = {"id": identifier, "title": text(doc, "title", 300), "version": text(doc, "version", 50),
-                  "date": date, "status": text(doc, "status", 50), "group": text(doc, "group", 100),
+                  "date": date, "status": text(doc, "status", 50), "group": group,
                   "source": text(doc, "source", 1000), "sections": passages,
-                  "type": doc.get("group"), "system": "DMS", "area": "", "meta": {}}
+                  "type": group, "system": group, "plant": plant.strip()[:200], "facility": facility_name.strip()[:200],
+                  "area": "", "meta": {}}
         record["sha256"] = hashlib.sha256(json.dumps(record, sort_keys=True).encode()).hexdigest()
         normalized.append(record)
     if package.get("facility_id"):

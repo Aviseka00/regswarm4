@@ -1,24 +1,137 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RegSwarm · Facilities</title>
-<style>body{font:15px system-ui;margin:0;background:#f4f6fb;color:#172347}header{padding:22px 4%;background:#172347;color:white;display:flex;justify-content:space-between}header a{color:white}main{max-width:1200px;margin:24px auto;padding:0 20px}.layout{display:grid;grid-template-columns:250px 1fr;gap:20px}section,aside{background:white;border:1px solid #dce2ee;border-radius:12px;padding:20px;margin-bottom:16px}h1,h2,h3{margin-top:0}h1{font-size:23px}h2{font-size:19px}input,select,textarea,button{font:inherit;padding:9px;border:1px solid #ccd5e4;border-radius:6px;box-sizing:border-box}input,select,textarea{width:100%;margin:5px 0 12px}button{cursor:pointer;background:#284ce0;color:white}button:disabled{opacity:.45;cursor:default}.fac{display:block;width:100%;margin:8px 0;text-align:left;background:#eef2ff;color:#172347}.fac.selected{background:#284ce0;color:white}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.muted{color:#68738a;font-size:13px}.notice{padding:14px;border-radius:8px;background:#e9efff;margin-bottom:18px}table{border-collapse:collapse;width:100%;font-size:13px}td,th{text-align:left;padding:10px;border-bottom:1px solid #e0e5ed}td input{width:auto;margin:0}.scroll{overflow:auto}.hit{padding:14px;border:1px solid #dde3ef;margin:8px 0;border-radius:8px}.hit p{white-space:pre-wrap}.hidden{display:none}label{display:block}#message{white-space:pre-wrap}a{color:#284ce0}@media(max-width:750px){.layout,.row{grid-template-columns:1fr}}</style>
-<header><h1>RegSwarm · Facility document libraries</h1><a href="/">Analysis workspace →</a></header><main>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RegSwarm · Facilities</title>
+<style>
+:root{
+  --bg:#eceffc; --ink:#10122b; --ink2:#343a66; --muted:#666c96;
+  --line:#d5daf3; --blue:#2a3fe6; --green:#0f9f6b; --amber:#d98a00;
+  --sans:Inter,"Segoe UI",system-ui,sans-serif;
+  --serif:"Source Serif 4","Palatino Linotype",Georgia,serif;
+  --mono:ui-monospace,"Segoe UI Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font:15px/1.45 var(--sans);background:
+  radial-gradient(900px 420px at 8% -10%, #f7f8ff, transparent 70%),
+  radial-gradient(700px 380px at 100% 0%, #e7ebff, transparent 68%), var(--bg)}
+header{display:flex;align-items:center;gap:16px;padding:14px 28px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.72);backdrop-filter:blur(10px);position:sticky;top:0;z-index:5}
+.logo{width:42px;height:42px;border-radius:10px;background:var(--ink);color:#fff;display:grid;place-items:center;font:700 18px var(--serif)}
+.brand h1{margin:0;font:600 22px/1.1 var(--serif)}
+.brand h1 em{font-style:normal;color:var(--blue)}
+.brand small{color:var(--muted);font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+header .actions{margin-left:auto;display:flex;gap:10px;align-items:center}
+a.ghost,button{font:600 13px var(--mono);letter-spacing:.04em;text-transform:uppercase;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 14px;cursor:pointer;text-decoration:none}
+button.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.query{display:flex;align-items:center;gap:8px;background:var(--blue);color:#fff;border-color:var(--blue);border-radius:999px;padding:10px 16px}
+button.query svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2}
+button:disabled{opacity:.45;cursor:default}
+main{max-width:1280px;margin:0 auto;padding:22px}
+.notice{padding:12px 14px;border-radius:12px;background:#fff;border:1px solid var(--line);margin-bottom:16px;color:var(--ink2)}
+.shell{display:grid;grid-template-columns:240px 260px minmax(0,1fr);gap:16px;align-items:start}
+.panel{background:rgba(255,255,255,.86);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(16,18,43,.04)}
+.panel h2{margin:0 0 12px;font:700 13px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.item{display:block;width:100%;text-align:left;margin:0 0 8px;background:#f4f6ff;border-color:transparent;text-transform:none;letter-spacing:0;font:600 14px var(--sans);padding:12px}
+.item small{display:block;margin-top:3px;color:var(--muted);font:12px var(--mono)}
+.item.selected{background:var(--ink);color:#fff}
+.item.selected small{color:#c9ceed}
+.stage h2{margin:0;font:600 28px/1.15 var(--serif)}
+.lede{color:var(--muted);margin:8px 0 16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.cat{padding:6px 10px;border-radius:999px;background:#eef1ff;color:var(--blue);font:600 12px var(--mono)}
+label{display:block;font:600 12px var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+input,select,textarea{width:100%;margin:6px 0 12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:15px var(--sans);color:var(--ink);background:#fff}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px}
+td{padding:12px 8px;border-top:1px solid var(--line);vertical-align:top}
+.status{display:inline-block;padding:2px 8px;border-radius:999px;background:#e7f7ef;color:var(--green);font:600 12px var(--mono)}
+.muted{color:var(--muted);font-size:13px}
+.hidden{display:none}
+.scroll{overflow:auto}
+a{color:var(--blue)}
+.modal{position:fixed;inset:0;background:rgba(16,18,43,.46);display:none;place-items:center;z-index:20;padding:18px}
+.modal.show{display:grid}
+.box{width:min(960px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 24px 60px rgba(16,18,43,.18)}
+.box .actions{position:sticky;bottom:0;display:grid;grid-template-columns:1fr 1fr;gap:12px;background:#fff;padding-top:10px}
+.qrow{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px 12px;align-items:end;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0}
+.qrow label:last-child{grid-column:1 / -1}
+#queryRows{max-height:46vh;overflow:auto}
+.box h2{margin:0 0 6px;font:600 28px var(--serif)}
+.refs{display:grid;gap:8px;margin:8px 0 14px}
+.ref{padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#f8f9ff}
+.ref b{font:700 12px var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--blue)}
+.check{display:flex;gap:8px;align-items:flex-start;text-transform:none;letter-spacing:0;font:14px var(--sans);color:var(--ink2)}
+.check input{width:auto;margin:3px 0 0}
+@media(max-width:980px){.shell,.row,.qrow{grid-template-columns:1fr}.qrow label:last-child{grid-column:auto}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Rs</div>
+  <div class="brand"><h1>RegSwarm <em>facilities</em></h1><small>Vaccine manufacturing · Cell and gene therapy manufacturing</small></div>
+  <div class="actions">
+    <a class="ghost" href="/">Analysis workspace</a>
+    <button class="query" id="openQuery" type="button" title="Add an audit query"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg> Query</button>
+  </div>
+</header>
+<main>
 <div id="message" class="notice" role="status">Loading account…</div>
-<div id="workspace" class="layout hidden"><aside><h2>Facilities</h2><div id="facilityList"></div><form id="createFacility" class="admin"><label>Facility name (optional)<input id="facilityName" placeholder="Automatic: Facility 01, 02…" maxlength="200"></label><button>Create facility</button></form></aside>
-<div><section><h2 id="facilityTitle">Select a facility</h2><p class="muted">Libraries are scoped to the selected facility. Versions are immutable. All signed-in users share this local workspace; admin users manage libraries.</p><div id="detail" class="hidden">
-<form id="createClass" class="admin"><div class="row"><label>New document category<input id="className" required maxlength="100" placeholder="e.g. Validation report"></label><div><br><button>Add category</button></div></div></form>
-<form id="searchForm"><div class="row"><label>Search facility evidence<input id="query" required maxlength="1000" placeholder="e.g. cleaning validation acceptance criteria"></label><label>Category<select id="searchClass"></select></label></div><button>Search library</button></form><p class="muted">Parallel category search workers use a persistent full-text index. Searches stay local and do not send evidence to an AI provider.</p><div id="searchWorkers"></div><div id="hits"></div></div></section>
-<section id="uploadSection" class="admin hidden"><h2>Add a document version</h2><form id="uploadForm"><div class="row"><label>Category<select id="uploadClass" required></select></label><label>Document ID<input id="docId" required maxlength="100" placeholder="SOP-001"></label><label>Title<input id="docTitle" required maxlength="300"></label><label>Version<input id="docVersion" required maxlength="50" placeholder="1.0"></label><label>Document date<input id="docDate" type="date" required></label><label>Status<input id="docStatus" required maxlength="50" placeholder="Approved"></label></div><label>Source / controlled record location<input id="docSource" required maxlength="1000" placeholder="DMS record URL or source reference"></label><label>Upload TXT, MD, CSV, DOCX, or passage JSON<input id="docFile" type="file" accept=".txt,.md,.csv,.docx,.json" required></label><p class="muted">Maximum 3 MB. Passage JSON format: {"sections":[{"ref":"Section 1","text":"Exact source text"}]}. Check extracted text before using it as evidence. Scanned PDFs require a verified text export.</p><button>Store document version</button></form></section>
-<section id="documentsSection" class="hidden"><h2>Document versions</h2><p class="muted">Select one version per document to create a case. The case keeps an immutable snapshot.</p><div class="scroll"><table><thead><tr><th>Select</th><th>Document</th><th>Category</th><th>Version</th><th>Date</th><th>Status</th></tr></thead><tbody id="documentRows"></tbody></table></div><form id="caseForm"><label>Case title<input id="caseTitle" required maxlength="300"></label><label>Product class<input id="productClass" required maxlength="200"></label><label>Observation<textarea id="observation" rows="5" required maxlength="30000"></textarea></label><button>Create evidence case</button></form></section></div></div></main>
+<div id="workspace" class="shell hidden">
+<aside class="panel"><h2>Plants</h2><div id="plantList"></div><form id="createPlant" class="admin"><label>Plant name<input id="plantName" maxlength="200" placeholder="Vaccine Manufacturing Plant"></label><button class="primary">Create plant</button></form></aside>
+<aside class="panel"><h2>Facilities</h2><p class="muted" id="plantHint">Select a plant.</p><div id="facilityList"></div><form id="createFacility" class="admin hidden"><label>Facility name<input id="facilityName" maxlength="200" placeholder="Filling and Packaging"></label><button class="primary">Create facility</button></form></aside>
+<div class="stage">
+<section class="panel" id="libraryPanel"><h2 id="facilityTitle">Select a facility</h2><p class="lede">Each facility keeps SOP, STP, BMR, Protocol, MFR, Deviation, OOS, and Qualification, plus any category you add. Versions stay as they were stored.</p>
+<div id="detail" class="hidden">
+<div id="classChips" class="chips"></div>
+<form id="createClass" class="admin"><div class="row"><label>New category<input id="className" required maxlength="100" placeholder="Validation report"></label><div><br><button class="primary">Add category</button></div></div></form>
+<form id="searchForm"><div class="row"><label>Search this facility<input id="query" required maxlength="1000" placeholder="residue acceptance limit"></label><label>Category<select id="searchClass"></select></label></div><button class="primary">Search library</button></form>
+<p class="muted">Search stays on this computer.</p><div id="searchWorkers" class="muted"></div><div id="hits"></div>
+</div></section>
+<section id="uploadSection" class="panel admin hidden"><h2 style="font:600 22px var(--serif);text-transform:none;letter-spacing:0;color:var(--ink)">Add a document</h2><form id="uploadForm"><div class="row"><label>Category<select id="uploadClass" required></select></label><label>Document ID<input id="docId" required maxlength="100" placeholder="SOP-001"></label><label>Title<input id="docTitle" required maxlength="300"></label><label>Version<input id="docVersion" required maxlength="50" placeholder="1.0"></label><label>Document date<input id="docDate" type="date" required></label><label>Status<input id="docStatus" required maxlength="50" placeholder="Approved"></label></div><label>Source<input id="docSource" required maxlength="1000" placeholder="DMS record or source reference"></label><label>Word or PDF<input id="docFile" type="file" accept=".doc,.docx,.pdf,application/pdf,application/msword" required></label><label>Attachments<input id="docAttachments" type="file" accept=".doc,.docx,.pdf,application/pdf,application/msword" multiple></label><p class="muted">Maximum 3 MB each. Scanned PDFs are not read.</p><button class="primary">Store document</button></form></section>
+<section id="documentsSection" class="panel hidden"><h2 style="font:600 22px var(--serif);text-transform:none;letter-spacing:0;color:var(--ink)">Documents</h2><div class="scroll"><table><thead><tr><th>Document</th><th>Category</th><th>Version</th><th>Date</th><th>Status</th><th>Files</th></tr></thead><tbody id="documentRows"></tbody></table></div></section>
+</div></div>
+</main>
+<div class="modal" id="queryModal">
+  <form class="box" id="auditForm">
+    <h2>Audit queries</h2>
+    <p class="lede">Add each observation with its plant and facility. Submit starts every query. Each query searches the current version of every document stored in the library.</p>
+    <div id="queryRows"></div>
+    <button type="button" id="addQuery">Add query</button>
+    <div id="refList" class="refs"></div>
+    <label class="check hidden" id="auditConsentLabel"><input id="auditConsent" type="checkbox" checked> <span id="auditConsentText"></span></label>
+    <div class="actions"><button type="button" id="closeQuery">Close</button><button class="primary" id="auditButton">Submit all</button></div>
+  </form>
+</div>
 <script>
-let state, facility, library; const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-async function api(path,body){const response=await fetch(path,body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':state.csrf},body:JSON.stringify(body)});const result=await response.json();if(!response.ok)throw Error(result.error||'Request failed');return result;}
+let state, plant, facility, library;
+const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(path,body){const response=await fetch(path,body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':state.csrf},body:JSON.stringify(body)});const result=await response.json().catch(()=>({}));if(!response.ok)throw Error(result.error||'Request failed');return result;}
 function message(text){$('#message').textContent=text;}
-async function refresh(){const data=await api('/api/facilities');$('#facilityList').innerHTML=data.facilities.map(f=>`<button class="fac ${facility===f.id?'selected':''}" data-id="${esc(f.id)}">${esc(f.name)}<br><small>${f.document_count} versions</small></button>`).join('')||'<p>No facilities yet.</p>';document.querySelectorAll('.fac').forEach(button=>button.onclick=()=>select(button.dataset.id));}
-async function select(id){try{facility=id;library=await api('/api/facilities/'+id);$('#facilityTitle').textContent=library.facility.name;$('#detail').classList.remove('hidden');$('#documentsSection').classList.remove('hidden');if(state.user.role==='admin')$('#uploadSection').classList.remove('hidden');const options=library.classes.map(c=>`<option value="${esc(c.id)}">${esc(c.name)} (${c.document_count})</option>`).join('');$('#uploadClass').innerHTML=options;$('#searchClass').innerHTML='<option value="">All categories</option>'+options;$('#documentRows').innerHTML=library.documents.map(d=>`<tr><td><input type="checkbox" aria-label="Select ${esc(d.document_id)} version ${esc(d.version)}" value="${esc(d.id)}"></td><td>${esc(d.document_id)}<br>${esc(d.title)}</td><td>${esc(d.class_name)}</td><td>${esc(d.version)}</td><td>${esc(d.date)}</td><td>${esc(d.status)}</td></tr>`).join('');$('#hits').innerHTML='';$('#searchWorkers').textContent='';await refresh();}catch(e){message(e.message);}}
-function form(id,fn){$(id).onsubmit=async event=>{event.preventDefault();const button=event.target.querySelector('button');button.disabled=true;try{await fn();}catch(e){message(e.message);}finally{button.disabled=false;}};}
-form('#createFacility',async()=>{const result=await api('/api/facilities',{name:$('#facilityName').value});$('#facilityName').value='';await select(result.id);message('Facility created with eight document categories.');});
-form('#createClass',async()=>{await api('/api/facilities/'+facility+'/classes',{name:$('#className').value});$('#className').value='';await select(facility);message('Category created.');});
-form('#searchForm',async()=>{const t=performance.now();const result=await api('/api/facilities/'+facility+'/search?q='+encodeURIComponent($('#query').value)+'&class_id='+encodeURIComponent($('#searchClass').value));$('#searchWorkers').textContent=result.workers.map(w=>w.name+': '+w.hits+' hits').join(' · ');$('#hits').innerHTML=result.hits.map(h=>`<div class="hit"><b>${esc(h.document_id)} · v${esc(h.version)} · ${esc(h.category)}</b><div class="muted">${esc(h.ref)} · record ${esc(h.record_id)} · SHA-256 ${esc(h.sha256)}</div><p>${esc(h.text)}</p></div>`).join('')||'<p>No matching evidence.</p>';message(`${result.hits.length} passages found in ${Math.round(performance.now()-t)} ms. Facility: ${library.facility.name}.`);});
-form('#uploadForm',async()=>{const file=$('#docFile').files[0];if(!file||file.size>3000000)throw Error('Select a file up to 3 MB');const document={id:$('#docId').value,title:$('#docTitle').value,version:$('#docVersion').value,date:$('#docDate').value,status:$('#docStatus').value,source:$('#docSource').value};let body={class_id:$('#uploadClass').value,document};if(file.name.toLowerCase().endsWith('.json')){const data=JSON.parse(await file.text());document.sections=data.sections;}else{const bytes=new Uint8Array(await file.arrayBuffer());let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));body.file=btoa(binary);body.filename=file.name;}await api('/api/facilities/'+facility+'/documents',body);$('#uploadForm').reset();await select(facility);message('Document version stored and indexed.');});
-form('#caseForm',async()=>{const ids=Array.from(document.querySelectorAll('#documentRows input:checked')).map(el=>el.value);const result=await api('/api/facilities/'+facility+'/cases',{document_ids:ids,title:$('#caseTitle').value,product_class:$('#productClass').value,observation:$('#observation').value});message('Evidence case created: '+result.id+'. Open the analysis workspace to select it and authorize live processing.');});
-(async()=>{try{state=await api('/api/status');if(!state.authenticated){message('Sign in through the analysis workspace first, then return here. To manage libraries, create an admin account with: python manage.py create-user --username admin --name "Administrator" --role admin');return;}$('#workspace').classList.remove('hidden');if(state.user.role!=='admin')document.querySelectorAll('.admin').forEach(el=>el.classList.add("hidden"));message('Signed in as '+state.user.name+' · '+state.user.role);await refresh();}catch(e){message(e.message);}})();
-</script></html>
+function facilitiesForPlant(id){return (state.catalog.facilities||[]).filter(item=>item.plant_id===(id||plant));}
+async function refreshPlants(){const data=await api('/api/facilities');state.catalog=data;const plants=data.plants||[];$('#plantList').innerHTML=plants.map(p=>`<button type="button" class="item ${plant===p.id?'selected':''}" data-id="${esc(p.id)}">${esc(p.name)}<small>${p.facility_count} facilities</small></button>`).join('')||'<p class="muted">No plants yet.</p>';document.querySelectorAll('#plantList .item').forEach(button=>button.onclick=()=>selectPlant(button.dataset.id));}
+async function selectPlant(id){plant=id;facility=null;library=null;const current=(state.catalog.plants||[]).find(item=>item.id===id);$('#plantHint').textContent=current?current.name:'Select a plant.';$('#createFacility').classList.toggle('hidden',state.user.role!=='admin');$('#facilityList').innerHTML=facilitiesForPlant().map(f=>`<button type="button" class="item" data-id="${esc(f.id)}">${esc(f.name)}<small>${f.document_count} documents</small></button>`).join('')||'<p class="muted">No facilities in this plant.</p>';document.querySelectorAll('#facilityList .item').forEach(button=>button.onclick=()=>selectFacility(button.dataset.id));$('#detail').classList.add('hidden');$('#uploadSection').classList.add('hidden');$('#documentsSection').classList.add('hidden');$('#facilityTitle').textContent='Select a facility';await refreshPlants();}
+async function selectFacility(id){facility=id;library=await api('/api/facilities/'+id);$('#facilityTitle').textContent=(library.facility.plant_name?library.facility.plant_name+' · ':'')+library.facility.name;$('#detail').classList.remove('hidden');const options=library.classes.map(c=>`<option value="${esc(c.id)}">${esc(c.name)} (${c.document_count})</option>`).join('');$('#uploadClass').innerHTML=options;$('#searchClass').innerHTML='<option value="">All categories</option>'+options;$('#classChips').innerHTML=library.classes.map(c=>`<span class="cat">${esc(c.name)} · ${c.document_count}</span>`).join('');$('#documentRows').innerHTML=library.documents.map(d=>`<tr><td><b>${esc(d.document_id)}</b><br>${esc(d.title)}</td><td>${esc(d.class_name)}</td><td>${esc(d.version)}</td><td>${esc(d.date)}</td><td><span class="status">${esc(d.status)}</span></td><td>${(d.attachments||[]).map(a=>`<a href="/api/facilities/${esc(facility)}/attachments/${esc(a.id)}">${esc(a.filename)}</a>`).join('<br>')||'—'}</td></tr>`).join('')||'<tr><td colspan="6">No documents in this facility yet.</td></tr>';$('#uploadSection').classList.toggle('hidden',state.user.role!=='admin');$('#documentsSection').classList.remove('hidden');$('#hits').innerHTML='';$('#searchWorkers').textContent='';await refreshPlants();$('#facilityList').innerHTML=facilitiesForPlant().map(f=>`<button type="button" class="item ${facility===f.id?'selected':''}" data-id="${esc(f.id)}">${esc(f.name)}<small>${f.document_count} documents</small></button>`).join('')||'<p class="muted">No facilities in this plant.</p>';document.querySelectorAll('#facilityList .item').forEach(button=>button.onclick=()=>selectFacility(button.dataset.id));}
+function form(id,fn){$(id).onsubmit=async event=>{event.preventDefault();const button=event.target.querySelector('button.primary');button.disabled=true;try{await fn();}catch(e){message(e.message);}finally{button.disabled=false;}};}
+async function filePayload(file){if(!file||file.size>3000000)throw Error('Each file must be between 1 byte and 3 MB');const bytes=new Uint8Array(await file.arrayBuffer());let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));return {filename:file.name,file:btoa(binary)};}
+function addQueryRow(){const row=document.createElement('div');row.className='qrow';row.innerHTML='<label>Plant<select class="q-plant" required></select></label><label>Facility<select class="q-facility" required></select></label><label>Product<select class="q-product" required><option>Vaccine</option><option>Cell and gene therapy</option></select></label><button type="button" class="q-remove">Remove</button><label>Query<textarea class="q-text" rows="3" required maxlength="2000" placeholder="Retained labels from the previous lot were found at line clearance."></textarea></label>';$('#queryRows').appendChild(row);const select=row.querySelector('.q-plant');select.innerHTML=(state.catalog.plants||[]).map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');if(plant)select.value=plant;select.onchange=()=>fillRowFacilities(row);row.querySelector('.q-text').onchange=loadRefs;row.querySelector('.q-remove').onclick=()=>{if(document.querySelectorAll('#queryRows .qrow').length>1)row.remove();};fillRowFacilities(row);if(facility){const option=[...row.querySelector('.q-facility').options].find(item=>item.value===facility);if(option)row.querySelector('.q-facility').value=facility;}}
+function fillRowFacilities(row){const id=row.querySelector('.q-plant').value;row.querySelector('.q-facility').innerHTML=facilitiesForPlant(id).map(f=>`<option value="${esc(f.id)}">${esc(f.name)} · ${f.document_count} documents</option>`).join('')||'<option value="">No facility</option>';}
+function queryText(){return [...document.querySelectorAll('#queryRows .q-text')].map(item=>item.value).filter(Boolean).join('\n');}
+function paintRefs(data){const rec=data.recommendation||{};const recalls=(data.recalls||[]).slice(0,2).map(item=>`<div class="ref"><b>openFDA ${esc(item.classification)} ${esc(item.recall_number)}</b><br>${esc(item.reason)}</div>`).join('');const books=(data.catalog||[]).map(item=>`<a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.body)}</a>`).join(' · ');$('#refList').innerHTML=`<div class="ref"><b>Best source for the response</b><br>${esc(rec.best_for_the_response)}. Best public API: ${esc(rec.best_public_api)}. ${esc(data.note||'')}</div>`+recalls+`<div class="ref">${books}</div>`;}
+async function loadRefs(){try{const data=await api('/api/references?q='+encodeURIComponent(queryText()));paintRefs(data);sessionStorage.setItem('regswarm-refs',JSON.stringify(data));}catch(e){$('#refList').innerHTML='<div class="ref">Reference lookup is unavailable.</div>';}}
+function openQuery(){$('#queryRows').innerHTML='';addQueryRow();$('#queryModal').classList.add('show');loadRefs();}
+$('#openQuery').onclick=openQuery;
+$('#closeQuery').onclick=()=>$('#queryModal').classList.remove('show');
+$('#queryModal').onclick=event=>{if(event.target.id==='queryModal')$('#queryModal').classList.remove('show');};
+$('#addQuery').onclick=()=>addQueryRow();
+form('#createPlant',async()=>{const result=await api('/api/plants',{name:$('#plantName').value});$('#plantName').value='';await refreshPlants();await selectPlant(result.id);message('Plant created. Add a facility under it.');});
+form('#createFacility',async()=>{if(!plant)throw Error('Select a plant first.');const result=await api('/api/facilities',{plant_id:plant,name:$('#facilityName').value});$('#facilityName').value='';await refreshPlants();await selectFacility(result.id);message('Facility created with SOP, STP, BMR, Protocol, MFR, Deviation, OOS and Qualification.');});
+form('#createClass',async()=>{await api('/api/facilities/'+facility+'/classes',{name:$('#className').value});$('#className').value='';await selectFacility(facility);message('Category created for this facility.');});
+form('#searchForm',async()=>{const result=await api('/api/facilities/'+facility+'/search?q='+encodeURIComponent($('#query').value)+'&class_id='+encodeURIComponent($('#searchClass').value));$('#searchWorkers').textContent=result.workers.map(w=>w.name+': '+w.hits+' hits').join(' · ');$('#hits').innerHTML=result.hits.map(h=>`<p><b>${esc(h.document_id)} · v${esc(h.version)} · ${esc(h.category)}</b><br><span class="muted">${esc(h.ref)}</span><br>${esc(h.text)}</p>`).join('')||'<p>No matching evidence.</p>';message(result.hits.length+' passages found in '+library.facility.name+'.');});
+form('#uploadForm',async()=>{const file=$('#docFile').files[0];if(!file||!/\.(doc|docx|pdf)$/i.test(file.name))throw Error('Upload a Word .doc/.docx file or a PDF.');const document={id:$('#docId').value,title:$('#docTitle').value,version:$('#docVersion').value,date:$('#docDate').value,status:$('#docStatus').value,source:$('#docSource').value};const body={class_id:$('#uploadClass').value,document,...await filePayload(file)};const extras=[];for(const extra of $('#docAttachments').files){if(!/\.(doc|docx|pdf)$/i.test(extra.name))throw Error('Attachments must be Word .doc/.docx files or PDFs.');extras.push(await filePayload(extra));}if(extras.length)body.attachments=extras;await api('/api/facilities/'+facility+'/documents',body);$('#uploadForm').reset();await selectFacility(facility);message('Document and attachments stored.');});
+form('#auditForm',async()=>{const items=[...document.querySelectorAll('#queryRows .qrow')].map(row=>({facility_id:row.querySelector('.q-facility').value,product_class:row.querySelector('.q-product').value,query:row.querySelector('.q-text').value.trim()}));if(!items.length||items.some(item=>!item.facility_id||!item.query))throw Error('Each query needs a facility and an observation.');const ready=(state.providers||[]).find(item=>item.ready);if(!ready)throw Error('Configure a live provider before processing audit queries.');const result=await api('/api/audits',{items,provider:ready.id,consent:true});sessionStorage.setItem('regswarm-batch',JSON.stringify(result.runs||[]));location.href='/?run='+encodeURIComponent(result.runs[0].run_id);});
+(async()=>{try{state=await api('/api/status');if(!state.authenticated){message('The local workspace account is not available.');return;}$('#workspace').classList.remove('hidden');if(state.user.role!=='admin')document.querySelectorAll('.admin').forEach(el=>el.classList.add('hidden'));message(state.user.name+' · '+state.user.role+'. Choose a plant, then a facility, or open Query.');await refreshPlants();const first=(state.catalog.plants||[])[0];if(first)await selectPlant(first.id);}catch(e){message(e.message);}})();
+</script>
+</body>
+</html>

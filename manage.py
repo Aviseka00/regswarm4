@@ -11,7 +11,7 @@ def main():
     parser.add_argument("--name", required=True)
     parser.add_argument("--role", choices=["admin", "reviewer", "analyst"], default="reviewer")
     args = parser.parse_args()
-    password = getpass.getpass("Password (at least 14 characters): ")
+    password = getpass.getpass("Password (at least 10 characters): ")
     if password != getpass.getpass("Confirm password: "):
         raise SystemExit("Passwords did not match")
     con = db.connect()

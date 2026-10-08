@@ -4,16 +4,101 @@ import hmac
 import json
 import os
 import threading
+import time
 import uuid
 import webbrowser
 from http.cookies import SimpleCookie
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
-from . import auth, audit, db, export, facilities, intake, llm, pipeline, roster, store
+from . import auth, audit, db, export, facilities, intake, llm, pipeline, references, roster, store
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RUNS = {}
 LOCK = threading.Lock()
+
+
+class CapacityReached(Exception):
+    pass
+
+
+def start_live_run(session, case_id, provider):
+    if not any(item["id"] == provider and item["ready"] for item in llm.provider_status()):
+        raise ValueError("Configure a live provider and supported model first")
+    con = db.connect()
+    try:
+        if db.corpus_stats(con)["sections"] == 0:
+            raise ValueError("Load the regulatory corpus first")
+        case = intake.load(con, case_id)
+        case.update(provider=provider, initiated_by=session["username"])
+        run = pipeline.Run("RUN-" + uuid.uuid4().hex, case, "live")
+        with LOCK:
+            if sum(item.status == "running" for item in RUNS.values()) >= 2:
+                raise CapacityReached("Processing capacity reached")
+            RUNS[run.id] = run
+            store.save(con, run)
+        audit.append(con, run.id, session["username"], "run_requested", {"case": case["id"], "provider": provider, "provider_transmission_confirmed": True})
+    finally:
+        con.close()
+    threading.Thread(target=lambda: pipeline.execute(run, db.connect(), 0), daemon=True).start()
+    return run.id
+
+
+def _drain_batch(runs):
+    """Start queued queries as soon as a processing slot is free."""
+    pending = list(runs)
+    while pending:
+        run = pending[0]
+        with LOCK:
+            if sum(item.status == "running" for item in RUNS.values()) >= 2:
+                claimed = False
+            else:
+                run.status = "running"
+                claimed = True
+        if not claimed:
+            time.sleep(0.2)
+            continue
+        pending.pop(0)
+        con = db.connect()
+        try:
+            store.save(con, run)
+        finally:
+            con.close()
+        threading.Thread(target=lambda current=run: pipeline.execute(current, db.connect(), 0), daemon=True).start()
+
+
+def start_query_batch(session, body):
+    """Create one case and one run for every query, then process the whole set."""
+    if body.get("consent") is not True:
+        raise ValueError("Confirm transmission of this case to the selected AI provider")
+    ready = [item for item in llm.provider_status() if item["ready"]]
+    provider = body.get("provider") or (ready[0]["id"] if ready else "")
+    if not any(item["id"] == provider and item["ready"] for item in ready):
+        raise ValueError("Configure a live provider and supported model first")
+    items = facilities.batch_items(body)
+    con = db.connect()
+    prepared = []
+    try:
+        if db.corpus_stats(con)["sections"] == 0:
+            raise ValueError("Load the regulatory corpus first")
+        for item in items:
+            case, _digest = facilities.audit_queries(con, item["facility_id"], item, session["username"])
+            prepared.append(case)
+        runs = []
+        for case in prepared:
+            case.update(provider=provider, initiated_by=session["username"])
+            run = pipeline.Run("RUN-" + uuid.uuid4().hex, case, "live")
+            run.status = "queued"
+            with LOCK:
+                RUNS[run.id] = run
+                store.save(con, run)
+            audit.append(con, run.id, session["username"], "run_requested",
+                         {"case": case["id"], "provider": provider, "provider_transmission_confirmed": True, "batch": True})
+            runs.append(run)
+    finally:
+        con.close()
+    threading.Thread(target=_drain_batch, args=(runs,), daemon=True).start()
+    return [{"run_id": run.id, "case_id": run.case["id"], "title": run.case.get("title", ""),
+             "facility": run.case.get("site_name", "")} for run in runs]
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -102,8 +187,14 @@ class Handler(BaseHTTPRequestHandler):
             return
         session = auth.resolve(self._token())
         if path == "/api/status":
+            cookie = None
             con = db.connect()
             try:
+                if not session:
+                    opened = auth.open_local(con)
+                    if opened:
+                        token, session = opened
+                        cookie = f"regswarm_session={token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800"
                 account_ready = auth.configured(con)
                 corpus = db.corpus_stats(con) if session else {"sections": 0}
                 cases = intake.recent(con) if session else []
@@ -114,17 +205,37 @@ class Handler(BaseHTTPRequestHandler):
                 "user": {k: session[k] for k in ("username", "name", "role")} if session else None,
                 "csrf": session["csrf"] if session else None, "corpus": corpus, "corpus_ready": corpus["sections"] > 0,
                 "cases": cases, "providers": providers, "live_available": any(p["ready"] for p in providers),
-                "roster": [a for a in roster.ROSTER if a["implemented"]], "clusters": [{"key": k, "label": label, "tier": tier} for k, label, tier in roster.CLUSTERS]})
+                "roster": roster.ROSTER, "clusters": [{"key": k, "label": label, "tier": tier} for k, label, tier in roster.CLUSTERS]}, cookie=cookie)
         if not session:
             return self._json({"error": "Sign in required"}, 401)
+        if path == "/api/references":
+            return self._json(references.lookup(parse_qs(url.query).get("q", [""])[0]))
         if path == "/api/facilities" or path.startswith("/api/facilities/"):
             con = db.connect()
             try:
                 parts = path.strip("/").split("/")
                 if len(parts) == 2:
-                    return self._json({"facilities": facilities.listing(con)})
+                    return self._json({"plants": facilities.plants(con), "facilities": facilities.listing(con)})
                 if len(parts) == 3:
                     return self._json(facilities.library(con, parts[2]))
+                if len(parts) == 5 and parts[3] == "attachments":
+                    filename, content = facilities.attachment(con, parts[2], parts[4])
+                    lower = filename.lower()
+                    if lower.endswith(".pdf"):
+                        media = "application/pdf"
+                    elif lower.endswith(".docx"):
+                        media = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    elif lower.endswith(".doc"):
+                        media = "application/msword"
+                    else:
+                        media = "application/octet-stream"
+                    self.send_response(200)
+                    self.send_header("Content-Type", media)
+                    self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
+                    self.send_header("Content-Length", str(len(content)))
+                    self.end_headers()
+                    self.wfile.write(content)
+                    return
                 if len(parts) == 4 and parts[3] == "search":
                     args = parse_qs(url.query)
                     return self._json(facilities.search(con, parts[2], args.get("q", [""])[0], args.get("class_id", [None])[0]))
@@ -232,11 +343,30 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/logout":
             auth.logout(self._token())
             return self._json({"ok": True}, cookie="regswarm_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0")
-        if path == "/api/facilities" or path.startswith("/api/facilities/"):
-            parts = path.strip("/").split("/")
-            if not (len(parts) == 4 and parts[3] == "cases") and session["role"] != "admin":
+        if path == "/api/audits":
+            try:
+                runs = start_query_batch(session, body)
+                return self._json({"runs": runs, "count": len(runs)}, 201)
+            except (ValueError, TypeError, KeyError, UnicodeError) as error:
+                return self._json({"error": str(error)}, 400)
+        if path == "/api/plants":
+            if session["role"] != "admin":
                 return self._json({"error": "Administrator role required to manage facilities and documents"}, 403)
             con = db.connect()
+            try:
+                identifier = facilities.create_plant(con, body, session["username"])
+                audit.append(con, identifier, session["username"], "plant_created", {})
+                return self._json({"id": identifier}, 201)
+            except (ValueError, TypeError, KeyError, UnicodeError) as error:
+                return self._json({"error": str(error)}, 400)
+            finally:
+                con.close()
+        if path == "/api/facilities" or path.startswith("/api/facilities/"):
+            parts = path.strip("/").split("/")
+            if not (len(parts) == 4 and parts[3] in ("cases", "audit")) and session["role"] != "admin":
+                return self._json({"error": "Administrator role required to manage facilities and documents"}, 403)
+            con = db.connect()
+            run_id = None
             try:
                 if len(parts) == 2:
                     identifier = facilities.create(con, body, session["username"])
@@ -251,10 +381,26 @@ class Handler(BaseHTTPRequestHandler):
                     case, digest = facilities.case(con, parts[2], body, session["username"])
                     identifier = case["id"]
                     action = "facility_case_created"
+                elif len(parts) == 4 and parts[3] == "audit":
+                    if body.get("consent") is not True:
+                        raise ValueError("Confirm transmission of this case to the selected AI provider")
+                    ready = [item for item in llm.provider_status() if item["ready"]]
+                    provider = body.get("provider") or (ready[0]["id"] if ready else "")
+                    if not any(item["id"] == provider and item["ready"] for item in ready):
+                        return self._json({"error": "Configure a live provider and supported model first"}, 409)
+                    case, digest = facilities.audit_queries(con, parts[2], body, session["username"])
+                    identifier = case["id"]
+                    action = "audit_queries_started"
+                    run_id = start_live_run(session, identifier, provider)
                 else:
                     return self._json({"error":"Not found"},404)
                 audit.append(con, identifier, session["username"], action, {"facility": parts[2] if len(parts)>2 else identifier})
-                return self._json({"id":identifier},201)
+                payload = {"id": identifier}
+                if run_id:
+                    payload["run_id"] = run_id
+                return self._json(payload, 201)
+            except CapacityReached:
+                return self._json({"error": "Processing capacity reached"}, 429)
             except (ValueError, TypeError, KeyError, UnicodeError) as error:
                 return self._json({"error":str(error)},400)
             finally:
@@ -274,30 +420,16 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json({"error": "Confirm transmission of this case to the selected AI provider"}, 400)
             if body.get("mode", "live") != "live":
                 return self._json({"error": "Scripted processing is unavailable"}, 400)
-            provider = body.get("provider", "anthropic")
-            if not any(p["id"] == provider and p["ready"] for p in llm.provider_status()):
-                return self._json({"error": "Configure a live provider and supported model first"}, 409)
             if not isinstance(body.get("case"), str):
                 return self._json({"error": "Select an imported case"}, 400)
-            con = db.connect()
             try:
-                if db.corpus_stats(con)["sections"] == 0:
-                    return self._json({"error": "Load the regulatory corpus first"}, 409)
-                case = intake.load(con, body["case"])
-                case.update(provider=provider, initiated_by=session["username"])
-                run = pipeline.Run("RUN-" + uuid.uuid4().hex, case, "live")
-                with LOCK:
-                    if sum(r.status == "running" for r in RUNS.values()) >= 2:
-                        return self._json({"error": "Processing capacity reached"}, 429)
-                    RUNS[run.id] = run
-                    store.save(con, run)
-                audit.append(con, run.id, session["username"], "run_requested", {"case": case["id"], "provider": provider, "provider_transmission_confirmed": True})
+                run_id = start_live_run(session, body["case"], body.get("provider", "local"))
+            except CapacityReached:
+                return self._json({"error": "Processing capacity reached"}, 429)
             except ValueError as error:
-                return self._json({"error": str(error)}, 400)
-            finally:
-                con.close()
-            threading.Thread(target=lambda: pipeline.execute(run, db.connect(), 0), daemon=True).start()
-            return self._json({"run_id": run.id}, 202)
+                code = 409 if "provider" in str(error).lower() or "corpus" in str(error).lower() else 400
+                return self._json({"error": str(error)}, code)
+            return self._json({"run_id": run_id}, 202)
         pieces = path.strip("/").split("/")
         if len(pieces) == 4 and pieces[:2] == ["api", "run"] and pieces[3] == "decision":
             if session["role"] != "reviewer":

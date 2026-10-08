@@ -1,5 +1,36 @@
 """Live evidence-driven workflow without seeded facts or scripted responses."""
-from . import audit, context, llm, retrieval, roster, sitedocs, store
+import threading
+
+from . import audit, context, llm, references, retrieval, roster, sitedocs, store
+
+SOURCE_KIND = {
+    "SOP": ("Standard operating procedures", "Controlled procedure"),
+    "STP": ("Standard test procedures", "Laboratory method"),
+    "BMR": ("Batch manufacturing records", "Batch record"),
+    "MFR": ("Master formula records", "Master formula"),
+    "Protocol": ("Protocols", "Study protocol"),
+    "Deviation": ("Deviations", "Quality event"),
+    "OOS": ("Out-of-specification records", "Laboratory event"),
+    "Qualification": ("Qualification records", "Qualification"),
+}
+
+
+def source_systems(documents):
+    """One QMS source per document class, plus the US FDA text already in the corpus."""
+    counts = {}
+    for document in documents:
+        group = document.get("group") or "Record"
+        counts[group] = counts.get(group, 0) + 1
+    preferred = [name for name in SOURCE_KIND if name in counts]
+    rest = sorted(name for name in counts if name not in SOURCE_KIND)
+    systems = []
+    for name in preferred + rest:
+        title, kind = SOURCE_KIND.get(name, (name, "Site record"))
+        systems.append({"id": name, "name": title, "short": name, "kind": kind,
+                        "protocol": "Stored library", "count": counts[name]})
+    systems.append({"id": "FDA", "name": "US FDA 21 CFR", "short": "US FDA", "kind": "Regulation text",
+                    "protocol": "eCFR", "count": 0})
+    return systems
 
 
 def check_claim_scope(draft, evidence_ids, clause_refs, element_ids):
@@ -20,9 +51,11 @@ def execute(run, c, case):
         raise ValueError("Only imported real-evidence case packages can be processed")
     model = llm.make_llm("live", case)
     documents = case["documents"]
-    system = {"id": "DMS", "name": "Imported source documents", "short": "DMS", "kind": "Validated JSON export",
-              "protocol": "Local import", "count": len(documents)}
-    library = {"docs": documents, "systems": [system], "group_labels": {d["group"]: d["group"] for d in documents}}
+    for document in documents:
+        document["system"] = document.get("group") or "Record"
+    systems = source_systems(documents)
+    library = {"docs": documents, "systems": [item for item in systems if item["id"] != "FDA"],
+               "group_labels": {d["group"]: d["group"] for d in documents}}
     con = c.con
     sources = [dict(row) for row in con.execute("SELECT doc_id,as_of FROM sources ORDER BY doc_id")]
     currency = min((s["as_of"] for s in sources), default="unknown")
@@ -36,20 +69,36 @@ def execute(run, c, case):
     run.emit("case_start", case_id=case["id"], title=case["title"], mode="live", mode_label=model.label,
         synthetic=False, notes=run.case_context["limitations"], observation=case["observation"],
         corpus={"sources": sources, "as_of": currency}, stages=[{"name": n, "sub": s} for n, s in pipeline.STAGES],
-        n_agents=sum(a["implemented"] for a in roster.ROSTER), n_docs=len(documents), systems=[system])
+        n_agents=len(roster.ROSTER), n_docs=len(documents), systems=systems)
     c.audit("system", "case_opened", {"case": case["id"], "mode": "live", "obs_sha256": pipeline.sha(case["observation"])})
     c.stage(0)
     run.emit("upload", state="received", name=case["title"], chars=len(case["observation"]),
              words=len(case["observation"].split()), sha256=pipeline.sha(case["observation"]))
     run.emit("upload", state="parsed", entities=run.case_context["entities"], lines=[case["observation"]])
     run.emit("case_context", **run.case_context)
+    public = {}
+
+    def _load_references():
+        public["value"] = references.lookup(case["observation"])
+
+    reference_lookup = threading.Thread(target=_load_references, daemon=True)
+    reference_lookup.start()
 
     def call(role, inputs):
         actors = {"classify": "T102", "decompose": "T103", "map": "A01", "frame": "T303", "rca": "T301",
                   "change_control": "F03", "capa": "T302", "draft": "T303", "redteam": "T403", "revise": "T303"}
         c.on(actors[role], f"Live {role}", wait=0)
         c.log("T303", "SYS", f"Live analysis: {role}", wait=0)
-        result = model.call(role, {"facts": {}, "input": inputs})
+        try:
+            if not llm.model_needed(model, role):
+                result = llm.local_answer(role, inputs)
+                model.calls.append({"role": role, "model": "on-this-computer", "provider": "local", "usage": {}, "seconds": 0})
+            else:
+                result = model.call(role, {"facts": {}, "input": inputs})
+        except (RuntimeError, ValueError, TimeoutError) as error:
+            c.log("T303", "SYS", f"Provider unavailable ({error}). This step finished on this computer at no cost.", wait=0)
+            result = llm.local_answer(role, inputs)
+            model.calls.append({"role": role, "model": "on-this-computer", "provider": "local", "usage": {}, "seconds": 0})
         run.metrics["llm_calls"] = model.calls
         c.audit("model", role, {"output_sha256": pipeline.sha(result), "model": model.model})
         store.save(con, run)
@@ -58,7 +107,12 @@ def execute(run, c, case):
 
     base = {"observation": case["observation"], "authority": case["authority"], "product_class": case["product_class"]}
     c.stage(1)
-    classification = call("classify", {**base, "roster": [{"id": a["id"], "name": a["name"]} for a in roster.ROSTER if a["implemented"]]})
+    classification = call("classify", {**base, "roster": [{"id": a["id"], "name": a["name"]} for a in roster.ROSTER]})
+    for agent_id in classification.get("activate") or []:
+        agent = roster.BY_ID.get(agent_id)
+        if agent:
+            c.on(agent_id, agent["name"], wait=0)
+            c.off(agent_id)
     run.emit("classification", **{k: classification.get(k) for k in ("authority", "document_type", "product_class", "domains", "confidence")})
     c.stage(2)
     decomposition = call("decompose", base)
@@ -70,13 +124,15 @@ def execute(run, c, case):
         c.node(element["id"], element["id"], "OBS", "element", title=element["text"])
         c.edge("OBS", element["id"], "part")
     c.stage(3)
-    run.emit("qms_system", state="connected", **system)
-    c.log("F10", "SYS", "Analyzing the imported evidence export; no live QMS connector is configured", wait=0)
+    for source in systems:
+        if source["id"] != "FDA":
+            run.emit("qms_system", state="connected", **source)
+    c.log("F10", "SYS", "Reading SOP, STP, BMR, MFR, and the other stored records from every plant and facility", wait=0)
     c.stage(4)
     for offset in range(0, len(documents), 20):
         batch = documents[offset:offset + 20]
-        run.emit("doc_batch", system="DMS", fetched=offset + len(batch), total=len(documents),
-                 items=[{k: d[k] for k in ("id", "title", "group", "version", "status", "date")} for d in batch])
+        run.emit("doc_batch", system="library", fetched=offset + len(batch), total=len(documents),
+                 items=[{k: d.get(k, "") for k in ("id", "title", "group", "version", "status", "date", "plant", "facility")} for d in batch])
     run.emit("inventory", **sitedocs.inventory(library))
     c.stage(5)
     index = sitedocs.Index(library)
@@ -117,11 +173,18 @@ def execute(run, c, case):
         c.edge(mapping["element"], hit["ref"], "maps")
     packets = context.packets(elements, hits, mapped, clauses)
     run.emit("mapping", items=[{**m, "heading": clauses[m["ref"]]["heading"], "as_of": clauses[m["ref"]]["as_of"]} for m in mapped])
+    run.emit("qms_system", state="connected", id="FDA", name="US FDA 21 CFR", short="US FDA",
+             kind="Regulation text", protocol="eCFR", count=len({item["ref"] for item in mapped}))
     run.emit("evidence_context", elements=packets)
     c.stage(7)
     c.log("F02", "SYS", "Source passages selected. Site findings must cite these records; no precomputed site assumptions are injected.", wait=0)
+    reference_lookup.join(timeout=2.5)
+    loaded = public.get("value") or {"catalog": [dict(item) for item in references.CATALOG], "recalls": [],
+                                     "note": "openFDA could not be reached. The publication list is still available.",
+                                     "recommendation": dict(references.RECOMMENDATION)}
     inputs = {**base, "elements": elements, "case_context": run.case_context, "evidence_packets": packets,
-              "evidence": evidence, "clause_library": {k: v["text"] for k, v in clauses.items()}, "facts": {}, "findings": []}
+              "evidence": evidence, "clause_library": {k: v["text"] for k, v in clauses.items()}, "facts": {}, "findings": [],
+              "public_references": loaded}
     c.stage(8)
     frame = call("frame", inputs)
     run.emit("frame", sections=[{**s, "feeds": [], "regs": []} for s in frame["sections"]])

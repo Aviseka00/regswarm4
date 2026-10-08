@@ -126,21 +126,24 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
 
 /* qms */
 #v-qms{gap:.6rem;align-items:stretch;position:relative}
-.qcol{width:33%;display:flex;flex-direction:column;gap:.35rem;min-width:0;z-index:2}
-.sysc{flex:1;display:grid;grid-template-columns:auto 1fr auto;gap:.1rem .55rem;align-items:center;padding:.3rem .6rem;border:1px solid var(--line);border-radius:.45rem;background:#fff;opacity:.45;transition:.4s;min-height:0}
-.sysc.connecting{opacity:1;border-color:var(--amber)}.sysc.connected{opacity:1;border-color:#9fdcc4;box-shadow:0 0 0 3px rgba(15,159,107,.08)}
-.sysc .dot{width:.7rem;height:.7rem;border-radius:50%;background:#cfd4ee;grid-row:span 2}
-.sysc.connecting .dot{background:var(--amber);animation:blink .6s infinite}.sysc.connected .dot{background:var(--green)}
-.sysc b{font:700 var(--md) var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sysc .n{font:600 1.15rem var(--mono);color:var(--blue);grid-row:span 2}
+.qcol{width:34%;display:flex;flex-direction:column;gap:.35rem;min-width:0;z-index:2;overflow:auto;padding-right:.15rem}
+.sysc{flex:0 0 auto;display:grid;grid-template-columns:auto 1fr auto;gap:.1rem .55rem;align-items:center;padding:.35rem .6rem;border:1px solid var(--line);border-left:4px solid var(--src,#cfd4ee);border-radius:.45rem;background:#fff;opacity:.55;transition:.4s;min-height:2.35rem}
+.sysc.connecting{opacity:1;border-color:var(--amber)}.sysc.connected{opacity:1;border-color:color-mix(in srgb,var(--src,#9fdcc4) 50%,white);background:color-mix(in srgb,var(--src,#2a3fe6) 11%,white);box-shadow:0 8px 18px color-mix(in srgb,var(--src,#2a3fe6) 16%,transparent)}
+.sysc .dot{width:.72rem;height:.72rem;border-radius:50%;background:var(--src,#cfd4ee);grid-row:span 2;box-shadow:0 0 0 3px color-mix(in srgb,var(--src,#cfd4ee) 24%,transparent)}
+.sysc.connecting .dot{background:var(--amber);animation:blink .6s infinite}
+.sysc b{font:700 var(--md) var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.sysc .n{font:600 1.15rem var(--mono);color:var(--src,var(--blue));grid-row:span 2}
 .sysc small{font:var(--xs) var(--sans);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #qcv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
 .core{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem}
 .coreorb{width:8.4rem;height:8.4rem;border-radius:50%;display:grid;place-items:center;text-align:center;background:radial-gradient(circle at 35% 30%,#8b6bff,#2a3fe6 70%);color:#fff;font:700 1.05rem var(--sans);box-shadow:0 0 0 .5rem rgba(109,61,240,.12),0 0 0 1.1rem rgba(42,63,230,.07),0 10px 40px rgba(42,63,230,.35);animation:orb 3s ease-in-out infinite}
 .coreorb small{display:block;font:var(--xs) var(--mono);letter-spacing:.1em;opacity:.85;margin-top:.15rem}
 .badges{display:flex;flex-wrap:wrap;gap:.3rem;justify-content:center;max-width:22rem}
-.qright{width:24%;display:flex;flex-direction:column;justify-content:center;gap:.4rem;z-index:2}
+.qright{width:28%;display:flex;flex-direction:column;gap:.4rem;z-index:2;min-height:0;overflow:auto}
 .qright .card{font:var(--sm)/1.35 var(--sans)}
+.place{margin:.45rem 0 0;padding:.35rem .45rem;border-radius:.45rem;border-left:4px solid var(--src,#e38b2c);background:color-mix(in srgb,var(--src,#e38b2c) 8%,white)}
+.place b{display:block;font:600 .9rem var(--serif);color:var(--src,#e38b2c)}
+.place span,.fda span{display:inline-block;margin:.28rem .28rem 0 0;padding:.14rem .5rem;border-radius:999px;background:color-mix(in srgb,var(--chip,#5a72f7) 14%,white);color:var(--chip,#24306e);border:1px solid color-mix(in srgb,var(--chip,#5a72f7) 35%,white);font:.68rem var(--mono)}
 
 /* docs */
 #v-docs{gap:.65rem}
@@ -287,7 +290,7 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
 .sopen{font:var(--sm)/1.4 var(--sans);color:var(--ink2)}.sopen li{margin:.15rem 0}
 
 /* ---------- swarm grid ---------- */
-#grid{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr;gap:3px;flex:1;min-height:0;aspect-ratio:1;max-width:100%;margin:0 auto;width:100%}
+#grid{display:grid;grid-template-columns:repeat(15,1fr);grid-auto-rows:1fr;gap:3px;flex:1;min-height:0;aspect-ratio:1;max-width:100%;margin:0 auto;width:100%}
 .sq{border-radius:2px;background:var(--c);opacity:.13;position:relative;transition:opacity .3s,transform .3s}
 .sq.impl{opacity:.34}
 .sq.active{opacity:1;animation:pulse 1.1s ease-in-out infinite;z-index:2;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 10px var(--c)}
@@ -365,6 +368,14 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
 .modal table{border-collapse:collapse;font:var(--xs) var(--mono);width:100%}
 .modal td,.modal th{border-bottom:1px solid var(--line2);padding:.25rem .4rem;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:22rem}
 .modal .sc2{overflow:auto;flex:1}
+#queryModal .box{width:min(64rem,96vw);max-height:88vh;overflow:hidden}
+#queryModal label{display:block;font:.72rem var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-top:.45rem}
+#queryModal input,#queryModal select,#queryModal textarea{width:100%;margin:.25rem 0 .2rem;padding:.45rem .55rem;border:1px solid var(--line);border-radius:.4rem;background:#fff;color:var(--ink)}
+#queryModal .qrow{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.45rem .6rem;align-items:end;border:1px solid var(--line);border-radius:.5rem;padding:.45rem .6rem .55rem;margin:.4rem 0}
+#queryModal .qrow textarea,#queryModal .qrow label:last-child{grid-column:1 / -1}
+#queryRows{overflow:auto;flex:1;min-height:8rem}
+#queryModal .actions{display:flex;gap:.5rem;align-items:center;position:sticky;bottom:0;background:#fff;padding-top:.6rem}
+#queryModal .ref{margin:.35rem 0;padding:.45rem .6rem;border:1px solid var(--line);border-radius:.4rem;font:.82rem;color:var(--ink2)}
 .pfok{margin:.3rem .9rem 0;font:var(--xs) var(--mono);letter-spacing:.04em;color:var(--green)}
 .err{background:#fff1f3;border:1px solid #f1b9c0;color:var(--red);padding:.5rem .8rem;border-radius:.4rem;font:var(--sm) var(--mono);margin:.4rem .9rem 0}
 @keyframes scroll{to{transform:translateX(-100%)}}
@@ -391,7 +402,7 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
     <div class="logo">Rs</div>
     <div class="brand">
       <h1>RegSwarm <em>AI</em> · Regulatory Agentic Swarm</h1>
-      <small>cGMP query response · decision support only</small>
+      <small>Vaccine manufacturing · Cell and gene therapy manufacturing · decision support only</small>
     </div>
     <div class="kpis">
       <div class="kpi"><span>Agents</span><b id="kAvail">0</b></div>
@@ -405,13 +416,14 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
       <div class="pill hide" id="modePill"><i></i><span id="modeTxt">Live analysis</span></div>
       <select id="provider" title="Live AI provider"></select>
       <select id="caseSelect" title="Case and evidence export"></select>
+      <button class="btn" id="openQuery" title="Add an audit query" type="button">Query</button>
       <a class="btn ghost" href="/facilities">Facilities &amp; documents</a><button class="btn ghost" id="importBtn">Import evidence</button>
       <input type="file" id="caseFile" accept=".json,application/json" hidden>
       <button class="btn ghost" id="reviewBtn">Evidence review</button>
       <button class="btn ghost" id="historyBtn">History</button>
       <button class="btn" id="runBtn" disabled>&#9654; Analyze case</button>
-      <button class="btn ghost" id="logoutBtn">Sign out</button>
-      <label style="font-size:.75rem;width:100%"><input type="checkbox" id="providerConsent"> Send this case and retrieved source passages to the selected AI provider.</label>
+      <button class="btn ghost hide" id="logoutBtn">Sign out</button>
+      <label class="hide" id="providerConsentLabel"><input type="checkbox" id="providerConsent" checked> <span id="providerConsentText"></span></label>
       <button class="btn ghost" id="fsBtn" title="Full screen">&#x26F6;</button>
     </div>
     <div class="clock" id="clock">00:00:00</div>
@@ -446,11 +458,11 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
           <div class="view" id="v-qms">
             <canvas id="qcv"></canvas>
             <div class="qcol" id="sysCol"></div>
-            <div class="core"><div class="coreorb" id="coreOrb"><div>RegSwarm<br>core<small>QMS bridge</small></div></div>
-              <div class="badges"><span class="tag g">READ-ONLY</span><span class="tag b">TLS</span><span class="tag c">AUDIT-LOGGED</span><span class="tag a">NO WRITE-BACK</span></div></div>
+            <div class="core"><div class="coreorb" id="coreOrb"><div>RegSwarm<br>core<small>all sources</small></div></div>
+              <div class="badges"><span class="tag g">READ-ONLY</span><span class="tag b">EVERY PLANT</span><span class="tag c">EVERY FACILITY</span><span class="tag a">US FDA</span></div></div>
             <div class="qright">
-              <div class="card"><h5>What it does</h5>Maps the observation to the systems that hold the evidence, then pulls only what it needs.</div>
-              <div class="card"><h5>Source evidence</h5>Import versioned source passages from your site records. Analysis uses the imported export; live QMS connectors are not configured.</div>
+              <div class="card" id="qPlaces"><h5>Plants and facilities</h5><div id="placeFlow">Plant and facility records appear as the library is read.</div></div>
+              <div class="card" id="qFda"><h5>US FDA</h5><div class="fda" id="fdaFlow">21 CFR clauses appear when the observation is mapped.</div></div>
             </div>
           </div>
           <!-- 3 docs -->
@@ -567,12 +579,13 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
 <div id="tip"></div>
 <div class="modal" id="modal"><div class="box"><div class="ph"><b>Audit trail</b><span id="audMeta"></span><button class="btn ghost r" style="margin-left:auto;padding:.3rem .7rem" id="audClose">Close</button></div><div class="sc2"><table id="audTable"></table></div></div></div>
 <div class="modal" id="reviewModal"><div class="box"><div class="ph"><b id="reviewTitle">Evidence review</b><button class="btn ghost" id="reviewClose" style="margin-left:auto">Close</button></div><div id="reviewContent" style="overflow:auto;line-height:1.5;padding:.6rem"></div></div></div>
+<div class="modal" id="queryModal"><form class="box" id="queryForm"><div class="ph"><b>Audit queries</b><button class="btn ghost" id="queryClose" type="button" style="margin-left:auto">Close</button></div><p style="margin:.2rem 0 .4rem;color:var(--muted)">Add each observation with its plant and facility. Submit starts every query. Each query searches the current version of every document stored in the library.</p><div id="queryRows"></div><button class="btn ghost" id="addQuery" type="button">Add query</button><div id="queryRefs"></div><label class="hide"><input id="queryConsent" type="checkbox" checked> <span id="queryConsentText"></span></label><div class="actions"><button class="btn" id="querySubmit" type="submit">Submit all</button></div></form></div>
 <div class="modal" id="loginModal"><div class="box" style="max-width:34rem;gap:.8rem;padding:1.5rem">
   <h2 style="margin:0">RegSwarm · Live evidence analysis</h2>
   <p id="loginStatus" style="margin:0">Sign in to access your site's cases and review packets.</p>
   <div id="providerSetup" style="font-size:.9rem"></div>
-  <label>Username<input id="loginUser" autocomplete="username" style="display:block;width:100%;padding:.6rem"></label>
-  <label>Password<input type="password" id="loginPassword" autocomplete="current-password" style="display:block;width:100%;padding:.6rem"></label>
+  <label>Username<input id="loginUser" autocomplete="off" style="display:block;width:100%;padding:.6rem"></label>
+  <label>Password<input type="password" id="loginPassword" autocomplete="new-password" style="display:block;width:100%;padding:.6rem"></label>
   <button class="btn" id="loginBtn">Sign in</button><div id="loginError" role="alert"></div>
   <details><summary>Administrator setup</summary><p>Create a reviewer account locally using <code>python manage.py create-user --username USER --name "Full Name"</code>. Configure a live provider and load the regulatory corpus. Deployment instructions are in README.md.</p></details>
 </div></div>
@@ -582,15 +595,17 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(22rem,30%);gap:.75r
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s==null?"":s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const CL = {OBS:{n:"Observation",c:"#6d3df0"},REG:{n:"FDA regulation",c:"#2a3fe6"},EVI:{n:"Site evidence",c:"#1fbfe0"},RSP:{n:"Response",c:"#14b8a6"}};
-const AGENT_COL = {T1:"#10122b",A:"#2a3fe6",B:"#5a72f7",C:"#8a9bfa",D:"#6d3df0",E:"#a07af6",F:"#1fbfe0",G:"#48d4ea",H:"#12b5a0",T3:"#14b8a6",T4:"#0b8f6a"};
+const CL = {OBS:{n:"Observation",c:"#6d3df0"},PLT:{n:"Plants",c:"#e38b2c"},FAC:{n:"Facilities",c:"#d45d8c"},DOC:{n:"Document types",c:"#12b5a0"},REG:{n:"US FDA",c:"#2a3fe6"},EVI:{n:"Site evidence",c:"#1fbfe0"},RSP:{n:"Response",c:"#14b8a6"}};
+const AGENT_COL = {T1:"#10122b",A:"#2a3fe6",B:"#5a72f7",C:"#8a9bfa",D:"#6d3df0",E:"#a07af6",F:"#1fbfe0",G:"#48d4ea",H:"#12b5a0",T3:"#14b8a6",T4:"#0b8f6a",I:"#e38b2c",J:"#d45d8c",K:"#c4473a",L:"#7a6a4f"};
 let STAGES = [["Upload","Observation received, hashed and parsed."],["Classify","Routing by authority, document type and product class."],["Decompose","Splitting the observation into compliance elements."],["Evidence sources","Checking imported source metadata and document versions."],["Index documents","Indexing the documents supplied with this case."],["Smart pull","Ranking every document, extracting the relevant passages."],["Regulations","Retrieving and mapping clauses from the dated corpus."],["Evidence context","Linking selected passages to the observation elements."],["Frame & RCA","Building the response frame and the root-cause analysis."],["Change control","Proposing change controls and the documents they touch."],["CAPA","Correction, corrective, preventive and effectiveness plan."],["Review scope","Checking the proposed actions against supplied evidence."],["Draft","Drafting the response (v0.1) from the frame."],["Verify","Checking every citation against the corpus, by code."],["Red-team","Attacking the draft, revising to v0.2, re-verifying."],["Review gate","Evidence checks and unresolved findings, then a human decides."]];
 const VIEWS = [["intake","Intake"],["qms","QMS"],["docs","Docs"],["pull","Pull"],["graph","Graph"],["frame","Frame"],["cc","Change"],["capa","CAPA"],["summary","Summary"],["neural","Neural"],["flow","Flow"],["radar","Radar"],["orbit","Orbit"]];
 const STAGE_VIEW = ["intake","intake","intake","qms","docs","pull","graph","graph","frame","cc","capa","frame","flow","graph","graph","summary"];
 const TICK = ["Live evidence analysis","US FDA / 21 CFR corpus","Versioned source passages","Authenticated reviewer approval","No automatic regulatory submission","Every model output requires review"];
-const GROUP_COL = {"SOP":"#2a3fe6","STP":"#5a72f7","Protocol":"#8a6bf5","Master BMR":"#6d3df0","Executed BMR":"#12b5a0","SMF":"#a07af6","Deviation":"#e5384c","CAPA":"#d98a00","Change control":"#f08a3c","Audit":"#c2569a","LIMS data":"#1fbfe0","Training":"#0f9f6b","Equipment":"#4b5b8f"};
-const SYS_COL = {DMS:"#2a3fe6",MES:"#12b5a0",EQMS:"#e5384c",LIMS:"#1fbfe0",LMS:"#0f9f6b",CMMS:"#6d3df0"};
-const GROUP_LABEL = {"SOP":"SOPs","STP":"STPs","Protocol":"Protocols & reports","Master BMR":"Master BMRs","Executed BMR":"Executed BMRs","SMF":"SMF & policies","Deviation":"Deviations","CAPA":"CAPAs","Change control":"Change controls","Audit":"Audits & complaints","LIMS data":"EM & LIMS data","Training":"Training records","Equipment":"Equipment & HVAC"};
+const GROUP_COL = {"SOP":"#2451e6","STP":"#6a4bff","BMR":"#0c9b6e","MFR":"#a13de0","Protocol":"#3d7dff","Master BMR":"#6d3df0","Executed BMR":"#12b5a0","SMF":"#a07af6","Deviation":"#e23b4a","OOS":"#e07a12","Qualification":"#0e8f9a","CAPA":"#d98a00","Change control":"#f08a3c","Audit":"#c2569a","LIMS data":"#1fbfe0","Training":"#0f9f6b","Equipment":"#4b5b8f","FDA":"#1239b8"};
+const SYS_COL = {DMS:"#2451e6",FDA:"#1239b8",SOP:"#2451e6",STP:"#6a4bff",BMR:"#0c9b6e",MFR:"#a13de0",Protocol:"#3d7dff",Deviation:"#e23b4a",OOS:"#e07a12",Qualification:"#0e8f9a",MES:"#12b5a0",EQMS:"#e5384c",LIMS:"#1fbfe0",LMS:"#0f9f6b",CMMS:"#6d3df0"};
+const PLANT_PAL=["#e38b2c","#c4473a","#1f6feb","#0f9f6b","#6d3df0","#b85c38"];
+const FAC_PAL=["#d45d8c","#7a4dff","#1aa6a6","#db6b4a","#3d8f4a","#5b6bdb","#c2569a","#0e7c86"];
+const GROUP_LABEL = {"SOP":"SOPs","STP":"STPs","BMR":"Batch records","MFR":"Master formulas","Protocol":"Protocols","Deviation":"Deviations","OOS":"OOS records","Qualification":"Qualifications","Master BMR":"Master BMRs","Executed BMR":"Executed BMRs","SMF":"SMF & policies","CAPA":"CAPAs","Change control":"Change controls","Audit":"Audits & complaints","LIMS data":"EM & LIMS data","Training":"Training records","Equipment":"Equipment & HVAC"};
 
 /* ---------------- state ---------------- */
 let ES=null, RUN=null, STATUS=null, t0=0, clockTimer=null, stageI=-1;
@@ -679,7 +694,7 @@ function resize(){
   drawDonut(true); drawWeekly(); drawCapa();
 }
 window.addEventListener("resize",()=>{resize();alpha=Math.max(alpha,.5)});
-const ANCH={OBS:[.12,.52],REG:[.5,.32],EVI:[.44,.74],RSP:[.88,.52]};
+const ANCH={OBS:[.08,.5],PLT:[.26,.28],FAC:[.26,.74],DOC:[.48,.52],REG:[.68,.24],EVI:[.68,.76],RSP:[.9,.5]};
 function radius(n){
   const k=n.kind;
   const base={observation:14,element:9.5,dataset:10,location:6,sop:7.5,trend:6,aps:6,doc:6.2,change:7,deviation:4.2,sample:3.6,clause:n.status==="candidate"?4.2:(n.status==="selected"?8:6),claim:5}[k]||4.5;
@@ -710,8 +725,9 @@ function step(){
   const n=nodes.length; if(!n) return;
   const XS=Math.max(1,Math.min(2.6,(W/Math.max(H,1))*.75));
   for(let i=0;i<n;i++){
-    const a=nodes[i], an=ANCH[a.cluster]||[.5,.5];
-    a.vx+=(W*an[0]-a.x)*.007*alpha; a.vy+=(H*an[1]-a.y)*.012*alpha;
+    const a=nodes[i], pinned=a.ax!=null, an=pinned?[a.ax,a.ay]:(ANCH[a.cluster]||[.5,.5]);
+    const pull=pinned?.08:.007, hold=pinned?Math.max(alpha,.4):alpha;
+    a.vx+=(W*an[0]-a.x)*pull*hold; a.vy+=(H*an[1]-a.y)*(pinned?pull: .012)*hold;
     for(let j=i+1;j<n;j++){
       const b=nodes[j]; let dx=b.x-a.x, dy=b.y-a.y, d2=dx*dx+dy*dy+.5, d=Math.sqrt(d2);
       const f=(a.cluster===b.cluster?520:900)/d2*alpha; dx/=d;dy/=d;
@@ -730,7 +746,8 @@ function step(){
 }
 const ease=t=>{const c=1.70158+1;return 1+c*Math.pow(t-1,3)+1.70158*Math.pow(t-1,2)};
 const EC={maps:"109,61,240",cites:"42,63,230",supports:"31,191,224",evidences:"120,160,215",part:"109,61,240",addresses:"20,184,166"};
-function nodeColor(n){ if(n.status==="failed") return "#e5384c"; return (CL[n.cluster]||CL.EVI).c; }
+function rgbOf(hex){ const h=String(hex||"").replace("#",""); if(h.length!==6) return "120,130,180"; const n=parseInt(h,16); return ((n>>16)&255)+","+((n>>8)&255)+","+(n&255); }
+function nodeColor(n){ if(n.status==="failed") return "#e5384c"; return n.color||(CL[n.cluster]||CL.EVI).c; }
 function draw(){
   if(view!=="graph" || !W) return;
   const now=performance.now();
@@ -739,14 +756,14 @@ function draw(){
   const nb=new Set(); if(hover){nb.add(hover.id); links.forEach(l=>{if(l.s===hover)nb.add(l.t.id);if(l.t===hover)nb.add(l.s.id);});}
   const lit=id=> hover? nb.has(id) : (focus.size? focus.has(id):true);
   nodes.forEach(n=>{
-    const g=cx.createRadialGradient(n.x,n.y,0,n.x,n.y,54), c=(CL[n.cluster]||CL.EVI).c;
+    const g=cx.createRadialGradient(n.x,n.y,0,n.x,n.y,54), c=nodeColor(n);
     g.addColorStop(0,c+"1c"); g.addColorStop(1,c+"00"); cx.fillStyle=g; cx.beginPath(); cx.arc(n.x,n.y,54,0,7); cx.fill();
   });
   links.forEach(l=>{
     const k=Math.min(1,(now-l.birth)/500); if(k<=0) return;
     const on=hasF? (hover? (l.s===hover||l.t===hover) : (focus.has(l.s.id)||focus.has(l.t.id))):true;
     const bad=l.s.status==="failed"||l.t.status==="failed";
-    const col=bad?"229,56,76":(EC[l.kind]||"120,130,180");
+    const tint=l.s.color||l.t.color; const col=bad?"229,56,76":(tint?rgbOf(tint):(EC[l.kind]||"120,130,180"));
     cx.strokeStyle=`rgba(${col},${(on?(bad?.7:.42):.07)*k})`; cx.lineWidth=on&&hasF?1.8:(l.kind==="maps"||l.kind==="cites"?1.3:.9);
     cx.setLineDash(bad?[4,3]:[]); cx.beginPath(); cx.moveTo(l.s.x,l.s.y);
     cx.lineTo(l.s.x+(l.t.x-l.s.x)*k,l.s.y+(l.t.y-l.s.y)*k); cx.stroke();
@@ -775,6 +792,7 @@ function draw(){
   nodes.forEach(n=>{const c=cc[n.cluster]||(cc[n.cluster]={x:0,y:0,n:0,miny:1e9});c.x+=n.x;c.y+=n.y;c.n++;c.miny=Math.min(c.miny,n.y);});
   cx.font="600 11px ui-monospace,Consolas,monospace";
   let ci=0; Object.keys(cc).forEach(k=>{
+    if(nodes.some(n=>n.cluster===k&&n.ax!=null)) return;
     ci++; const c=cc[k], t=`CLUSTER ${ci} · ${(CL[k]||CL.EVI).n.toUpperCase()} · ${c.n}`, w=cx.measureText(t).width+12;
     const x=Math.max(w/2+4,Math.min(W-w/2-4,c.x/c.n)), y=Math.max(18,c.miny-28); cx.fillStyle="rgba(255,255,255,.8)"; cx.fillRect(x-w/2,y-11,w,17);
     cx.fillStyle=(CL[k]||CL.EVI).c; cx.fillText(t,x,y+2);
@@ -1143,13 +1161,79 @@ function routing(e){
 }
 
 /* ---- QMS bridge ---- */
+function pickColor(palette, key){
+  let h=2166136261; const s=String(key);
+  for(let i=0;i<s.length;i++) h=Math.imul(h^s.charCodeAt(i),16777619);
+  return palette[(h>>>0)%palette.length];
+}
+function sourceColor(id){ return SYS_COL[id]||GROUP_COL[id]||"#5b6cff"; }
 function buildSystems(list){
   $("#sysCol").innerHTML=""; ST.qms={};
   (list||[]).forEach(s=>{
+    const col=sourceColor(s.id);
     const el=document.createElement("div"); el.id="sys-"+s.id; el.className="sysc";
-    el.innerHTML=`<i class="dot"></i><b>${esc(s.name)}</b><span class="n">–</span><small>${esc(s.kind)} · ${esc(s.protocol)}</small>`;
-    $("#sysCol").appendChild(el); ST.qms[s.id]={state:"idle",col:SYS_COL[s.id]||"#2a3fe6",count:s.count};
+    el.style.setProperty("--src", col);
+    el.innerHTML=`<i class="dot"></i><b>${esc(s.short||s.name)}</b><span class="n">${s.count||"–"}</span><small>${esc(s.name)}</small>`;
+    $("#sysCol").appendChild(el); ST.qms[s.id]={state:"idle",col:col,count:s.count};
   });
+}
+function placeOf(d){
+  if(d.plant||d.facility) return {plant:d.plant||"Library", facility:d.facility||"Records"};
+  const parts=String(d.title||"").split(" / ").map(s=>s.trim()).filter(Boolean);
+  if(parts.length>=3) return {plant:parts[0], facility:parts[1]};
+  return {plant:"This library", facility:"Records"};
+}
+function linkGraph(edges){
+  const fresh=edges.filter(e=>nmap[e.s]&&nmap[e.t]&&!links.some(l=>l.s.id===e.s&&l.t.id===e.t&&l.kind===e.kind));
+  if(fresh.length) addGraph([], fresh);
+}
+function clipName(text, n){ text=String(text||""); return text.length>n?text.slice(0,n-1)+"…":text; }
+function sourceAnchor(cluster, x, slots){
+  const i=nodes.filter(n=>n.cluster===cluster).length;
+  return {ax:x, ay:0.16+(0.7*(i%slots))/Math.max(1,slots-1)};
+}
+function sourceGraph(d){
+  const p=placeOf(d), group=d.group||"Record";
+  const pid="PLT::"+p.plant, fid="FAC::"+p.plant+"::"+p.facility, gid="DOC::"+group;
+  const fresh=[];
+  if(!nmap[pid]) fresh.push({id:pid,label:clipName(p.plant,16),cluster:"PLT",kind:"dataset",size:2,title:p.plant,color:pickColor(PLANT_PAL,p.plant),...sourceAnchor("PLT",.18,4)});
+  if(!nmap[fid]) fresh.push({id:fid,label:clipName(p.facility,18),cluster:"FAC",kind:"location",size:2,title:p.plant+" / "+p.facility,color:pickColor(FAC_PAL,p.plant+"/"+p.facility),...sourceAnchor("FAC",.36,6)});
+  if(!nmap[gid]) fresh.push({id:gid,label:group,cluster:"DOC",kind:"sop",size:2,title:GROUP_LABEL[group]||group,color:sourceColor(group),...sourceAnchor("DOC",.54,8)});
+  if(fresh.length) addGraph(fresh,[]);
+  const edges=[{s:pid,t:fid,kind:"part"},{s:fid,t:gid,kind:"part"}];
+  if(nmap.OBS) edges.push({s:"OBS",t:pid,kind:"part"});
+  linkGraph(edges);
+}
+function paintSources(){
+  const counts={};
+  (ST.docs||[]).forEach(d=>{ const g=d.group||"Record"; counts[g]=(counts[g]||0)+1; });
+  const order=["SOP","STP","BMR","MFR","Protocol","Deviation","OOS","Qualification"];
+  const names=order.filter(g=>counts[g]).concat(Object.keys(counts).filter(g=>!order.includes(g)));
+  const list=names.map(g=>({id:g,short:g,name:GROUP_LABEL[g]||g,count:counts[g]}));
+  list.push({id:"FDA",short:"US FDA",name:"US FDA 21 CFR",count:ST.clauses.length||0});
+  buildSystems(list);
+  names.forEach(id=>{ const el=$("#sys-"+id); if(el) el.className="sysc connected"; });
+  if(ST.clauses.length){ const el=$("#sys-FDA"); if(el) el.className="sysc connected"; }
+}
+function paintPlaces(){
+  const tree={};
+  (ST.docs||[]).forEach(d=>{
+    const p=placeOf(d);
+    tree[p.plant]=tree[p.plant]||{};
+    tree[p.plant][p.facility]=(tree[p.plant][p.facility]||0)+1;
+  });
+  const plants=Object.keys(tree);
+  $("#placeFlow").innerHTML=plants.length?plants.map(plant=>{
+    const facs=tree[plant], pc=pickColor(PLANT_PAL,plant);
+    const chips=Object.keys(facs).map(f=>{ const fc=pickColor(FAC_PAL,plant+"/"+f); return `<span style="--chip:${fc}">${esc(f)} · ${facs[f]}</span>`; }).join("");
+    return `<div class="place" data-col="${pc}" style="--src:${pc}"><b>${esc(plant)}</b><div>${chips}</div></div>`;
+  }).join(""):"Plant and facility records appear as the library is read.";
+}
+function paintFda(){
+  const box=$("#fdaFlow"), el=$("#sys-FDA");
+  if(el){ el.className="sysc connected"; const n=el.querySelector(".n"); if(n) n.textContent=ST.clauses.length||n.textContent; }
+  if(!box) return;
+  box.innerHTML=ST.clauses.length?ST.clauses.map(c=>`<span style="--chip:#1239b8">${esc(String(c.ref||"").replace("21 CFR ","§"))}</span>`).join(""):"21 CFR clauses appear when the observation is mapped.";
 }
 function qmsSystem(e){
   const el=$("#sys-"+e.id); if(!el) return;
@@ -1162,19 +1246,27 @@ function drawQms(){
   const c=$("#qcv"), host=$("#v-qms"), r=host.getBoundingClientRect(); if(!r.width) return;
   if(qsz.w!==r.width||qsz.h!==r.height){ qsz={w:r.width,h:r.height}; c.width=r.width*DPR; c.height=r.height*DPR; }
   const g=c.getContext("2d"); g.setTransform(DPR,0,0,DPR,0,0); g.clearRect(0,0,r.width,r.height);
-  const o=$("#coreOrb").getBoundingClientRect(), ox=o.left-r.left, oy=o.top-r.top+o.height/2, now=performance.now();
-  Object.keys(ST.qms||{}).forEach((id,i)=>{
-    const el=$("#sys-"+id); if(!el) return; const b=el.getBoundingClientRect();
-    const x1=b.right-r.left, y1=b.top-r.top+b.height/2, s=ST.qms[id], on=s.state==="connected", ing=s.state==="connecting";
-    const cxm=(x1+ox)/2;
-    g.beginPath(); g.moveTo(x1,y1); g.bezierCurveTo(cxm,y1,cxm,oy,ox+2,oy);
-    g.lineWidth=on?2:1.2; g.strokeStyle=on?s.col+"aa":(ing?"#d98a00":"#cfd4ee"); g.setLineDash(on?[]:[5,5]); g.stroke(); g.setLineDash([]);
-    if(on){
-      for(let k=0;k<3;k++){
-        const t=((now/1500)+k/3+i*.13)%1, u=1-t;
-        const px=u*u*u*x1+3*u*u*t*cxm+3*u*t*t*cxm+t*t*t*(ox+2), py=u*u*u*y1+3*u*u*t*y1+3*u*t*t*oy+t*t*t*oy;
-        g.fillStyle=s.col; g.globalAlpha=.9; g.beginPath(); g.arc(px,py,3.2,0,7); g.fill(); g.globalAlpha=1;
-      }
+  const o=$("#coreOrb").getBoundingClientRect(), ox=o.left-r.left+o.width/2, oy=o.top-r.top+o.height/2, now=performance.now();
+  const streams=[];
+  Object.keys(ST.qms||{}).forEach(id=>{
+    const el=$("#sys-"+id); if(!el) return; const b=el.getBoundingClientRect(); const s=ST.qms[id];
+    streams.push({x:b.right-r.left,y:b.top-r.top+b.height/2,col:s.col,on:s.state==="connected",ing:s.state==="connecting",side:1});
+  });
+  $$("#placeFlow .place").forEach(el=>{
+    const b=el.getBoundingClientRect();
+    streams.push({x:b.left-r.left,y:b.top-r.top+b.height/2,col:el.dataset.col||"#e38b2c",on:true,ing:false,side:-1});
+  });
+  const fda=$("#qFda");
+  if(fda&&ST.clauses.length){ const b=fda.getBoundingClientRect(); streams.push({x:b.left-r.left,y:b.top-r.top+18,col:"#1239b8",on:true,ing:false,side:-1}); }
+  streams.forEach((s,i)=>{
+    const x1=s.x, y1=s.y, tx=ox+(s.side>0?-o.width/2:o.width/2), cxm=(x1+tx)/2;
+    g.beginPath(); g.moveTo(x1,y1); g.bezierCurveTo(cxm,y1,cxm,oy,tx,oy);
+    g.lineWidth=s.on?2.4:1.2; g.strokeStyle=s.on?s.col:(s.ing?"#d98a00":"#cfd4ee"); g.globalAlpha=s.on?.72:.45; g.setLineDash(s.on?[]:[5,5]); g.stroke(); g.setLineDash([]); g.globalAlpha=1;
+    if(!s.on) return;
+    for(let k=0;k<3;k++){
+      const t=((now/1400)+k/3+i*.11)%1, u=1-t;
+      const px=u*u*u*x1+3*u*u*t*cxm+3*u*t*t*cxm+t*t*t*tx, py=u*u*u*y1+3*u*u*t*y1+3*u*t*t*oy+t*t*t*oy;
+      g.fillStyle=s.col; g.beginPath(); g.arc(px,py,3.6,0,7); g.fill();
     }
   });
 }
@@ -1182,16 +1274,18 @@ function drawQms(){
 /* ---- documents ---- */
 function docBatch(e){
   ST.fetched=e.fetched; countTo($("#kDocs"),e.fetched); $("#dTotal").textContent=e.fetched;
-  ST.dsys[e.system]=(ST.dsys[e.system]||0)+e.items.length;
   e.items.forEach(d=>{
+    ST.docs.push(d); sourceGraph(d);
+    const sys=d.group||e.system; ST.dsys[sys]=(ST.dsys[sys]||0)+1;
     ST.gcount[d.group]=(ST.gcount[d.group]||0)+1;
     let t=$("#gt-"+d.group.replace(/\W/g,""));
     if(!t){ t=document.createElement("div"); t.id="gt-"+d.group.replace(/\W/g,""); t.className="gt on"; t.style.setProperty("--c",GROUP_COL[d.group]||"#2a3fe6"); t.innerHTML=`<b>0</b><span>${esc(GROUP_LABEL[d.group]||d.group)}</span>`; $("#gTiles").appendChild(t); }
     t.querySelector("b").textContent=ST.gcount[d.group];
   });
-  const st=$("#stream"); e.items.slice(-3).forEach(d=>{ const r=document.createElement("div"); r.innerHTML=`<b>${esc(e.system)}</b><em>${esc(d.id)}</em>${esc(d.title)}`; st.appendChild(r); });
+  const st=$("#stream"); e.items.slice(-3).forEach(d=>{ const r=document.createElement("div"); r.innerHTML=`<b>${esc(d.group||e.system)}</b><em>${esc(d.id)}</em>${esc(d.title)}`; st.appendChild(r); });
   while(st.children.length>3) st.removeChild(st.firstChild);
-  $("#dLegend").innerHTML=Object.keys(ST.dsys).map(k=>`<span><i style="background:${SYS_COL[k]}"></i>${esc(k)} ${ST.dsys[k]}</span>`).join("");
+  $("#dLegend").innerHTML=Object.keys(ST.dsys).map(k=>`<span><i style="background:${SYS_COL[k]||"#2a3fe6"}"></i>${esc(k)} ${ST.dsys[k]}</span>`).join("");
+  paintSources(); paintPlaces();
 }
 function drawDonut(force){
   if(view!=="docs") return;
@@ -1221,6 +1315,10 @@ function pullElement(e){
   $("#fb0").style.width="100%"; $("#fb0").textContent=e.scanned;
   $("#fb3").style.width=Math.min(100,14+ST.passages*3)+"%"; $("#fb3").textContent=ST.passages;
   if(!ST.pull.user) showPull(e.element);
+  (e.hits||[]).forEach(h=>{
+    const gid="DOC::"+(h.group||"Record"), eid="EV-"+h.doc_id;
+    if(nmap[gid]&&nmap[eid]) linkGraph([{s:gid,t:eid,kind:"evidences"}]);
+  });
 }
 function showPull(id){
   const e=ST.pull.byEl[id]; if(!e) return;
@@ -1416,7 +1514,12 @@ const H_={
  pull_element:pullElement,
  pull_findings:pullFindings,
  pull_done:pullDone,
- retrieval(e){}, dataset(e){}, mapping(e){}, rca(e){},
+ retrieval(e){}, dataset(e){}, mapping(e){
+   if(!nmap["SRC-FDA"]) addGraph([{id:"SRC-FDA",label:"US FDA",cluster:"REG",kind:"dataset",size:3,title:"21 CFR",color:"#1239b8"}],[]);
+   (e.items||[]).forEach(item=>{ if(!ST.clauses.some(c=>c.ref===item.ref)) ST.clauses.push(item); });
+   linkGraph((e.items||[]).map(item=>({s:"SRC-FDA",t:item.ref,kind:"part"})));
+   paintSources(); paintFda();
+ }, rca(e){},
  analysis,
  frame,
  change_control:changeControl,
@@ -1457,14 +1560,14 @@ const H_={
 /* ---------------- run control ---------------- */
 function fmt(s){s=Math.floor(s);return [s/3600|0,(s%3600)/60|0,s%60].map(x=>String(x).padStart(2,"0")).join(":");}
 function stopClock(){ clearInterval(clockTimer); }
-function freshState(){ ST={obs:"",qms:{},dsys:{},dcur:{},gcount:{},pull:{byEl:{},user:false},passages:0,findings:0,firstBlocked:0,total:0}; }
+function freshState(){ ST={obs:"",qms:{},dsys:{},dcur:{},gcount:{},pull:{byEl:{},user:false},passages:0,findings:0,firstBlocked:0,total:0,docs:[],clauses:[]}; }
 function reset(){
   NV.reset(); tour(false); seqTimers.forEach(clearTimeout); seqTimers=[];
   if(ES) ES.close(); clearInterval(cardTimer); timers.forEach(clearTimeout); timers=[]; freshState();
   nodes=[];links=[];nmap={};agents={};series=[];draft=null;vmap={};revised=new Set();cards=[];focus=new Set();stageI=-1;hover=null;verCount=0;blocked=0; follow=true; seen=new Set();
   $("#autoTab").classList.remove("off");
   $$(".sq").forEach(s=>s.classList.remove("active","done","skipped"));
-  ["#gScore","#log","#draft","#elChips","#notes","#msgs","#sigBox","#entBox","#elList","#gTiles","#stream","#dLegend","#eTabs","#eTxt","#hList","#finds","#heat","#orgRow","#v-frame","#v-cc","#imat","#itiles","#bstrip","#idocs","#gauge","#stiles","#sOpen","#gLegend","#capasvg"].forEach(s=>{ const el=$(s); if(el) el.innerHTML=""; });
+  ["#gScore","#log","#draft","#elChips","#notes","#msgs","#sigBox","#entBox","#elList","#gTiles","#stream","#dLegend","#eTabs","#eTxt","#hList","#finds","#heat","#orgRow","#v-frame","#v-cc","#imat","#itiles","#bstrip","#idocs","#gauge","#stiles","#sOpen","#gLegend","#capasvg","#placeFlow","#fdaFlow"].forEach(s=>{ const el=$(s); if(el) el.innerHTML=""; });
   $("#funnel").innerHTML="<h5>Smart pull funnel</h5>";
   $("#routeKv").innerHTML="<span>Status</span><span>classifying…</span>"; $("#upBody").textContent="Receiving…"; $("#upTag").textContent="waiting"; $("#upScan").classList.add("hide");
   $("#dTotal").textContent="0"; $("#gNum").textContent="0"; $("#gVerdict").textContent="review checks";
@@ -1478,7 +1581,6 @@ function reset(){
 function setStageIdle(){ $("#thTitle").innerHTML="<em>0/16</em>Starting"; $("#thSub").textContent="Opening the case…"; }
 async function run(){
   if(!STATUS.authenticated||!STATUS.cases.length||!STATUS.live_available) return;
-  if(!$('#providerConsent').checked){$('#msgs').innerHTML='<div class="err">Confirm sharing this case with the selected AI provider before analysis.</div>';return;}
   if(!STATUS.corpus_ready){ $("#msgs").innerHTML='<div class="err">The regulation corpus is empty. In a terminal run:  python ingest\\fetch_ecfr.py   then reload this page.</div>'; return; }
   reset(); $("#runBtn").disabled=true;
   $("#ackOpen").checked=false;
@@ -1503,26 +1605,32 @@ function reviewShell(title, html){
 let reviewDigest=null;
 let reviewedClaims=new Set(),reviewedIssues=new Set();
 function requestHeaders(){return {'Content-Type':'application/json','X-CSRF-Token':STATUS.csrf||''};}
+function paintConsent(){
+  const selected=(STATUS.providers||[]).find(p=>p.id===$('#provider').value);
+  $('#providerConsentText').textContent=(selected&&(selected.id==='ollama'||selected.id==='local'))
+    ?'Analyze this case on this computer'+(selected.model?' with '+selected.model:'')+'.'
+    :'Send this case and retrieved source passages to the selected AI provider.';
+}
 async function refreshStatus(){
   STATUS=await (await fetch('/api/status')).json();
-  $('#loginModal').classList.toggle('show',!STATUS.authenticated);
-  $('#loginStatus').textContent=STATUS.account_ready?'Sign in to access your site cases and review packets.':'Create a reviewer account to activate the workspace. No case is loaded.';
+  $('#loginModal').classList.remove('show');
   $('#providerSetup').textContent=STATUS.providers.map(p=>p.id+': '+(p.ready?'configured':'setup required')).join(' · ');
-  $('#loginBtn').disabled=!STATUS.account_ready;
   $('#caseSelect').innerHTML=STATUS.cases.length?STATUS.cases.map(c=>`<option value="${esc(c.id)}">${esc(c.title)}</option>`).join(''):'<option>No evidence case imported</option>';
-  $('#provider').innerHTML=STATUS.providers.map(p=>`<option value="${esc(p.id)}" ${p.ready?'':'disabled'}>${esc(p.id)}${p.ready?'':' — setup required'}</option>`).join('');
+  $('#provider').innerHTML=STATUS.providers.map(p=>`<option value="${esc(p.id)}" ${p.ready?'':'disabled'}>${esc(p.id)}${p.model?' · '+esc(p.model):''}${p.ready?'':' — setup required'}</option>`).join('');
   const available=STATUS.providers.find(p=>p.ready); if(available) $('#provider').value=available.id;
+  paintConsent();
   $('#runBtn').disabled=!STATUS.authenticated||!STATUS.cases.length||!STATUS.live_available||!STATUS.corpus_ready;
   $('#importBtn').disabled=!STATUS.authenticated;
-  $('#logoutBtn').classList.toggle('hide',!STATUS.authenticated);
+  $('#logoutBtn').classList.add('hide');
   $('#revName').value=STATUS.user?STATUS.user.name:'';
   if(STATUS.user){$('#apprBtn').disabled=STATUS.user.role!=='reviewer';$('#chgBtn').disabled=STATUS.user.role!=='reviewer';}
   $('#upBody').textContent=!STATUS.authenticated?'Sign in to access the evidence workspace.':!STATUS.cases.length?'Import an observation and its versioned source documents to begin.':'Select an imported case and a configured live provider, then Analyze case.';
 }
 async function login(){
-  const password=$('#loginPassword').value;
+  const password=$('#loginPassword').value.trim();
+  const username=$('#loginUser').value.trim();
   $('#loginPassword').value=''; $('#loginBtn').disabled=true;
-  try{const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('#loginUser').value,password})});const j=await r.json();if(!r.ok)throw new Error(j.error);$('#loginError').textContent='';await refreshStatus();}
+  try{const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});const j=await r.json();if(!r.ok)throw new Error(j.error);$('#loginError').textContent='';await refreshStatus();}
   catch(error){$('#loginError').textContent=error.message;$('#loginBtn').disabled=false;}
 }
 async function importCase(file){
@@ -1589,6 +1697,8 @@ async function init(){
   try{ STATUS=await (await fetch("/api/status")).json(); }catch(e){ $("#msgs").innerHTML='<div class="err">Cannot reach the RegSwarm server.</div>'; return; }
   buildGrid(); NV.init();
   await refreshStatus();
+  const pendingRun=new URLSearchParams(location.search).get('run');
+  if(pendingRun&&STATUS.authenticated) restoreRun(pendingRun);
   $('#reviewBtn').onclick=showReview; $('#historyBtn').onclick=showHistory;
   $('#reviewClose').onclick=()=>$('#reviewModal').classList.remove('show');
   $('#loginBtn').onclick=login;
@@ -1596,14 +1706,61 @@ async function init(){
   $('#logoutBtn').onclick=async()=>{await fetch('/api/logout',{method:'POST',headers:requestHeaders(),body:'{}'});location.reload();};
   $('#importBtn').onclick=()=>$('#caseFile').click();
   $('#caseFile').onchange=e=>importCase(e.target.files[0]);
-  $('#provider').onchange=()=>$('#providerConsent').checked=false;
-  $('#caseSelect').onchange=()=>$('#providerConsent').checked=false;
+  $('#provider').onchange=paintConsent;
   $("#obsPanel").onclick=()=>$("#obsPanel").classList.toggle("open");
   $("#runBtn").onclick=run; $("#apprBtn").onclick=()=>decide("approve"); $("#chgBtn").onclick=()=>decide("changes");
   $("#docBtn").onclick=()=>location.href="/api/run/"+RUN+"/export.docx"; $("#audBtn").onclick=showAudit; $("#audClose").onclick=()=>$("#modal").classList.remove("show");
   $("#modal").onclick=e=>{ if(e.target.id==="modal") $("#modal").classList.remove("show"); };
   $("#fsBtn").onclick=()=>{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); };
-  document.addEventListener("keydown",e=>{ if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA") return; if(e.key==="r"||e.key==="R") run(); });
+  document.addEventListener("keydown",e=>{ if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"||e.target.tagName==="SELECT") return; if($('#queryModal').classList.contains('show')) return; if(e.key==="r"||e.key==="R") run(); });
+  const savedRefs=sessionStorage.getItem('regswarm-refs');
+  if(savedRefs){sessionStorage.removeItem('regswarm-refs');try{const data=JSON.parse(savedRefs);const rec=data.recommendation||{};const recalls=(data.recalls||[]).slice(0,2).map(item=>esc(item.recall_number||'')+' '+esc(item.reason||'')).join(' · ');$('#msgs').innerHTML='<div class="pfok"><b>References.</b> '+esc(rec.best_for_the_response||'')+'. Public API: '+esc(rec.best_public_api||'')+'. '+(recalls||esc(data.note||''))+'</div>';}catch(e){}}
+  const savedBatch=sessionStorage.getItem('regswarm-batch');
+  if(savedBatch){sessionStorage.removeItem('regswarm-batch');try{const runs=JSON.parse(savedBatch);if(runs.length){$('#msgs').insertAdjacentHTML('beforeend','<div class="pfok"><b>'+runs.length+' quer'+(runs.length===1?'y':'ies')+' submitted.</b> '+runs.map((item,index)=>'<a href="/?run='+encodeURIComponent(item.run_id)+'">'+(index+1)+'. '+esc(item.facility||'Query')+'</a>').join(' · ')+'</div>');}}catch(e){}}
+  $('#openQuery').onclick=openQuery;
+  $('#queryClose').onclick=()=>$('#queryModal').classList.remove('show');
+  $('#queryModal').onclick=event=>{if(event.target.id==='queryModal')$('#queryModal').classList.remove('show');};
+  $('#addQuery').onclick=()=>addQueryRow();
+  $('#queryForm').onsubmit=submitQuery;
+}
+async function openQuery(){
+  const data=await (await fetch('/api/facilities')).json();
+  window.queryCatalog=data;
+  $('#queryRows').innerHTML='';
+  addQueryRow();
+  const ready=(STATUS.providers||[]).find(item=>item.ready);
+  $('#queryConsentText').textContent=ready&&(ready.id==='ollama'||ready.id==='local')?'Analyze these queries on this computer'+(ready.model?' with '+ready.model:'')+'.':'Send each facility\'s documents and its query to the configured AI provider.';
+  $('#queryModal').classList.add('show');
+  loadQueryRefs();
+}
+function addQueryRow(){
+  const row=document.createElement('div');
+  row.className='qrow';
+  row.innerHTML='<label>Plant<select class="q-plant" required></select></label><label>Facility<select class="q-facility" required></select></label><label>Product<select class="q-product" required><option>Vaccine</option><option>Cell and gene therapy</option></select></label><button class="btn ghost q-remove" type="button">Remove</button><label>Query<textarea class="q-text" rows="3" required maxlength="2000" placeholder="Retained labels from the previous lot were found at line clearance."></textarea></label>';
+  $('#queryRows').appendChild(row);
+  const plant=row.querySelector('.q-plant');
+  plant.innerHTML=(window.queryCatalog.plants||[]).map(item=>`<option value="${esc(item.id)}">${esc(item.name)}</option>`).join('');
+  plant.onchange=()=>fillRowFacilities(row);
+  row.querySelector('.q-text').onchange=loadQueryRefs;
+  row.querySelector('.q-remove').onclick=()=>{if(document.querySelectorAll('#queryRows .qrow').length>1)row.remove();};
+  fillRowFacilities(row);
+}
+function fillRowFacilities(row){
+  const rows=(window.queryCatalog.facilities||[]).filter(item=>item.plant_id===row.querySelector('.q-plant').value);
+  row.querySelector('.q-facility').innerHTML=rows.map(item=>`<option value="${esc(item.id)}">${esc(item.name)} · ${item.document_count} documents</option>`).join('')||'<option value="">No facility</option>';
+}
+async function loadQueryRefs(){
+  const text=[...document.querySelectorAll('#queryRows .q-text')].map(item=>item.value).filter(Boolean).join('\n');
+  try{const data=await (await fetch('/api/references?q='+encodeURIComponent(text))).json();window.queryRefs=data;const rec=data.recommendation||{};$('#queryRefs').innerHTML=`<div class="ref"><b>${esc(rec.best_for_the_response||'')}</b><br>Best public API: ${esc(rec.best_public_api||'')}. ${esc(rec.reason||'')} ${esc(data.note||'')}</div>`+(data.recalls||[]).slice(0,3).map(item=>`<div class="ref"><b>openFDA ${esc(item.classification)} ${esc(item.recall_number)}</b><br>${esc(item.reason)}</div>`).join('');}catch(e){$('#queryRefs').textContent='';}
+}
+async function submitQuery(event){
+  event.preventDefault();
+  const items=[...document.querySelectorAll('#queryRows .qrow')].map(row=>({facility_id:row.querySelector('.q-facility').value,product_class:row.querySelector('.q-product').value,query:row.querySelector('.q-text').value.trim()}));
+  if(!items.length||items.some(item=>!item.facility_id||!item.query)){$('#msgs').innerHTML='<div class="err">Each query needs a facility and an observation.</div>';return;}
+  const ready=(STATUS.providers||[]).find(item=>item.ready);
+  if(!ready){$('#msgs').innerHTML='<div class="err">Configure a live provider before processing audit queries.</div>';return;}
+  $('#querySubmit').disabled=true;
+  try{if(window.queryRefs)sessionStorage.setItem('regswarm-refs',JSON.stringify(window.queryRefs));const response=await fetch('/api/audits',{method:'POST',headers:requestHeaders(),body:JSON.stringify({items,provider:ready.id,consent:true})});const result=await response.json();if(!response.ok)throw Error(result.error||'Request failed');sessionStorage.setItem('regswarm-batch',JSON.stringify(result.runs||[]));location.href='/?run='+encodeURIComponent(result.runs[0].run_id);}catch(error){$('#querySubmit').disabled=false;$('#msgs').innerHTML='<div class="err">'+esc(error.message)+'</div>';}
 }
 init();
 })();

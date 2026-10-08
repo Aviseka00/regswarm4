@@ -47,7 +47,7 @@ def recover_interrupted(con):
     rows = con.execute("SELECT payload FROM run_snapshots").fetchall()
     for row in rows:
         data = json.loads(row["payload"])
-        if data.get("status") != "running":
+        if data.get("status") not in ("running", "queued"):
             continue
         run = Run(data["id"], data["case"], data["mode"])
         for key in FIELDS:

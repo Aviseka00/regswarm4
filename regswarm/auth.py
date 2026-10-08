@@ -21,8 +21,8 @@ SCHEMA = """CREATE TABLE IF NOT EXISTS users(
 def provision(con, username, display_name, password, role="reviewer"):
     if not username or len(username) > 80 or not display_name:
         raise ValueError("Username and full name are required")
-    if len(password) < 14:
-        raise ValueError("Use a password of at least 14 characters")
+    if len(password) < 10:
+        raise ValueError("Use a password of at least 10 characters")
     if role not in ("admin", "reviewer", "analyst"):
         raise ValueError("Unknown role")
     con.execute(SCHEMA)
@@ -30,6 +30,19 @@ def provision(con, username, display_name, password, role="reviewer"):
     digest = hashlib.pbkdf2_hmac("sha256", password.encode(), bytes.fromhex(salt), ITERATIONS).hex()
     con.execute("INSERT INTO users VALUES(?,?,?,?,?,?)", (username, display_name, role, salt, digest,
                 datetime.datetime.now(datetime.timezone.utc).isoformat()))
+    con.commit()
+
+
+def set_password(con, username, password):
+    if len(password) < 10:
+        raise ValueError("Use a password of at least 10 characters")
+    con.execute(SCHEMA)
+    row = con.execute("SELECT username FROM users WHERE username=?", (username,)).fetchone()
+    if not row:
+        raise ValueError("Unknown account")
+    salt = secrets.token_hex(32)
+    digest = hashlib.pbkdf2_hmac("sha256", password.encode(), bytes.fromhex(salt), ITERATIONS).hex()
+    con.execute("UPDATE users SET salt=?, password_hash=? WHERE username=?", (salt, digest, username))
     con.commit()
 
 
@@ -60,6 +73,23 @@ def login(con, username, password, client):
         for key in list(SESSIONS):
             if SESSIONS[key]["expires"] < now:
                 SESSIONS.pop(key)
+        SESSIONS[token] = session
+    return token, session
+
+
+def open_local(con):
+    """Open the local workspace without a password prompt."""
+    con.execute(SCHEMA)
+    row = con.execute("SELECT * FROM users WHERE role='admin' ORDER BY created_at LIMIT 1").fetchone()
+    if not row:
+        row = con.execute("SELECT * FROM users ORDER BY created_at LIMIT 1").fetchone()
+    if not row:
+        return None
+    now = time.monotonic()
+    token, csrf = secrets.token_urlsafe(48), secrets.token_urlsafe(32)
+    session = {"username": row["username"], "name": row["display_name"], "role": row["role"],
+               "csrf": csrf, "expires": now + 8 * 3600}
+    with LOCK:
         SESSIONS[token] = session
     return token, session
 
